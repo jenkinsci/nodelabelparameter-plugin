@@ -1,7 +1,7 @@
 <!--
 The MIT License
 
-Copyright (c) 2004-2009, Sun Microsystems, Inc., Kohsuke Kawaguchi, Tom Huybrechts
+Copyright (c) 2011, Dominik Bartholdi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +22,30 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 -->
 
-<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
-    <f:entry title="${%The Label}">
-        <f:textbox name="label" value="${it.label}" />
-    </f:entry>
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
+	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form"
+	xmlns:i="jelly:fmt" xmlns:p="/lib/hudson/project">
+	
+	<f:entry title="${it.name}" description="${it.description}">
+		<!-- this div is required because of ParametersDefinitionProperty.java#117 -->
+		<div name="parameter" description="${it.description}">
+			<input type="hidden" name="name" value="${it.name}" />
+			
+			<select name="label">
+				<j:forEach var="aNode" items="${it.allowedNodesOrAll}"
+					varStatus="loop">
+					<j:choose>
+						<j:when test="${it.defaultValue==aNode}">
+							<option value="${aNode}" selected="selected">${aNode}</option>
+						</j:when>
+						<j:otherwise>
+							<option value="${aNode}">${aNode}</option>
+						</j:otherwise>
+					</j:choose>
+				</j:forEach>
+			</select>
+		</div>
+	</f:entry>	
+	
 </j:jelly>

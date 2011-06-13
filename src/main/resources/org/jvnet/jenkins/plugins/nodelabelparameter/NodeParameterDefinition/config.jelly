@@ -1,0 +1,71 @@
+<!--
+The MIT License
+
+Copyright (c) 2011, Dominik Bartholdi
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+-->
+
+<!-- this is the page fragment displayed to set up a job -->
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
+	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form"
+	xmlns:i="jelly:fmt" xmlns:p="/lib/hudson/project">
+    <f:entry title="${%Name}" >
+		<f:textbox name="parameter.name" value="${instance.name}" />
+	</f:entry>
+	
+	<f:entry name="defaultValue" title="Select a default slave">
+		<select name="defaultValue">
+			<j:invokeStatic className="org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterDefinition" method="getSlaveNames" var="nodes" />
+			<j:forEach var="aSlave" items="${nodes}"
+				varStatus="loop">
+				<j:choose>
+					<j:when test="${instance.defaultValue==aSlave}">
+						<option value="${aSlave}" selected="selected">${aSlave}</option>
+					</j:when>
+					<j:otherwise>
+						<option value="${aSlave}">${aSlave}</option>
+					</j:otherwise>
+				</j:choose>
+			</j:forEach>
+		</select>
+	</f:entry>
+		
+	<f:entry name="allowedSlaves" title="Define possible nodes">
+		<select name="allowedSlaves" multiple="multiple" size="5">
+			<j:invokeStatic className="org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterDefinition" method="getSlaveNamesForSelection" var="allNodes" />
+			<j:forEach var="aNode" items="${allNodes}"
+				varStatus="loop">
+				<j:choose>
+					<j:when test="${instance.allowedSlaves.contains(aNode)}">
+						<option value="${aNode}" selected="selected">${aNode}</option>
+					</j:when>
+					<j:otherwise>
+						<option value="${aNode}">${aNode}</option>
+					</j:otherwise>
+				</j:choose>
+			</j:forEach>
+		</select>
+	</f:entry>
+	
+    <f:entry title="${%Description}" >
+        <f:textarea name="parameter.description" value="${instance.description}" />
+    </f:entry>
+</j:jelly>

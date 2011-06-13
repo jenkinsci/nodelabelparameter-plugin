@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.jvnet.jenkins.plugins;
+package org.jvnet.jenkins.plugins.nodelabelparameter;
 
 import net.sf.json.JSONObject;
 
@@ -14,12 +14,16 @@ import hudson.model.SimpleParameterDefinition;
 import hudson.model.ParameterDefinition;
 
 /**
+ * Defines a build parameter used to restrict the node a job will be executed
+ * on. Such a label works exactly the same way as if you would define it in the
+ * UI "restrict where this job should run".
+ * 
  * @author domi
  * 
  */
 public class LabelParameterDefinition extends SimpleParameterDefinition {
 
-	private String defaultValue;
+	protected String defaultValue;
 
 	@DataBoundConstructor
 	public LabelParameterDefinition(String name, String defaultValue,
@@ -62,12 +66,12 @@ public class LabelParameterDefinition extends SimpleParameterDefinition {
 	public static class DescriptorImpl extends ParameterDescriptor {
 		@Override
 		public String getDisplayName() {
-			return "Dynamic Label";
+			return "Label";
 		}
 
 		@Override
 		public String getHelpFile() {
-			return "/help/parameter/string.html";
+			return "/plugin/nodelabelparameter/labelparam.html";
 		}
 	}
 
