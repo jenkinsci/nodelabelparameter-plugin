@@ -14,11 +14,6 @@ import hudson.model.queue.SubTask;
 import hudson.util.VariableResolver;
 
 /**
- * Defines a build parameter used to select the node where a job should be
- * executed on. Although it is possible to define the node name in the UI at
- * "restrict where this job should run", but that would tide a job to a fix
- * node. This parameter actually allows to define a list of possible nodes and
- * ask the user before execution.
  * 
  * @author domi
  * 
