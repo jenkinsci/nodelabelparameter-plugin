@@ -1,20 +1,27 @@
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-    <parent>
-        <groupId>org.jenkins-ci.plugins</groupId>
-        <artifactId>plugin</artifactId>
-        <version>1.416-SNAPSHOT</version>
-    </parent>
+	<modelVersion>4.0.0</modelVersion>
 
-    <artifactId>nodelabelparameter</artifactId>
-    <version>1.0-SNAPSHOT</version>
+	<parent>
+		<groupId>org.jenkins-ci.plugins</groupId>
+		<artifactId>plugin</artifactId>
+		<version>1.416-SNAPSHOT</version>
+	</parent>
 
-    <packaging>hpi</packaging>
+	<artifactId>nodelabelparameter</artifactId>
+	<version>1.0-SNAPSHOT</version>
 
-    <name>Node and Label parameter plugin</name>
-    <description>The nodelabel parameter plugin allows to dynamicly select the node on which a job should be executed. </description>
+	<packaging>hpi</packaging>
+
+	<name>Node and Label parameter plugin</name>
+	<description>The node and label parameter plugin allows to dynamically select the node on which a job should be executed.</description>
+
+	<scm>
+		<connection>scm:git:git://github.com/jenkinsci/nodelabelparameter-plugin.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com/jenkinsci/nodelabelparameter-plugin.git</developerConnection>
+		<url>https://github.com/jenkinsci/nodelabelparameter-plugin</url>
+	</scm>
 
 </project>
