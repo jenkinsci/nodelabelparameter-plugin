@@ -50,8 +50,8 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 	 */
 	@Override
 	public NodeParameterValue getDefaultParameterValue() {
-		NodeParameterValue v = new NodeParameterValue(getName(), defaultValue,
-				getDescription());
+		NodeParameterValue v = new NodeParameterValue(getName(),
+				getDescription(), defaultValue);
 		return v;
 	}
 
@@ -61,9 +61,10 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 	}
 
 	@Override
-	public ParameterDefinition copyWithDefaultValue(ParameterValue defaultValue) {
-		if (defaultValue instanceof NodeParameterValue) {
-			NodeParameterValue value = (NodeParameterValue) defaultValue;
+	public ParameterDefinition copyWithDefaultValue(
+			ParameterValue defaultValueObj) {
+		if (defaultValueObj instanceof NodeParameterValue) {
+			NodeParameterValue value = (NodeParameterValue) defaultValueObj;
 			return new NodeParameterDefinition(getName(), getDescription(),
 					value.label, getSlaveNames());
 		} else {

@@ -23,42 +23,39 @@ import hudson.model.ParameterDefinition;
  */
 public class LabelParameterDefinition extends SimpleParameterDefinition {
 
-	protected String defaultValue;
+	public final String defaultValue;
 
 	@DataBoundConstructor
-	public LabelParameterDefinition(String name, String defaultValue,
-			String description) {
+	public LabelParameterDefinition(String name, String description,
+			String defaultValue) {
 		super(name, description);
 		this.defaultValue = defaultValue;
 	}
 
-	public LabelParameterDefinition(String name, String defaultValue) {
-		this(name, defaultValue, null);
-	}
-
 	@Override
-	public ParameterDefinition copyWithDefaultValue(ParameterValue defaultValue) {
-		if (defaultValue instanceof LabelParameterValue) {
-			LabelParameterValue value = (LabelParameterValue) defaultValue;
-			return new LabelParameterDefinition(getName(), value.label,
-					getDescription());
+	public ParameterDefinition copyWithDefaultValue(
+			ParameterValue defaultValueObj) {
+		if (defaultValueObj instanceof LabelParameterValue) {
+			LabelParameterValue value = (LabelParameterValue) defaultValueObj;
+			return new LabelParameterDefinition(getName(), getDescription(),
+					value.label);
 		} else {
 			return this;
 		}
 	}
 
-	public String getDefaultValue() {
-		return defaultValue;
-	}
+//	public String getDefaultValue() {
+//		return defaultValue;
+//	}
 
-	public void setDefaultValue(String defaultValue) {
-		this.defaultValue = defaultValue;
-	}
+	// public void setDefaultValue(String defaultValue) {
+	// this.defaultValue = defaultValue;
+	// }
 
 	@Override
 	public LabelParameterValue getDefaultParameterValue() {
 		LabelParameterValue v = new LabelParameterValue(getName(),
-				defaultValue, getDescription());
+				getDescription(), defaultValue);
 		return v;
 	}
 
@@ -84,7 +81,7 @@ public class LabelParameterDefinition extends SimpleParameterDefinition {
 
 	@Override
 	public ParameterValue createValue(String value) {
-		return new LabelParameterValue(getName(), value, getDescription());
+		return new LabelParameterValue(getName(), getDescription(), value);
 	}
 
 }

@@ -1,0 +1,2 @@
+this file is there, because eclipse (m2eclipse) expects a test directory for groovy
+I think this is caused by the new groovy DSL support (jenkins now comes with a DSL descriptor for the groovy views)
