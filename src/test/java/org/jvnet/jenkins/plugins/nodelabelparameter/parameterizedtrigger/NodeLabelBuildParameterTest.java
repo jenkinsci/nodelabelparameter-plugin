@@ -31,6 +31,7 @@ import hudson.model.labels.LabelAtom;
 import hudson.plugins.parameterizedtrigger.BuildTrigger;
 import hudson.plugins.parameterizedtrigger.BuildTriggerConfig;
 import hudson.plugins.parameterizedtrigger.ResultCondition;
+import hudson.slaves.DumbSlave;
 
 import org.jvnet.hudson.test.HudsonTestCase;
 import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterDefinition;
@@ -47,10 +48,10 @@ public class NodeLabelBuildParameterTest extends HudsonTestCase {
 	public void test() throws Exception {
 
 		final String paramName = "node";
-		final String nodeName = "someNode";
+		final String nodeName = "someNode" + System.currentTimeMillis();
 
 		// create a slave with a given label to execute projectB on
-		createOnlineSlave(new LabelAtom(nodeName));
+		DumbSlave slave = createOnlineSlave(new LabelAtom(nodeName));
 
 		// create projectA, which triggers projectB with a given label parameter
 		Project<?, ?> projectA = createFreeStyleProject("projectA");
@@ -80,6 +81,8 @@ public class NodeLabelBuildParameterTest extends HudsonTestCase {
 		String foundNodeName = build.getBuildVariables().get(paramName);
 		assertNotNull("project should run on a specific node", foundNodeName);
 		assertEquals(nodeName, foundNodeName);
+
+		hudson.removeNode(slave);
 
 	}
 }
