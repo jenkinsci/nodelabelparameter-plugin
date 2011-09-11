@@ -1,4 +1,4 @@
-package org.jvnet.jenkins.plugins.nodelabelparameter.wrapper;
+package org.jvnet.jenkins.plugins.nodelabelparameter;
 
 import hudson.model.Cause;
 

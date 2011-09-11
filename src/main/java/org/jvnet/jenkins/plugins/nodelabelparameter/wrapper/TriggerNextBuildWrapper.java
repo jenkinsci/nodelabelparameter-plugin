@@ -15,16 +15,20 @@ import hudson.tasks.BuildWrapper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterValue;
+import org.jvnet.jenkins.plugins.nodelabelparameter.NextLabelCause;
 import org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterValue;
 
 /**
- * @author domi
+ * This BuildWrapper is not marked as extension, it gets added dynamically to a
+ * build by the ParameterValue implementations.
  * 
+ * @author domi
+ * @see LabelParameterValue#createBuildWrapper(AbstractBuild)
+ * @see NodeParameterValue#createBuildWrapper(AbstractBuild)
  */
 public class TriggerNextBuildWrapper extends BuildWrapper {
 
