@@ -26,27 +26,24 @@ public class LabelParameterDefinition extends SimpleParameterDefinition {
 	public final String defaultValue;
 
 	@DataBoundConstructor
-	public LabelParameterDefinition(String name, String description,
-			String defaultValue) {
+	public LabelParameterDefinition(String name, String description, String defaultValue) {
 		super(name, description);
 		this.defaultValue = defaultValue;
 	}
 
 	@Override
-	public ParameterDefinition copyWithDefaultValue(
-			ParameterValue defaultValueObj) {
+	public ParameterDefinition copyWithDefaultValue(ParameterValue defaultValueObj) {
 		if (defaultValueObj instanceof LabelParameterValue) {
 			LabelParameterValue value = (LabelParameterValue) defaultValueObj;
-			return new LabelParameterDefinition(getName(), getDescription(),
-					value.label);
+			return new LabelParameterDefinition(getName(), getDescription(), value.getLabel());
 		} else {
 			return this;
 		}
 	}
 
-//	public String getDefaultValue() {
-//		return defaultValue;
-//	}
+	// public String getDefaultValue() {
+	// return defaultValue;
+	// }
 
 	// public void setDefaultValue(String defaultValue) {
 	// this.defaultValue = defaultValue;
@@ -54,8 +51,7 @@ public class LabelParameterDefinition extends SimpleParameterDefinition {
 
 	@Override
 	public LabelParameterValue getDefaultParameterValue() {
-		LabelParameterValue v = new LabelParameterValue(getName(),
-				getDescription(), defaultValue);
+		LabelParameterValue v = new LabelParameterValue(getName(), getDescription(), defaultValue);
 		return v;
 	}
 

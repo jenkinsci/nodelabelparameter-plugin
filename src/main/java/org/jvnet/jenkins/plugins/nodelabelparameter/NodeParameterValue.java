@@ -3,6 +3,8 @@
  */
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
+import java.util.List;
+
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
@@ -12,10 +14,27 @@ import org.kohsuke.stapler.DataBoundConstructor;
 public class NodeParameterValue extends LabelParameterValue {
 
 	private static final long serialVersionUID = 1L;
+	private List<String> nextLabels;
 
+	/**
+	 * creates a new node parameter
+	 * 
+	 * @param name
+	 *            the name of the parameter
+	 * @param labels
+	 *            the node labels to trigger one build after the other with
+	 */
 	@DataBoundConstructor
-	public NodeParameterValue(String name, String label) {
-		super(name, label);
+	public NodeParameterValue(String name, List<String> labels) {
+		super(name);
+		if (labels != null && !labels.isEmpty()) {
+			this.setLabel(labels.get(0));
+			if (labels.size() > 1) {
+				this.nextLabels = labels.subList(1, labels.size());
+			}
+		} else {
+			throw new IllegalArgumentException("at least one label must be given!");
+		}
 	}
 
 	public NodeParameterValue(String name, String description, String label) {
@@ -24,6 +43,14 @@ public class NodeParameterValue extends LabelParameterValue {
 
 	@Override
 	public String toString() {
-		return "[NodeParameterValue: " + name + "=" + label + "]";
+		return "[NodeParameterValue: " + name + "=" + getLabel() + ", nextNodes=" + this.nextLabels + "]";
 	}
+
+	/**
+	 * @return the labels
+	 */
+	public List<String> getNextLabels() {
+		return nextLabels;
+	}
+
 }

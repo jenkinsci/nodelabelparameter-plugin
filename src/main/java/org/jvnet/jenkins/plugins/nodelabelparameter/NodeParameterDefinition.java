@@ -38,8 +38,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 	public final String defaultValue;
 
 	@DataBoundConstructor
-	public NodeParameterDefinition(String name, String description,
-			String defaultValue, List<String> allowedSlaves) {
+	public NodeParameterDefinition(String name, String description, String defaultValue, List<String> allowedSlaves) {
 		super(name, description);
 		this.allowedSlaves = allowedSlaves;
 		this.defaultValue = defaultValue;
@@ -50,8 +49,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 	 */
 	@Override
 	public NodeParameterValue getDefaultParameterValue() {
-		NodeParameterValue v = new NodeParameterValue(getName(),
-				getDescription(), defaultValue);
+		NodeParameterValue v = new NodeParameterValue(getName(), getDescription(), defaultValue);
 		return v;
 	}
 
@@ -61,12 +59,10 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 	}
 
 	@Override
-	public ParameterDefinition copyWithDefaultValue(
-			ParameterValue defaultValueObj) {
+	public ParameterDefinition copyWithDefaultValue(ParameterValue defaultValueObj) {
 		if (defaultValueObj instanceof NodeParameterValue) {
 			NodeParameterValue value = (NodeParameterValue) defaultValueObj;
-			return new NodeParameterDefinition(getName(), getDescription(),
-					value.label, getSlaveNames());
+			return new NodeParameterDefinition(getName(), getDescription(), value.getLabel(), getSlaveNames());
 		} else {
 			return this;
 		}
@@ -79,9 +75,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 	 * @return list of nodenames.
 	 */
 	public List<String> getAllowedNodesOrAll() {
-		return allowedSlaves == null || allowedSlaves.isEmpty()
-				|| allowedSlaves.contains(ALL_NODES) ? getSlaveNames()
-				: allowedSlaves;
+		return allowedSlaves == null || allowedSlaves.isEmpty() || allowedSlaves.contains(ALL_NODES) ? getSlaveNames() : allowedSlaves;
 	}
 
 	/**

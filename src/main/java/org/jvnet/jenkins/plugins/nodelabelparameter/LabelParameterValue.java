@@ -21,8 +21,12 @@ import hudson.util.VariableResolver;
 public class LabelParameterValue extends ParameterValue {
 
 	@Exported(visibility = 3)
-	public final String label;
-
+	private String label;
+	
+	public LabelParameterValue(String name) {
+		super(name);
+	}
+	
 	/**
 	 * @param name
 	 */
@@ -60,6 +64,20 @@ public class LabelParameterValue extends ParameterValue {
 	@Override
 	public String toString() {
 		return "[LabelParameterValue: " + name + "=" + label + "]";
+	}
+
+	/**
+	 * @return the label
+	 */
+	public String getLabel() {
+		return label;
+	}
+
+	/**
+	 * @param label the label to set
+	 */
+	public void setLabel(String label) {
+		this.label = label;
 	}
 
 }
