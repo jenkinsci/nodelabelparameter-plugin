@@ -65,12 +65,12 @@ THE SOFTWARE.
 		</select>
 	</f:entry>
 
-	<f:entry description="${%criteriaDescription}">
-		<f:radio name="triggerIfResult" value="success" checked="${instance.triggerIfResult =='success'}" />
+	<f:entry description="${%criteriaDescription}" help="/plugin/nodelabelparameter/help-triggerIfResult.html">
+		<f:radio name=" " value="success" checked="${instance.triggerIfResult =='success'}" />
 		<st:nbsp />
 		<label class="attach-previous">${%runIfStable}</label>
 		<st:nbsp />
-		<f:radio name="triggerIfResult" value="unstable" checked="${instance.triggerIfResult =='unstable'}" />
+		<f:radio name=" " value="unstable" checked="${instance.triggerIfResult =='unstable'}" />
 		<st:nbsp />
 		<label class="attach-previous">${%runIfSuccessful}</label>
 		<st:nbsp />
