@@ -26,6 +26,7 @@ import net.sf.json.JSONObject;
 
 import org.jvnet.jenkins.plugins.nodelabelparameter.LabelBadgeAction;
 import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterValue;
+import org.jvnet.jenkins.plugins.nodelabelparameter.Messages;
 import org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterValue;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
@@ -42,7 +43,6 @@ public class NextNodeBuildNotifier extends Notifier {
 
 	@DataBoundConstructor
 	public NextNodeBuildNotifier(String triggerIfResult) {
-		System.out.println("->" + triggerIfResult);
 		this.triggerIfResult = triggerIfResult;
 	}
 
@@ -56,6 +56,10 @@ public class NextNodeBuildNotifier extends Notifier {
 	@Override
 	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
 		final ParametersAction origParamsAction = build.getAction(ParametersAction.class);
+		if (origParamsAction == null) {
+			LOGGER.warning("activating " + this.getClass().getSimpleName() + " does not make sense if there is no parameter defined");
+			return true;
+		}
 		final List<ParameterValue> origParams = origParamsAction.getParameters();
 		final List<ParameterValue> newPrams = new ArrayList<ParameterValue>();
 		boolean triggerNewBuild = false;
@@ -109,7 +113,7 @@ public class NextNodeBuildNotifier extends Notifier {
 		 * This human readable name is used in the configuration screen.
 		 */
 		public String getDisplayName() {
-			return "Trigger builds on all selected nodes";
+			return Messages.NextNodeBuildNotifier_displayName();
 		}
 
 		@Override
