@@ -13,8 +13,11 @@ public class LabelBadgeAction implements BuildBadgeAction {
 
 	private String label;
 
-	public LabelBadgeAction(String label) {
+	private String tooltip;
+
+	public LabelBadgeAction(String label, String tooltip) {
 		this.label = label;
+		this.tooltip = tooltip;
 	}
 
 	/**
@@ -48,6 +51,13 @@ public class LabelBadgeAction implements BuildBadgeAction {
 	 */
 	public String getLabel() {
 		return label;
+	}
+
+	/**
+	 * @return the tooltip
+	 */
+	public String getTooltip() {
+		return tooltip;
 	}
 
 }

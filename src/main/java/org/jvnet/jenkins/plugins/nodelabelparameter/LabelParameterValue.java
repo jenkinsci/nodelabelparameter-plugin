@@ -11,6 +11,7 @@ import hudson.model.Label;
 import hudson.model.ParameterValue;
 import hudson.model.labels.LabelAtom;
 import hudson.model.queue.SubTask;
+import hudson.tasks.BuildWrapper;
 import hudson.util.VariableResolver;
 
 /**
@@ -22,11 +23,11 @@ public class LabelParameterValue extends ParameterValue {
 
 	@Exported(visibility = 3)
 	private String label;
-	
+
 	public LabelParameterValue(String name) {
 		super(name);
 	}
-	
+
 	/**
 	 * @param name
 	 */
@@ -51,12 +52,10 @@ public class LabelParameterValue extends ParameterValue {
 	}
 
 	@Override
-	public VariableResolver<String> createVariableResolver(
-			AbstractBuild<?, ?> build) {
+	public VariableResolver<String> createVariableResolver(AbstractBuild<?, ?> build) {
 		return new VariableResolver<String>() {
 			public String resolve(String name) {
-				return LabelParameterValue.this.name.equals(name) ? label
-						: null;
+				return LabelParameterValue.this.name.equals(name) ? label : null;
 			}
 		};
 	}
@@ -74,10 +73,21 @@ public class LabelParameterValue extends ParameterValue {
 	}
 
 	/**
-	 * @param label the label to set
+	 * @param label
+	 *            the label to set
 	 */
 	public void setLabel(String label) {
 		this.label = label;
+	}
+
+	/**
+	 * @see hudson.model.ParameterValue#createBuildWrapper(hudson.model.AbstractBuild)
+	 */
+	@Override
+	public BuildWrapper createBuildWrapper(AbstractBuild<?, ?> build) {
+		// add a badge icon to the build
+		build.addAction(new LabelBadgeAction(getLabel(), "label: " + getLabel()));
+		return null;
 	}
 
 }

@@ -15,10 +15,10 @@ import hudson.tasks.BuildWrapper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.jvnet.jenkins.plugins.nodelabelparameter.LabelBadgeAction;
 import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterValue;
 import org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterValue;
 
@@ -47,44 +47,12 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 	public Environment setUp(AbstractBuild build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
 		final ParametersAction origParamsAction = build.getAction(ParametersAction.class);
 		if (origParamsAction == null) {
-			// nothing we can do...
+			// nothing we have to do
 			return new Environment() {
 			};
 		}
 		// TODO add support for concurrent execution on different nodes
 		return new TriggerNextBuildEnvironment();
-	}
-
-	/**
-	 * decides whether the next build should be triggered
-	 * 
-	 * @param buildResult
-	 *            the current build result
-	 * @param runIfResult
-	 *            the definition when to trigger the next build
-	 * @return <code>true</code> if the next build shold be triggered
-	 */
-	private boolean shouldScheduleNextJob(Result buildResult, String runIfResult) {
-		// If runIfResult is null, set it to "allCases".
-		if (runIfResult == null) {
-			runIfResult = "allCases";
-		}
-		// If runIfResult is "allCases", we're running regardless.
-		if (runIfResult.equals("allCases")) {
-			return true;
-		} else {
-			// Otherwise, we're going to need to compare against the build
-			// result.
-
-			if (runIfResult.equals("success")) {
-				return ((buildResult == null) || (buildResult.isBetterOrEqualTo(Result.SUCCESS)));
-			} else if (runIfResult.equals("unstable")) {
-				return ((buildResult == null) || (buildResult.isBetterOrEqualTo(Result.UNSTABLE)));
-			}
-		}
-
-		// If we get down here, something weird's going on. Return false.
-		return false;
 	}
 
 	private class TriggerNextBuildEnvironment extends Environment {
@@ -95,16 +63,9 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 			final List<ParameterValue> origParams = origParamsAction.getParameters();
 			final List<ParameterValue> newPrams = new ArrayList<ParameterValue>();
 			boolean triggerNewBuild = false;
-			LabelBadgeAction badgeAction = null;
 			NextLabelCause nextLabelCause = null;
 			for (ParameterValue parameterValue : origParams) {
 				if (parameterValue instanceof LabelParameterValue) {
-					final LabelBadgeAction firstBadgeAction = build.getAction(LabelBadgeAction.class);
-					if (firstBadgeAction == null) {
-						// ensure each build has a badge (also the first build
-						// in a list of builds)
-						build.addAction(new LabelBadgeAction(((LabelParameterValue) parameterValue).getLabel()));
-					}
 					if (parameterValue instanceof LabelParameterValue) {
 						NodeParameterValue origNodePram = (NodeParameterValue) parameterValue;
 						final List<String> nextNodes = origNodePram.getNextLabels();
@@ -114,7 +75,6 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 							final String nextLabel = newNodeParam.getLabel();
 							if (nextLabel != null) {
 								LOGGER.log(Level.FINE, "schedule build for label {0}", nextLabel);
-								badgeAction = new LabelBadgeAction(nextLabel);
 								nextLabelCause = new NextLabelCause(nextLabel);
 								triggerNewBuild = true;
 							} else {
@@ -128,9 +88,41 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 			}
 			if (triggerNewBuild) {
 				// schedule the next build right away...
-				build.getProject().scheduleBuild(0, nextLabelCause, new ParametersAction(newPrams), badgeAction);
+				build.getProject().scheduleBuild(0, nextLabelCause, new ParametersAction(newPrams));
 			}
 			return true;
+		}
+
+		/**
+		 * decides whether the next build should be triggered
+		 * 
+		 * @param buildResult
+		 *            the current build result
+		 * @param runIfResult
+		 *            the definition when to trigger the next build
+		 * @return <code>true</code> if the next build shold be triggered
+		 */
+		private boolean shouldScheduleNextJob(Result buildResult, String runIfResult) {
+			// If runIfResult is null, set it to "allCases".
+			if (runIfResult == null) {
+				runIfResult = "allCases";
+			}
+			// If runIfResult is "allCases", we're running regardless.
+			if (runIfResult.equals("allCases")) {
+				return true;
+			} else {
+				// Otherwise, we're going to need to compare against the build
+				// result.
+
+				if (runIfResult.equals("success")) {
+					return ((buildResult == null) || (buildResult.isBetterOrEqualTo(Result.SUCCESS)));
+				} else if (runIfResult.equals("unstable")) {
+					return ((buildResult == null) || (buildResult.isBetterOrEqualTo(Result.UNSTABLE)));
+				}
+			}
+
+			// If we get down here, something weird's going on. Return false.
+			return false;
 		}
 
 	}

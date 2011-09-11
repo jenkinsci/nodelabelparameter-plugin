@@ -4,10 +4,14 @@
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
 import hudson.model.AbstractBuild;
+import hudson.model.ParameterDefinition;
+import hudson.model.ParametersDefinitionProperty;
 import hudson.tasks.BuildWrapper;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.jvnet.jenkins.plugins.nodelabelparameter.wrapper.TriggerNextBuildWrapper;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
@@ -33,7 +37,11 @@ public class NodeParameterValue extends LabelParameterValue {
 		if (labels != null && !labels.isEmpty()) {
 			this.setLabel(labels.get(0));
 			if (labels.size() > 1) {
-				this.nextLabels = labels.subList(1, labels.size());
+				final List<String> subList = labels.subList(1, labels.size());
+				nextLabels = new ArrayList<String>();
+				for (String l : subList) {
+					nextLabels.add(l);
+				}
 			}
 		} else {
 			throw new IllegalArgumentException("at least one label must be given!");
@@ -55,11 +63,30 @@ public class NodeParameterValue extends LabelParameterValue {
 	public List<String> getNextLabels() {
 		return nextLabels;
 	}
-	
-	
+
+	/**
+	 * @see hudson.model.ParameterValue#createBuildWrapper(hudson.model.AbstractBuild)
+	 */
 	@Override
 	public BuildWrapper createBuildWrapper(AbstractBuild<?, ?> build) {
-		return super.createBuildWrapper(build);
+
+		// add a badge icon to the build
+		build.addAction(new LabelBadgeAction(getLabel(), "node: " + getLabel()));
+
+		final ParametersDefinitionProperty property = build.getProject().getProperty(hudson.model.ParametersDefinitionProperty.class);
+		final List<ParameterDefinition> parameterDefinitions = property.getParameterDefinitions();
+		for (ParameterDefinition paramDef : parameterDefinitions) {
+			if (paramDef instanceof NodeParameterDefinition) {
+				final NodeParameterDefinition nodeParameterDefinition = (NodeParameterDefinition) paramDef;
+				if (nodeParameterDefinition.getAllowMultiNodeSelection()) {
+					final String triggerIfResult = nodeParameterDefinition.getTriggerIfResult();
+					return new TriggerNextBuildWrapper(triggerIfResult);
+				} else {
+					return null;
+				}
+			}
+		}
+		return null;
 	}
 
 }
