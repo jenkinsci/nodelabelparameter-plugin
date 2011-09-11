@@ -1,4 +1,4 @@
-package org.jvnet.jenkins.plugins.nodelabelparameter.notifier;
+package org.jvnet.jenkins.plugins.nodelabelparameter.wrapper;
 
 import hudson.model.Cause;
 

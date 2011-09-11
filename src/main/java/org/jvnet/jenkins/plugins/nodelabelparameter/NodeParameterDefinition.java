@@ -36,12 +36,20 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 
 	public final List<String> allowedSlaves;
 	public final String defaultValue;
+	private String triggerIfResult;
+	private boolean allowMultiNodeSelection;
 
 	@DataBoundConstructor
-	public NodeParameterDefinition(String name, String description, String defaultValue, List<String> allowedSlaves) {
+	public NodeParameterDefinition(String name, String description, String defaultValue, List<String> allowedSlaves, String triggerIfResult) {
 		super(name, description);
 		this.allowedSlaves = allowedSlaves;
 		this.defaultValue = defaultValue;
+		if ("multiSelectionDisallowed".equals(triggerIfResult)) {
+			this.allowMultiNodeSelection = false;
+		} else {
+			this.allowMultiNodeSelection = true;
+			this.triggerIfResult = triggerIfResult;
+		}
 	}
 
 	/**
@@ -62,7 +70,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 	public ParameterDefinition copyWithDefaultValue(ParameterValue defaultValueObj) {
 		if (defaultValueObj instanceof NodeParameterValue) {
 			NodeParameterValue value = (NodeParameterValue) defaultValueObj;
-			return new NodeParameterDefinition(getName(), getDescription(), value.getLabel(), getSlaveNames());
+			return new NodeParameterDefinition(getName(), getDescription(), value.getLabel(), getSlaveNames(), triggerIfResult);
 		} else {
 			return this;
 		}
@@ -76,6 +84,13 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 	 */
 	public List<String> getAllowedNodesOrAll() {
 		return allowedSlaves == null || allowedSlaves.isEmpty() || allowedSlaves.contains(ALL_NODES) ? getSlaveNames() : allowedSlaves;
+	}
+
+	/**
+	 * @return the triggerIfResult
+	 */
+	public String getTriggerIfResult() {
+		return triggerIfResult;
 	}
 
 	/**
@@ -130,6 +145,13 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 		NodeParameterValue value = req.bindJSON(NodeParameterValue.class, jo);
 		value.setDescription(getDescription());
 		return value;
+	}
+
+	/**
+	 * @return the allowMultiNodeSelection
+	 */
+	public boolean getAllowMultiNodeSelection() {
+		return allowMultiNodeSelection;
 	}
 
 }

@@ -64,6 +64,34 @@ THE SOFTWARE.
 			</j:forEach>
 		</select>
 	</f:entry>
+
+	<f:entry description="${%criteriaDescription}">
+		<f:radio name="triggerIfResult" value="success" checked="${instance.triggerIfResult =='success'}" />
+		<st:nbsp />
+		<label class="attach-previous">${%runIfStable}</label>
+		<st:nbsp />
+		<f:radio name="triggerIfResult" value="unstable" checked="${instance.triggerIfResult =='unstable'}" />
+		<st:nbsp />
+		<label class="attach-previous">${%runIfSuccessful}</label>
+		<st:nbsp />
+		<f:radio name="triggerIfResult" value="allCases" checked="${instance.triggerIfResult =='allCases'}" />
+		<st:nbsp />
+		<label class="attach-previous">${%runAlways}</label>
+		<j:if test="${instance != null}">
+			<j:if test="${instance.triggerIfResult == null}">
+				<f:radio name="triggerIfResult" value="multiSelectionDisallowed" checked="${true}" />
+			</j:if>
+			<j:if test="${instance.triggerIfResult != null}">
+				<f:radio name="triggerIfResult" value="multiSelectionDisallowed" checked="${instance.triggerIfResult =='multiSelectionDisallowed'}" />
+			</j:if>
+		</j:if>
+		<j:if test="${instance == null}">
+			<f:radio name="triggerIfResult" value="multiSelectionDisallowed" checked="${true}" />
+		</j:if>
+		<st:nbsp />
+		<label class="attach-previous">${%multiSelectionDisallowed}</label>
+		<st:nbsp />
+	</f:entry>
 	
     <f:entry title="${%Description}" >
         <f:textarea name="parameter.description" value="${instance.description}" />

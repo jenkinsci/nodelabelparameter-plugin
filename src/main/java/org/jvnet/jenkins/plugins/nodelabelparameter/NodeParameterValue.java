@@ -3,6 +3,9 @@
  */
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
+import hudson.model.AbstractBuild;
+import hudson.tasks.BuildWrapper;
+
 import java.util.List;
 
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -51,6 +54,12 @@ public class NodeParameterValue extends LabelParameterValue {
 	 */
 	public List<String> getNextLabels() {
 		return nextLabels;
+	}
+	
+	
+	@Override
+	public BuildWrapper createBuildWrapper(AbstractBuild<?, ?> build) {
+		return super.createBuildWrapper(build);
 	}
 
 }

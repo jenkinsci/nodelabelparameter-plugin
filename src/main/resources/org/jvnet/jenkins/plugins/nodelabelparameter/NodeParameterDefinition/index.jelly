@@ -32,19 +32,37 @@ THE SOFTWARE.
 		<div name="parameter" description="${it.description}">
 			<input type="hidden" name="name" value="${it.name}" />
 			
-			<select name="labels" multiple="multiple" size="${it.allowedNodesOrAll.size()}">
-				<j:forEach var="aNode" items="${it.allowedNodesOrAll}"
-					varStatus="loop">
-					<j:choose>
-						<j:when test="${it.defaultValue==aNode}">
-							<option value="${aNode}" selected="selected">${aNode}</option>
-						</j:when>
-						<j:otherwise>
-							<option value="${aNode}">${aNode}</option>
-						</j:otherwise>
-					</j:choose>
-				</j:forEach>
-			</select>
+			<j:choose>
+				<j:when test="${it.allowMultiNodeSelection == true}">
+					<select name="labels" multiple="multiple" size="${it.allowedNodesOrAll.size()}">
+						<j:forEach var="aNode" items="${it.allowedNodesOrAll}"
+							varStatus="loop">
+							<j:choose>
+								<j:when test="${it.defaultValue==aNode}">
+									<option value="${aNode}" selected="selected">${aNode}</option>
+								</j:when>
+								<j:otherwise>
+									<option value="${aNode}">${aNode}</option>
+								</j:otherwise>
+							</j:choose>
+						</j:forEach>
+					</select>
+				</j:when>
+				<j:otherwise>
+					<select name="labels">
+						<j:forEach var="aNode" items="${it.allowedNodesOrAll}" varStatus="loop">
+							<j:choose>
+								<j:when test="${it.defaultValue==aNode}">
+									<option value="${aNode}" selected="selected">${aNode}</option>
+								</j:when>
+								<j:otherwise>
+									<option value="${aNode}">${aNode}</option>
+								</j:otherwise>
+							</j:choose>
+						</j:forEach>
+					</select>
+				</j:otherwise>
+			</j:choose>
 		</div>
 	</f:entry>	
 	
