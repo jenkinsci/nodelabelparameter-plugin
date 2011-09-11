@@ -86,7 +86,7 @@ public class LabelParameterValue extends ParameterValue {
 	@Override
 	public BuildWrapper createBuildWrapper(AbstractBuild<?, ?> build) {
 		// add a badge icon to the build
-		build.addAction(new LabelBadgeAction(getLabel(), "label: " + getLabel()));
+		build.addAction(new LabelBadgeAction(getLabel(), Messages.LabelBadgeAction_label_tooltip(getLabel())));
 		return null;
 	}
 

@@ -71,7 +71,7 @@ public class NodeParameterValue extends LabelParameterValue {
 	public BuildWrapper createBuildWrapper(AbstractBuild<?, ?> build) {
 
 		// add a badge icon to the build
-		build.addAction(new LabelBadgeAction(getLabel(), "node: " + getLabel()));
+		build.addAction(new LabelBadgeAction(getLabel(), Messages.LabelBadgeAction_node_tooltip(getLabel())));
 
 		final ParametersDefinitionProperty property = build.getProject().getProperty(hudson.model.ParametersDefinitionProperty.class);
 		final List<ParameterDefinition> parameterDefinitions = property.getParameterDefinitions();
