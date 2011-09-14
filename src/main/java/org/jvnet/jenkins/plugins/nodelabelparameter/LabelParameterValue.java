@@ -34,7 +34,9 @@ public class LabelParameterValue extends ParameterValue {
 	@DataBoundConstructor
 	public LabelParameterValue(String name, String label) {
 		super(name);
-		this.label = label;
+		if(label != null){
+			this.label = label.trim();
+		}
 	}
 
 	/**
@@ -43,7 +45,9 @@ public class LabelParameterValue extends ParameterValue {
 	 */
 	public LabelParameterValue(String name, String description, String label) {
 		super(name, description);
-		this.label = label;
+		if(label != null){
+			this.label = label.trim();
+		}
 	}
 
 	@Override
@@ -77,7 +81,9 @@ public class LabelParameterValue extends ParameterValue {
 	 *            the label to set
 	 */
 	public void setLabel(String label) {
-		this.label = label;
+		if(label != null){
+			this.label = label.trim();
+		}
 	}
 
 	/**

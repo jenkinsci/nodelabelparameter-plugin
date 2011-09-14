@@ -35,12 +35,12 @@ public class NodeParameterValue extends LabelParameterValue {
 	public NodeParameterValue(String name, List<String> labels) {
 		super(name);
 		if (labels != null && !labels.isEmpty()) {
-			this.setLabel(labels.get(0));
+			this.setLabel(labels.get(0).trim());
 			if (labels.size() > 1) {
 				final List<String> subList = labels.subList(1, labels.size());
 				nextLabels = new ArrayList<String>();
 				for (String l : subList) {
-					nextLabels.add(l);
+					nextLabels.add(l.trim());
 				}
 			}
 		} else {
