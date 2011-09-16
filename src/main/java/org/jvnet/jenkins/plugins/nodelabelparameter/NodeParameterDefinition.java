@@ -46,7 +46,10 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 		this.defaultValue = defaultValue;
 		if ("multiSelectionDisallowed".equals(triggerIfResult)) {
 			this.allowMultiNodeSelection = false;
-		} else {
+		} 
+//		else if ("allowMultiSelectionForConcurrentBuilds".equals(triggerIfResult)) {
+//		} 
+		else {
 			this.allowMultiNodeSelection = true;
 			this.triggerIfResult = triggerIfResult;
 		}

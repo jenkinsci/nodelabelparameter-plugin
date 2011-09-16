@@ -66,17 +66,22 @@ THE SOFTWARE.
 	</f:entry>
 
 	<f:entry description="${%criteriaDescription}" help="/plugin/nodelabelparameter/help-triggerIfResult.html">
-		<f:radio name=" " value="success" checked="${instance.triggerIfResult =='success'}" />
+		<f:radio  name="triggerIfResult" value="success" checked="${instance.triggerIfResult =='success'}" />
 		<st:nbsp />
 		<label class="attach-previous">${%runIfStable}</label>
 		<st:nbsp />
-		<f:radio name=" " value="unstable" checked="${instance.triggerIfResult =='unstable'}" />
+		<f:radio name="triggerIfResult" value="unstable" checked="${instance.triggerIfResult =='unstable'}" />
 		<st:nbsp />
 		<label class="attach-previous">${%runIfSuccessful}</label>
 		<st:nbsp />
 		<f:radio name="triggerIfResult" value="allCases" checked="${instance.triggerIfResult =='allCases'}" />
 		<st:nbsp />
 		<label class="attach-previous">${%runAlways}</label>
+		<br />
+		<f:radio name="triggerIfResult" value="allowMultiSelectionForConcurrentBuilds" checked="${instance.triggerIfResult =='allowMultiSelectionForConcurrentBuilds'}" />
+		<st:nbsp />
+		<label class="attach-previous">${%allowMultiSelectionForConcurrentBuilds}</label>
+		<st:nbsp />
 		<j:if test="${instance != null}">
 			<j:if test="${instance.triggerIfResult == null}">
 				<f:radio name="triggerIfResult" value="multiSelectionDisallowed" checked="${true}" />

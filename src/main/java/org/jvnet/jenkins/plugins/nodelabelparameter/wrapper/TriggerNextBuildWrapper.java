@@ -14,8 +14,8 @@ import hudson.tasks.BuildWrapper;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterValue;
@@ -55,14 +55,63 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 			return new Environment() {
 			};
 		}
-		// TODO add support for concurrent execution on different nodes
+		if (build.getProject().isConcurrentBuild()) {
+
+			triggerAllBuildsConcurrent(build, listener);
+
+			return new Environment() {
+			};
+		}
+
 		return new TriggerNextBuildEnvironment();
 	}
 
+	private void triggerAllBuildsConcurrent(AbstractBuild build, BuildListener listener) {
+
+		final List<String> newBuildNodes = new ArrayList<String>();
+
+		final ParametersAction origParamsAction = build.getAction(ParametersAction.class);
+		final List<ParameterValue> origParams = origParamsAction.getParameters();
+		final List<ParameterValue> newPrams = new ArrayList<ParameterValue>();
+		for (ParameterValue parameterValue : origParams) {
+			if (parameterValue instanceof LabelParameterValue) {
+				if (parameterValue instanceof NodeParameterValue) {
+					NodeParameterValue origNodePram = (NodeParameterValue) parameterValue;
+					List<String> nextNodes = origNodePram.getNextLabels();
+					if (nextNodes != null) {
+						listener.getLogger().print("next nodes: " + nextNodes);
+						newBuildNodes.addAll(nextNodes);
+					}
+				}
+			} else {
+				newPrams.add(parameterValue);
+			}
+		}
+		for (String nodeName : newBuildNodes) {
+			final List<String> singleNodeList = new ArrayList<String>();
+			singleNodeList.add(nodeName);
+			final NodeParameterValue nodeParameterValue = new NodeParameterValue(nodeName, singleNodeList);
+			List<ParameterValue> copies = new ArrayList<ParameterValue>();
+			Collections.copy(copies, newPrams);
+			copies.add(nodeParameterValue); // where to do the next build
+			listener.getLogger().print("schedule build on node " + nodeName);
+			build.getProject().scheduleBuild(0, new NextLabelCause(nodeName), new ParametersAction(copies));
+		}
+	}
+
+	/**
+	 * Environment triggering one build after the other - if the build result of
+	 * the previous build is as expected.
+	 */
 	private class TriggerNextBuildEnvironment extends Environment {
 
 		@Override
 		public boolean tearDown(AbstractBuild build, BuildListener listener) throws IOException, InterruptedException {
+			triggerBuilds(build, listener);
+			return true;
+		}
+
+		private void triggerBuilds(AbstractBuild build, BuildListener listener) {
 			final ParametersAction origParamsAction = build.getAction(ParametersAction.class);
 			final List<ParameterValue> origParams = origParamsAction.getParameters();
 			final List<ParameterValue> newPrams = new ArrayList<ParameterValue>();
@@ -70,7 +119,7 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 			NextLabelCause nextLabelCause = null;
 			for (ParameterValue parameterValue : origParams) {
 				if (parameterValue instanceof LabelParameterValue) {
-					if (parameterValue instanceof LabelParameterValue) {
+					if (parameterValue instanceof NodeParameterValue) {
 						NodeParameterValue origNodePram = (NodeParameterValue) parameterValue;
 						final List<String> nextNodes = origNodePram.getNextLabels();
 						if (nextNodes != null && !nextNodes.isEmpty() && shouldScheduleNextJob(build.getResult(), triggerIfResult)) {
@@ -78,7 +127,7 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 							newPrams.add(newNodeParam);
 							final String nextLabel = newNodeParam.getLabel();
 							if (nextLabel != null) {
-								LOGGER.log(Level.FINE, "schedule build for label {0}", nextLabel);
+								listener.getLogger().print("schedule single build on node " + nextLabel);
 								nextLabelCause = new NextLabelCause(nextLabel);
 								triggerNewBuild = true;
 							} else {
@@ -94,11 +143,10 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 				// schedule the next build right away...
 				build.getProject().scheduleBuild(0, nextLabelCause, new ParametersAction(newPrams));
 			}
-			return true;
 		}
 
 		/**
-		 * decides whether the next build should be triggered
+		 * Decides whether the next build should be triggered.
 		 * 
 		 * @param buildResult
 		 *            the current build result
@@ -130,4 +178,5 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 		}
 
 	}
+
 }
