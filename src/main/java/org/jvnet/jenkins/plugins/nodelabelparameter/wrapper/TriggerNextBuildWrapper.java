@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 
 import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterValue;
 import org.jvnet.jenkins.plugins.nodelabelparameter.NextLabelCause;
+import org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterDefinition;
 import org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterValue;
 
 /**
@@ -34,10 +35,12 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 
 	private static final Logger LOGGER = Logger.getLogger(TriggerNextBuildWrapper.class.getName());
 
-	private String triggerIfResult;
+	final private String triggerIfResult;
+	final private NodeParameterDefinition nodeParameterDefinition;
 
-	public TriggerNextBuildWrapper(String triggerIfResult) {
-		this.triggerIfResult = triggerIfResult;
+	public TriggerNextBuildWrapper(NodeParameterDefinition nodeParameterDefinition) {
+		this.nodeParameterDefinition = nodeParameterDefinition;
+		this.triggerIfResult = nodeParameterDefinition.getTriggerIfResult();
 	}
 
 	/**
@@ -55,14 +58,27 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 			return new Environment() {
 			};
 		}
+
+		if (build.getProject().isConcurrentBuild() && !nodeParameterDefinition.isTriggerConcurrentBuilds()) {
+			final String msg = "the project is configured to run builds concurrent, but the node parameter [" + nodeParameterDefinition.getName()
+					+ "] is configured to trigger new builds depending on the state of the last build only!";
+			LOGGER.severe(msg);
+			throw new IllegalStateException(msg);
+		} else if (!build.getProject().isConcurrentBuild() && nodeParameterDefinition.isTriggerConcurrentBuilds()) {
+			final String msg = "the project is configured to NOT run builds concurrent, but the node parameter [" + nodeParameterDefinition.getName()
+					+ "] is configured to trigger new builds concurrent!";
+			LOGGER.severe(msg);
+			throw new IllegalStateException(msg);
+		}
+
+		// trigger builds concurrent
 		if (build.getProject().isConcurrentBuild()) {
-
 			triggerAllBuildsConcurrent(build, listener);
-
 			return new Environment() {
 			};
 		}
 
+		// trigger one build after the other
 		return new TriggerNextBuildEnvironment();
 	}
 
@@ -141,6 +157,8 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 			}
 			if (triggerNewBuild) {
 				// schedule the next build right away...
+				// the ParametersAction will also contain the labels for the
+				// next builds
 				build.getProject().scheduleBuild(0, nextLabelCause, new ParametersAction(newPrams));
 			}
 		}

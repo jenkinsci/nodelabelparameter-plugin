@@ -34,6 +34,7 @@ public class NodeParameterValue extends LabelParameterValue {
 	@DataBoundConstructor
 	public NodeParameterValue(String name, List<String> labels) {
 		super(name);
+		System.out.println("--->" + name + " - " + labels);
 		if (labels != null && !labels.isEmpty()) {
 			this.setLabel(labels.get(0).trim());
 			if (labels.size() > 1) {
@@ -79,8 +80,8 @@ public class NodeParameterValue extends LabelParameterValue {
 			if (paramDef instanceof NodeParameterDefinition) {
 				final NodeParameterDefinition nodeParameterDefinition = (NodeParameterDefinition) paramDef;
 				if (nodeParameterDefinition.getAllowMultiNodeSelection()) {
-					final String triggerIfResult = nodeParameterDefinition.getTriggerIfResult();
-					return new TriggerNextBuildWrapper(triggerIfResult);
+					// we expect only one node parameter definition per job
+					return new TriggerNextBuildWrapper(nodeParameterDefinition);
 				} else {
 					return null;
 				}

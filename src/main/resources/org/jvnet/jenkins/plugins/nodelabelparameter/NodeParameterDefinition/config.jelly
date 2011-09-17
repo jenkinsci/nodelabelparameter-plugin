@@ -51,8 +51,7 @@ THE SOFTWARE.
 	<f:entry name="allowedSlaves" title="Define possible nodes">
 		<select name="allowedSlaves" multiple="multiple" size="5">
 			<j:invokeStatic className="org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterDefinition" method="getSlaveNamesForSelection" var="allNodes" />
-			<j:forEach var="aNode" items="${allNodes}"
-				varStatus="loop">
+			<j:forEach var="aNode" items="${allNodes}" varStatus="loop">
 				<j:choose>
 					<j:when test="${instance.allowedSlaves.contains(aNode)}">
 						<option value="${aNode}" selected="selected">${aNode}</option>
