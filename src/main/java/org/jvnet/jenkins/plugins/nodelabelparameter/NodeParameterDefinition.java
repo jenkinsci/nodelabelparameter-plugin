@@ -13,6 +13,7 @@ import hudson.model.ParameterDefinition;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -38,6 +39,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 	public final String defaultValue;
 	private String triggerIfResult;
 	private boolean allowMultiNodeSelection;
+	private boolean triggerConcurrentBuilds = false;
 
 	@DataBoundConstructor
 	public NodeParameterDefinition(String name, String description, String defaultValue, List<String> allowedSlaves, String triggerIfResult) {
@@ -46,11 +48,12 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 		this.defaultValue = defaultValue;
 		if ("multiSelectionDisallowed".equals(triggerIfResult)) {
 			this.allowMultiNodeSelection = false;
-		} 
-//		else if ("allowMultiSelectionForConcurrentBuilds".equals(triggerIfResult)) {
-//		} 
-		else {
+		} else if ("allowMultiSelectionForConcurrentBuilds".equals(triggerIfResult)) {
+			this.allowMultiNodeSelection = false;
+			this.triggerConcurrentBuilds = true;
+		} else {
 			this.allowMultiNodeSelection = true;
+			this.triggerConcurrentBuilds = false;
 			this.triggerIfResult = triggerIfResult;
 		}
 	}
@@ -145,7 +148,23 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 
 	@Override
 	public ParameterValue createValue(StaplerRequest req, JSONObject jo) {
-		NodeParameterValue value = req.bindJSON(NodeParameterValue.class, jo);
+		// as String from UI: {"labels":"master","name":"HOSTN"}
+		// as JSONArray: {"name":"HOSTN","value":["master","host2"]}
+		// as String from script: {"name":"HOSTN","value":"master"}
+		final String name = jo.getString("name");
+		final Object joValue = jo.get("value") == null ? jo.get("labels") : jo.get("value");
+
+		List<String> nodes = new ArrayList<String>();
+		if (joValue instanceof String) {
+			nodes.add((String) joValue);
+		} else if (joValue instanceof JSONArray) {
+			JSONArray ja = (JSONArray) joValue;
+			for (Object strObj : ja) {
+				nodes.add((String) strObj);
+			}
+		}
+
+		NodeParameterValue value = new NodeParameterValue(name, nodes);
 		value.setDescription(getDescription());
 		return value;
 	}
@@ -155,6 +174,13 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 	 */
 	public boolean getAllowMultiNodeSelection() {
 		return allowMultiNodeSelection;
+	}
+
+	/**
+	 * @return the triggerConcurrentBuilds
+	 */
+	public boolean isTriggerConcurrentBuilds() {
+		return triggerConcurrentBuilds;
 	}
 
 }
