@@ -11,6 +11,8 @@ import hudson.model.Hudson;
 import hudson.model.ParameterDefinition;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import net.sf.json.JSONArray;
@@ -39,23 +41,30 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 	public final String defaultValue;
 	private String triggerIfResult;
 	private boolean allowMultiNodeSelection;
-	private boolean triggerConcurrentBuilds = false;
+	private boolean triggerConcurrentBuilds;
 
 	@DataBoundConstructor
 	public NodeParameterDefinition(String name, String description, String defaultValue, List<String> allowedSlaves, String triggerIfResult) {
 		super(name, description);
-		this.allowedSlaves = allowedSlaves;
 		this.defaultValue = defaultValue;
+		this.allowedSlaves = allowedSlaves;
+
+		if (this.allowedSlaves != null && this.allowedSlaves.contains(defaultValue)) {
+			this.allowedSlaves.remove(defaultValue);
+			this.allowedSlaves.add(0, defaultValue);
+		}
+
 		if ("multiSelectionDisallowed".equals(triggerIfResult)) {
 			this.allowMultiNodeSelection = false;
+			this.triggerConcurrentBuilds = false;
 		} else if ("allowMultiSelectionForConcurrentBuilds".equals(triggerIfResult)) {
-			this.allowMultiNodeSelection = false;
+			this.allowMultiNodeSelection = true;
 			this.triggerConcurrentBuilds = true;
 		} else {
 			this.allowMultiNodeSelection = true;
 			this.triggerConcurrentBuilds = false;
-			this.triggerIfResult = triggerIfResult;
 		}
+		this.triggerIfResult = triggerIfResult;
 	}
 
 	/**
@@ -89,7 +98,15 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 	 * @return list of nodenames.
 	 */
 	public List<String> getAllowedNodesOrAll() {
-		return allowedSlaves == null || allowedSlaves.isEmpty() || allowedSlaves.contains(ALL_NODES) ? getSlaveNames() : allowedSlaves;
+		final List<String> slaves = allowedSlaves == null || allowedSlaves.isEmpty() || allowedSlaves.contains(ALL_NODES) ? getSlaveNames() : allowedSlaves;
+		
+		Collections.sort(slaves, new Comparator<String>() {
+			public int compare(String o1, String o2) {
+				return defaultValue.compareTo(o2);
+			}
+		});
+		
+		return slaves; 
 	}
 
 	/**

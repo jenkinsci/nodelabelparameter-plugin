@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterValue;
+import org.jvnet.jenkins.plugins.nodelabelparameter.Messages;
 import org.jvnet.jenkins.plugins.nodelabelparameter.NextLabelCause;
 import org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterDefinition;
 import org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterValue;
@@ -60,13 +61,11 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 		}
 
 		if (build.getProject().isConcurrentBuild() && !nodeParameterDefinition.isTriggerConcurrentBuilds()) {
-			final String msg = "the project is configured to run builds concurrent, but the node parameter [" + nodeParameterDefinition.getName()
-					+ "] is configured to trigger new builds depending on the state of the last build only!";
+			final String msg = Messages.BuildWrapper_param_not_concurrent(nodeParameterDefinition.getName());
 			LOGGER.severe(msg);
 			throw new IllegalStateException(msg);
 		} else if (!build.getProject().isConcurrentBuild() && nodeParameterDefinition.isTriggerConcurrentBuilds()) {
-			final String msg = "the project is configured to NOT run builds concurrent, but the node parameter [" + nodeParameterDefinition.getName()
-					+ "] is configured to trigger new builds concurrent!";
+			final String msg = Messages.BuildWrapper_project_not_concurrent(nodeParameterDefinition.getName());
 			LOGGER.severe(msg);
 			throw new IllegalStateException(msg);
 		}
