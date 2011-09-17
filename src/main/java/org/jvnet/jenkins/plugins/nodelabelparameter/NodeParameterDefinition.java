@@ -99,14 +99,14 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 	 */
 	public List<String> getAllowedNodesOrAll() {
 		final List<String> slaves = allowedSlaves == null || allowedSlaves.isEmpty() || allowedSlaves.contains(ALL_NODES) ? getSlaveNames() : allowedSlaves;
-		
-		Collections.sort(slaves, new Comparator<String>() {
-			public int compare(String o1, String o2) {
-				return defaultValue.compareTo(o2);
-			}
-		});
-		
-		return slaves; 
+
+		Collections.sort(slaves);
+
+		// make sure the default is at the first position
+		slaves.remove(defaultValue);
+		slaves.add(0, defaultValue);
+
+		return slaves;
 	}
 
 	/**

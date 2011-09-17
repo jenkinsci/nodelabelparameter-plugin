@@ -34,7 +34,6 @@ public class NodeParameterValue extends LabelParameterValue {
 	@DataBoundConstructor
 	public NodeParameterValue(String name, List<String> labels) {
 		super(name);
-		System.out.println("--->" + name + " - " + labels);
 		if (labels != null && !labels.isEmpty()) {
 			this.setLabel(labels.get(0).trim());
 			if (labels.size() > 1) {
@@ -55,7 +54,13 @@ public class NodeParameterValue extends LabelParameterValue {
 
 	@Override
 	public String toString() {
-		return "[NodeParameterValue: " + name + "=" + getLabel() + ", nextNodes=" + this.nextLabels + "]";
+		StringBuilder s = new StringBuilder("[NodeParameterValue: ");
+		s.append(name).append("=").append(getLabel());
+		if (nextLabels != null && !nextLabels.isEmpty()) {
+			s.append(", nextNodes=").append(this.nextLabels);
+		}
+		s.append("]");
+		return s.toString();
 	}
 
 	/**
