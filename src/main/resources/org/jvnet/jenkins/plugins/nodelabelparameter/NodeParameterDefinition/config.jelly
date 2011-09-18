@@ -81,6 +81,7 @@ THE SOFTWARE.
 		<st:nbsp />
 		<label class="attach-previous">${%allowMultiSelectionForConcurrentBuilds}</label>
 		<st:nbsp />
+		<br />
 		<j:if test="${instance != null}">
 			<j:if test="${instance.triggerIfResult == null}">
 				<f:radio name="triggerIfResult" value="multiSelectionDisallowed" checked="${true}" />
