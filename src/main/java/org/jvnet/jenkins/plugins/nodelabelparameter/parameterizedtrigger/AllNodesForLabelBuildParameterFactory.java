@@ -10,6 +10,7 @@ import hudson.model.TaskListener;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameterFactory;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameterFactoryDescriptor;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameters;
+import org.jvnet.jenkins.plugins.nodelabelparameter.Messages;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.IOException;
@@ -17,7 +18,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * @author wolfs
+ * A build parameter factory generating NodeLabelParameters for each node matching a label
  */
 public class AllNodesForLabelBuildParameterFactory extends AbstractBuildParameterFactory {
     public final String name;
@@ -36,6 +37,7 @@ public class AllNodesForLabelBuildParameterFactory extends AbstractBuildParamete
 
 		listener.getLogger().println("Getting all nodes with label: " + labelExpanded);
         Set<Node> nodes = Hudson.getInstance().getLabel(labelExpanded).getNodes();
+        listener.getLogger().println("Found nodes: " + String.valueOf(nodes));
         List<AbstractBuildParameters> params = Lists.newArrayList();
         if (nodes == null || nodes.isEmpty()) {
             params.add(new NodeLabelBuildParameter(name, labelExpanded));
@@ -54,7 +56,7 @@ public class AllNodesForLabelBuildParameterFactory extends AbstractBuildParamete
 
         @Override
         public String getDisplayName() {
-            return "NodeLabel Parameter Factory";
+            return Messages.AllNodesForLabelBuildParameterFactory_displayName();
         }
     }
 

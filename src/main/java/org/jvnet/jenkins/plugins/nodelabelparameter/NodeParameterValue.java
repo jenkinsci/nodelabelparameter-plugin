@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
@@ -7,16 +7,15 @@ import hudson.model.AbstractBuild;
 import hudson.model.ParameterDefinition;
 import hudson.model.ParametersDefinitionProperty;
 import hudson.tasks.BuildWrapper;
+import org.jvnet.jenkins.plugins.nodelabelparameter.wrapper.TriggerNextBuildWrapper;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jvnet.jenkins.plugins.nodelabelparameter.wrapper.TriggerNextBuildWrapper;
-import org.kohsuke.stapler.DataBoundConstructor;
-
 /**
  * @author domi
- * 
+ *
  */
 public class NodeParameterValue extends LabelParameterValue {
 
@@ -25,7 +24,7 @@ public class NodeParameterValue extends LabelParameterValue {
 
 	/**
 	 * creates a new node parameter
-	 * 
+	 *
 	 * @param name
 	 *            the name of the parameter
 	 * @param labels
@@ -95,4 +94,23 @@ public class NodeParameterValue extends LabelParameterValue {
 		return null;
 	}
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        NodeParameterValue that = (NodeParameterValue) o;
+
+        if (nextLabels != null ? !nextLabels.equals(that.nextLabels) : that.nextLabels != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (nextLabels != null ? nextLabels.hashCode() : 0);
+        return result;
+    }
 }

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
@@ -17,9 +17,9 @@ import hudson.model.ParameterDefinition;
  * Defines a build parameter used to restrict the node a job will be executed
  * on. Such a label works exactly the same way as if you would define it in the
  * UI "restrict where this job should run".
- * 
+ *
  * @author domi
- * 
+ *
  */
 public class LabelParameterDefinition extends SimpleParameterDefinition {
 
@@ -51,8 +51,7 @@ public class LabelParameterDefinition extends SimpleParameterDefinition {
 
 	@Override
 	public LabelParameterValue getDefaultParameterValue() {
-		LabelParameterValue v = new LabelParameterValue(getName(), getDescription(), defaultValue);
-		return v;
+		return new LabelParameterValue(getName(), getDescription(), defaultValue);
 	}
 
 	@Extension

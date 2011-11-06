@@ -1,7 +1,4 @@
 <div>
-  This parameter type defines where the target job should be executed, the value must match either a label or a node name - otherwise the job will just stay in the queue.
-  For each node matching the label a LabelParameter is generated, therefore the target job(s) are triggered for each node
-  with the given label.
-  The NodeLabel parameter passed to the target job, does not have to exist on the target job (but if the target has one defined, it should match the name).
-  This way it is possible to trigger jobs on different nodes then they are actually configured.
+  The name of the parameter to set. If there already is a label parameter on the target node, then this name
+  should be the same.
 </div>

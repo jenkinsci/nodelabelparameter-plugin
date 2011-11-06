@@ -33,26 +33,6 @@ public class LabelParameterValue extends ParameterValue {
 		super(name);
 	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-
-        LabelParameterValue that = (LabelParameterValue) o;
-
-        if (label != null ? !label.equals(that.label) : that.label != null) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (label != null ? label.hashCode() : 0);
-        return result;
-    }
-
     /**
 	 * @param name
 	 */
@@ -89,12 +69,12 @@ public class LabelParameterValue extends ParameterValue {
 		};
 	}
 
-
-
 	@Override
 	public String toString() {
 		return "[LabelParameterValue: " + name + "=" + label + "]";
 	}
+
+
 
 	/**
 	 * @return the label
@@ -120,6 +100,26 @@ public class LabelParameterValue extends ParameterValue {
 	public BuildWrapper createBuildWrapper(AbstractBuild<?, ?> build) {
 		return new AddBadgeBuildWrapper();
 	}
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        LabelParameterValue that = (LabelParameterValue) o;
+
+        if (label != null ? !label.equals(that.label) : that.label != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (label != null ? label.hashCode() : 0);
+        return result;
+    }
 
 	private class AddBadgeBuildWrapper extends BuildWrapper {
 		@Override

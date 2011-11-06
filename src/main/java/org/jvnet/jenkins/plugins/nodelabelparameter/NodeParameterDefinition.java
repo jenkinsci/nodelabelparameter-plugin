@@ -1,25 +1,22 @@
 /**
- * 
+ *
  */
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
 import hudson.Extension;
-import hudson.model.ParameterValue;
-import hudson.model.SimpleParameterDefinition;
 import hudson.model.ComputerSet;
 import hudson.model.Hudson;
 import hudson.model.ParameterDefinition;
+import hudson.model.ParameterValue;
+import hudson.model.SimpleParameterDefinition;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.StaplerRequest;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.StaplerRequest;
 
 /**
  * Defines a build parameter used to select the node where a job should be
@@ -27,9 +24,9 @@ import org.kohsuke.stapler.StaplerRequest;
  * "restrict where this job should run", but that would tide a job to a fix
  * node. This parameter actually allows to define a list of possible nodes and
  * ask the user before execution.
- * 
+ *
  * @author domi
- * 
+ *
  */
 public class NodeParameterDefinition extends SimpleParameterDefinition {
 
@@ -72,8 +69,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 	 */
 	@Override
 	public NodeParameterValue getDefaultParameterValue() {
-		NodeParameterValue v = new NodeParameterValue(getName(), getDescription(), defaultValue);
-		return v;
+		return new NodeParameterValue(getName(), getDescription(), defaultValue);
 	}
 
 	@Override
@@ -94,7 +90,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 	/**
 	 * Returns a list of nodes the job could run on. If allowed nodes is empty,
 	 * it falls back to all nodes
-	 * 
+	 *
 	 * @return list of nodenames.
 	 */
 	public List<String> getAllowedNodesOrAll() {
@@ -119,7 +115,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 	/**
 	 * returns all available nodes plus an identifier to identify all slaves at
 	 * position one.
-	 * 
+	 *
 	 * @return list of node names
 	 */
 	public static List<String> getSlaveNamesForSelection() {
@@ -131,7 +127,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 	/**
 	 * Gets the names of all configured slaves, regardless whether they are
 	 * online.
-	 * 
+	 *
 	 * @return list with all slave names
 	 */
 	@SuppressWarnings("deprecation")
