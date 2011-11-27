@@ -4,20 +4,20 @@
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
 import hudson.Launcher;
-import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
+import hudson.model.ParameterValue;
+import hudson.model.AbstractBuild;
 import hudson.model.Computer;
 import hudson.model.Label;
-import hudson.model.ParameterValue;
-import hudson.model.labels.LabelAtom;
 import hudson.model.queue.SubTask;
 import hudson.tasks.BuildWrapper;
 import hudson.util.VariableResolver;
+
+import java.io.IOException;
+
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.export.Exported;
-
-import java.io.IOException;
 
 /**
  *
@@ -57,7 +57,7 @@ public class LabelParameterValue extends ParameterValue {
 
 	@Override
 	public Label getAssignedLabel(SubTask task) {
-		return new LabelAtom(label);
+		return Label.get(label);
 	}
 
 	@Override
