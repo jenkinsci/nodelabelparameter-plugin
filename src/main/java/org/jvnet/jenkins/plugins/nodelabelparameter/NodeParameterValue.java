@@ -79,17 +79,19 @@ public class NodeParameterValue extends LabelParameterValue {
 		build.addAction(new LabelBadgeAction(getLabel(), Messages.LabelBadgeAction_node_tooltip(getLabel())));
 
 		final ParametersDefinitionProperty property = build.getProject().getProperty(hudson.model.ParametersDefinitionProperty.class);
-		final List<ParameterDefinition> parameterDefinitions = property.getParameterDefinitions();
-		for (ParameterDefinition paramDef : parameterDefinitions) {
-			if (paramDef instanceof NodeParameterDefinition) {
-				final NodeParameterDefinition nodeParameterDefinition = (NodeParameterDefinition) paramDef;
-				if (nodeParameterDefinition.getAllowMultiNodeSelection()) {
-					// we expect only one node parameter definition per job
-					return new TriggerNextBuildWrapper(nodeParameterDefinition);
-				} else {
-					return null;
-				}
-			}
+        if (property != null) {
+            final List<ParameterDefinition> parameterDefinitions = property.getParameterDefinitions();
+            for (ParameterDefinition paramDef : parameterDefinitions) {
+                if (paramDef instanceof NodeParameterDefinition) {
+                    final NodeParameterDefinition nodeParameterDefinition = (NodeParameterDefinition) paramDef;
+                    if (nodeParameterDefinition.getAllowMultiNodeSelection()) {
+                        // we expect only one node parameter definition per job
+                        return new TriggerNextBuildWrapper(nodeParameterDefinition);
+                    } else {
+                        return null;
+                    }
+                }
+            }
 		}
 		return null;
 	}
