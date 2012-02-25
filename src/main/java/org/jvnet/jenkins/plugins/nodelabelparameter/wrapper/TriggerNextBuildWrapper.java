@@ -106,7 +106,7 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 			final List<String> singleNodeList = new ArrayList<String>();
 			singleNodeList.add(nodeName);
 			final NodeParameterValue nodeParameterValue = new NodeParameterValue(nodeName, singleNodeList);
-			List<ParameterValue> copies = new ArrayList<ParameterValue>();
+			List<ParameterValue> copies = new ArrayList<ParameterValue>(newPrams.size());
 			Collections.copy(copies, newPrams);
 			copies.add(nodeParameterValue); // where to do the next build
 			listener.getLogger().print("schedule build on node " + nodeName);
