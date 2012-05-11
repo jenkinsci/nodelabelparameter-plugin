@@ -14,7 +14,6 @@ import hudson.tasks.BuildWrapper;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -106,8 +105,7 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 			final List<String> singleNodeList = new ArrayList<String>();
 			singleNodeList.add(nodeName);
 			final NodeParameterValue nodeParameterValue = new NodeParameterValue(nodeName, singleNodeList);
-			List<ParameterValue> copies = new ArrayList<ParameterValue>(newPrams.size());
-			Collections.copy(copies, newPrams);
+			List<ParameterValue> copies = new ArrayList<ParameterValue>(newPrams);
 			copies.add(nodeParameterValue); // where to do the next build
 			listener.getLogger().print("schedule build on node " + nodeName);
 			build.getProject().scheduleBuild(0, new NextLabelCause(nodeName), new ParametersAction(copies));
