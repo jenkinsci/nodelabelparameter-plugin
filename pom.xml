@@ -10,7 +10,7 @@
 	</parent>
 
 	<artifactId>nodelabelparameter</artifactId>
-	<version>1.1.4</version>
+	<version>1.1.5-SNAPSHOT</version>
 
 	<packaging>hpi</packaging>
 
