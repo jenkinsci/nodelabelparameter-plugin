@@ -10,6 +10,7 @@ import hudson.plugins.parameterizedtrigger.AbstractBuildParameterFactory;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameterFactoryDescriptor;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameters;
 import jenkins.model.Jenkins;
+import org.jvnet.jenkins.plugins.nodelabelparameter.Messages;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.util.List;
@@ -44,7 +45,7 @@ public class AllNodesBuildParameterFactory extends AbstractBuildParameterFactory
     public static class DescriptorImpl extends AbstractBuildParameterFactoryDescriptor {
         @Override
         public String getDisplayName() {
-            return "Build on every online nodes";
+            return Messages.AllNodesBuildParameterFactory_displayName();
         }
     }
 }
