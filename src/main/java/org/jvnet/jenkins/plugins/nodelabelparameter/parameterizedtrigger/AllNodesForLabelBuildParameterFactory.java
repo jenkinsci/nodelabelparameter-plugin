@@ -1,6 +1,5 @@
 package org.jvnet.jenkins.plugins.nodelabelparameter.parameterizedtrigger;
 
-import hudson.EnvVars;
 import hudson.Extension;
 import hudson.model.TaskListener;
 import hudson.model.AbstractBuild;
@@ -15,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
+import org.jenkinsci.plugins.tokenmacro.TokenMacro;
 import org.jvnet.jenkins.plugins.nodelabelparameter.Messages;
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -42,8 +43,13 @@ public class AllNodesForLabelBuildParameterFactory extends AbstractBuildParamete
 
     @Override
     public List<AbstractBuildParameters> getParameters(AbstractBuild<?, ?> build, TaskListener listener) throws IOException, InterruptedException, AbstractBuildParameters.DontTriggerException {
-        EnvVars env = build.getEnvironment(listener);
-		String labelExpanded = env.expand(nodeLabel);
+		String labelExpanded = nodeLabel;
+		try {
+            labelExpanded = TokenMacro.expandAll(build, listener, labelExpanded);
+        } catch (MacroEvaluationException e) {
+            labelExpanded = nodeLabel;
+            e.printStackTrace(listener.getLogger());
+        }
 
 		listener.getLogger().println("Getting all nodes with label: " + labelExpanded);
         Set<Node> nodes = Hudson.getInstance().getLabel(labelExpanded).getNodes();
