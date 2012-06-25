@@ -141,7 +141,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 
 		// add 'magic' name for master, so all nodes can be handled the same way
 		if (!test.contains("master")) {
-			test.add("master");
+			test.add(0, "master");
 		}
 		return test;
 	}
