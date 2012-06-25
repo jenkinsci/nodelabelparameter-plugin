@@ -6,6 +6,7 @@ import hudson.model.AbstractBuild;
 import hudson.model.Hudson;
 import hudson.model.Label;
 import hudson.model.Node;
+import hudson.model.labels.LabelAtom;
 import hudson.model.TaskListener;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameters;
 import org.junit.Test;
@@ -75,6 +76,7 @@ public class AllNodesForLabelBuildParameterFactoryUnitTest {
     private Node createNodeWithName(String name) {
         Node node = mock(Node.class);
         when(node.getNodeName()).thenReturn(name);
+        when(node.getSelfLabel()).thenReturn(new LabelAtom(name));
         return node;
     }
 
