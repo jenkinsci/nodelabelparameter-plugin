@@ -74,7 +74,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 
 	@Override
 	public ParameterValue createValue(String value) {
-		return new NodeParameterValue(getName(), value, getDescription());
+		return new NodeParameterValue(getName(), getDescription(), value);
 	}
 
 	@Override
