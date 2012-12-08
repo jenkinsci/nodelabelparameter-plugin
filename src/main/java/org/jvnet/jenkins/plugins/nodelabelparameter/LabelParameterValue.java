@@ -3,6 +3,7 @@
  */
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
+import hudson.EnvVars;
 import hudson.Launcher;
 import hudson.model.BuildListener;
 import hudson.model.ParameterValue;
@@ -53,6 +54,14 @@ public class LabelParameterValue extends ParameterValue {
 		if (label != null) {
 			this.label = label.trim();
 		}
+	}
+
+    /**
+     * Exposes the name/value as an environment variable.
+     */
+	@Override
+	public void buildEnvVars(AbstractBuild<?, ?> build, EnvVars env) {
+	    env.put(name, label);
 	}
 
 	@Override
