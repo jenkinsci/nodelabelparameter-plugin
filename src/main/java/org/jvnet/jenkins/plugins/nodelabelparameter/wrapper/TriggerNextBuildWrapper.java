@@ -108,7 +108,7 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 			List<ParameterValue> copies = new ArrayList<ParameterValue>(newPrams);
 			copies.add(nodeParameterValue); // where to do the next build
 			listener.getLogger().print("schedule build on node " + nodeName);
-			build.getProject().scheduleBuild(0, new NextLabelCause(nodeName), new ParametersAction(copies));
+			build.getProject().scheduleBuild(0, new NextLabelCause(nodeName, build), new ParametersAction(copies));
 		}
 	}
 
@@ -141,7 +141,7 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 							final String nextLabel = newNodeParam.getLabel();
 							if (nextLabel != null) {
 								listener.getLogger().print("schedule single build on node " + nextLabel);
-								nextLabelCause = new NextLabelCause(nextLabel);
+								nextLabelCause = new NextLabelCause(nextLabel, build);
 								triggerNewBuild = true;
 							} else {
 								LOGGER.severe("can't trigger next build because next label could not be determined!");
