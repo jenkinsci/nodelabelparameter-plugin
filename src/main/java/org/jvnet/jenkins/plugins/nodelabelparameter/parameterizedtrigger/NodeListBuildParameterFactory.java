@@ -1,20 +1,31 @@
 package org.jvnet.jenkins.plugins.nodelabelparameter.parameterizedtrigger;
 
 import hudson.Extension;
+import hudson.Util;
+import hudson.model.AutoCompletionCandidates;
+import hudson.model.Item;
 import hudson.model.TaskListener;
 import hudson.model.AbstractBuild;
+import hudson.model.Node;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameterFactory;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameterFactoryDescriptor;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameters;
+import hudson.util.FormValidation;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.StringTokenizer;
+import java.util.logging.Logger;
+
+import jenkins.model.Jenkins;
 
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
 import org.jenkinsci.plugins.tokenmacro.TokenMacro;
 import org.jvnet.jenkins.plugins.nodelabelparameter.Messages;
+import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
 
 import com.google.common.collect.Lists;
 
@@ -22,6 +33,8 @@ import com.google.common.collect.Lists;
  * A build parameter factory generating NodeLabelParameters for each node matching a label
  */
 public class NodeListBuildParameterFactory extends AbstractBuildParameterFactory {
+
+    private static final Logger LOGGER = Logger.getLogger(NodeListBuildParameterFactory.class.getName());
 
     public final String name;
     public final String nodeListString;
@@ -75,15 +88,42 @@ public class NodeListBuildParameterFactory extends AbstractBuildParameterFactory
          * @param value
          * @return
          */
-        // public AutoCompletionCandidates doAutoCompleteNodeList(@QueryParameter String value) {
-        // AutoCompletionCandidates candidates = new AutoCompletionCandidates();
-        //
-        // for (Node n : Jenkins.getInstance().getNodes()) {
-        // candidates.add(n.getSelfLabel().getExpression());
-        // }
-        //
-        // return candidates;
-        // }
-    }
+        public AutoCompletionCandidates doAutoCompleteNodeListString(@QueryParameter String value) {
+            final AutoCompletionCandidates candidates = new AutoCompletionCandidates();
 
+            for (Node n : Jenkins.getInstance().getNodes()) {
+                candidates.add(n.getSelfLabel().getExpression());
+            }
+
+            return candidates;
+
+        }
+
+        /**
+         * Form validation method.
+         */
+        public FormValidation doCheckNodeListString(@AncestorInPath Item project, @QueryParameter String value) {
+            if (!project.hasPermission(Item.CONFIGURE))
+                return FormValidation.ok();
+
+            StringTokenizer tokens = new StringTokenizer(Util.fixNull(value), ",");
+            boolean hasProjects = false;
+            while (tokens.hasMoreTokens()) {
+                String nodeName = tokens.nextToken().trim();
+                if (StringUtils.isNotBlank(nodeName)) {
+                    final Node node = Jenkins.getInstance().getNode(nodeName);
+                    if (node == null) {
+                        return FormValidation.error(Messages.NodeListBuildParameterFactory_nodeNotFound(nodeName));
+                    }
+                    hasProjects = true;
+                }
+            }
+            if (!hasProjects) {
+                return FormValidation.error(Messages.NodeListBuildParameterFactory_nodeNotDefined());
+            }
+
+            return FormValidation.ok();
+        }
+
+    }
 }
