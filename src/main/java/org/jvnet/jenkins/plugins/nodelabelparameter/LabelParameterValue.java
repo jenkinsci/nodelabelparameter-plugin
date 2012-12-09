@@ -5,6 +5,7 @@ package org.jvnet.jenkins.plugins.nodelabelparameter;
 
 import hudson.EnvVars;
 import hudson.Launcher;
+import hudson.Util;
 import hudson.model.BuildListener;
 import hudson.model.ParameterValue;
 import hudson.model.AbstractBuild;
@@ -27,11 +28,13 @@ import org.kohsuke.stapler.export.Exported;
  */
 public class LabelParameterValue extends ParameterValue {
 
+    private static final String DEFAULT_NAME = "NODELABEL";
+    
 	@Exported(visibility = 3)
 	private String label;
 
 	public LabelParameterValue(String name) {
-		super(name);
+		super(nameOrDefault(name));
 	}
 
     /**
@@ -39,7 +42,7 @@ public class LabelParameterValue extends ParameterValue {
 	 */
 	@DataBoundConstructor
 	public LabelParameterValue(String name, String label) {
-		super(name);
+		super(nameOrDefault(name));
 		if (label != null) {
 			this.label = label.trim();
 		}
@@ -50,10 +53,14 @@ public class LabelParameterValue extends ParameterValue {
 	 * @param description
 	 */
 	public LabelParameterValue(String name, String description, String label) {
-		super(name, description);
+		super(nameOrDefault(name), description);
 		if (label != null) {
 			this.label = label.trim();
 		}
+	}
+	
+	private static String nameOrDefault(String name){
+	    return Util.fixEmptyAndTrim(name) == null ? DEFAULT_NAME : name;
 	}
 
     /**
