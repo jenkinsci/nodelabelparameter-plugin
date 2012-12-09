@@ -1,12 +1,11 @@
 package org.jvnet.jenkins.plugins.nodelabelparameter.parameterizedtrigger;
 
-import com.google.common.collect.ImmutableList;
 import hudson.model.FreeStyleBuild;
+import hudson.model.Result;
 import hudson.model.FreeStyleProject;
 import hudson.model.Node;
 import hudson.model.Project;
 import hudson.model.Queue;
-import hudson.model.Result;
 import hudson.model.labels.LabelAtom;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameterFactory;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameters;
@@ -15,7 +14,6 @@ import hudson.plugins.parameterizedtrigger.BlockingBehaviour;
 import hudson.plugins.parameterizedtrigger.TriggerBuilder;
 import hudson.slaves.DumbSlave;
 import hudson.util.RunList;
-import org.jvnet.hudson.test.HudsonTestCase;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,6 +21,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.jvnet.hudson.test.HudsonTestCase;
+
+import com.google.common.collect.ImmutableList;
 
 /**
  * @author wolfs

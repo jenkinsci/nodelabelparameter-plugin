@@ -7,11 +7,12 @@ import hudson.model.AbstractBuild;
 import hudson.model.ParameterDefinition;
 import hudson.model.ParametersDefinitionProperty;
 import hudson.tasks.BuildWrapper;
-import org.jvnet.jenkins.plugins.nodelabelparameter.wrapper.TriggerNextBuildWrapper;
-import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.jvnet.jenkins.plugins.nodelabelparameter.wrapper.TriggerNextBuildWrapper;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
  * @author domi

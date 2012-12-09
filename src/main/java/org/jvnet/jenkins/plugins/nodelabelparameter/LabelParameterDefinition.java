@@ -3,15 +3,14 @@
  */
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
-import net.sf.json.JSONObject;
-
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.StaplerRequest;
-
 import hudson.Extension;
 import hudson.model.ParameterValue;
 import hudson.model.SimpleParameterDefinition;
 import hudson.model.ParameterDefinition;
+import net.sf.json.JSONObject;
+
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.StaplerRequest;
 
 /**
  * Defines a build parameter used to restrict the node a job will be executed
@@ -40,14 +39,6 @@ public class LabelParameterDefinition extends SimpleParameterDefinition {
 			return this;
 		}
 	}
-
-	// public String getDefaultValue() {
-	// return defaultValue;
-	// }
-
-	// public void setDefaultValue(String defaultValue) {
-	// this.defaultValue = defaultValue;
-	// }
 
 	@Override
 	public LabelParameterValue getDefaultParameterValue() {

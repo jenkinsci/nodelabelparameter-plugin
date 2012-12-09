@@ -4,19 +4,21 @@
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
 import hudson.Extension;
+import hudson.model.ParameterValue;
+import hudson.model.SimpleParameterDefinition;
 import hudson.model.ComputerSet;
 import hudson.model.Hudson;
 import hudson.model.ParameterDefinition;
-import hudson.model.ParameterValue;
-import hudson.model.SimpleParameterDefinition;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.StaplerRequest;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.StaplerRequest;
 
 /**
  * Defines a build parameter used to select the node where a job should be

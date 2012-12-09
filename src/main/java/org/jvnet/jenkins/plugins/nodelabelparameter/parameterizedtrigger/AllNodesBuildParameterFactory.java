@@ -1,19 +1,22 @@
 package org.jvnet.jenkins.plugins.nodelabelparameter.parameterizedtrigger;
 
-import com.google.common.collect.Lists;
 import hudson.Extension;
+import hudson.model.TaskListener;
 import hudson.model.AbstractBuild;
 import hudson.model.Computer;
 import hudson.model.Node;
-import hudson.model.TaskListener;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameterFactory;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameterFactoryDescriptor;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameters;
+
+import java.util.List;
+
 import jenkins.model.Jenkins;
+
 import org.jvnet.jenkins.plugins.nodelabelparameter.Messages;
 import org.kohsuke.stapler.DataBoundConstructor;
 
-import java.util.List;
+import com.google.common.collect.Lists;
 
 /**
  * Triggers builds on all slaves.
