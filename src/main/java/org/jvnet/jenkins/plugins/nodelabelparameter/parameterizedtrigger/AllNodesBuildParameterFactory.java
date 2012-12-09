@@ -9,6 +9,7 @@ import hudson.plugins.parameterizedtrigger.AbstractBuildParameterFactory;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameterFactoryDescriptor;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameters;
 
+import java.io.PrintStream;
 import java.util.List;
 
 import jenkins.model.Jenkins;
@@ -32,12 +33,14 @@ public class AllNodesBuildParameterFactory extends AbstractBuildParameterFactory
     public List<AbstractBuildParameters> getParameters(AbstractBuild<?, ?> build, TaskListener listener) {
         Computer[] nodes = Jenkins.getInstance().getComputers();
 
+        final PrintStream logger = listener.getLogger();
         List<AbstractBuildParameters> params = Lists.newArrayList();
         for(Computer c : nodes) {
             Node n = c.getNode();
-            if (n!=null && c.isOnline() && c.getNumExecutors()>0)
-                params.add(new NodeLabelBuildParameter("label",
-                        n.getSelfLabel().getName()));
+            if (n!=null && c.isOnline() && c.getNumExecutors()>0) {
+                params.add(new NodeLabelBuildParameter("label", n.getSelfLabel().getName()));
+                logger.println("trigger build on "+n.getDisplayName() +" ("+n.getSelfLabel().getName()+")");
+            }
         }
 
 		return params;
