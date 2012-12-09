@@ -83,6 +83,7 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 	private void triggerAllBuildsConcurrent(AbstractBuild build, BuildListener listener) {
 
 		final List<String> newBuildNodes = new ArrayList<String>();
+		String parmaName = null;
 
 		final ParametersAction origParamsAction = build.getAction(ParametersAction.class);
 		final List<ParameterValue> origParams = origParamsAction.getParameters();
@@ -90,8 +91,9 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 		for (ParameterValue parameterValue : origParams) {
 			if (parameterValue instanceof LabelParameterValue) {
 				if (parameterValue instanceof NodeParameterValue) {
-					NodeParameterValue origNodePram = (NodeParameterValue) parameterValue;
-					List<String> nextNodes = origNodePram.getNextLabels();
+					NodeParameterValue origNodeParam = (NodeParameterValue) parameterValue;
+					parmaName = origNodeParam.getName();
+					List<String> nextNodes = origNodeParam.getNextLabels();
 					if (nextNodes != null) {
 						listener.getLogger().print("next nodes: " + nextNodes);
 						newBuildNodes.addAll(nextNodes);
@@ -104,7 +106,7 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 		for (String nodeName : newBuildNodes) {
 			final List<String> singleNodeList = new ArrayList<String>();
 			singleNodeList.add(nodeName);
-			final NodeParameterValue nodeParameterValue = new NodeParameterValue(nodeName, singleNodeList);
+			final NodeParameterValue nodeParameterValue = new NodeParameterValue(parmaName, singleNodeList);
 			List<ParameterValue> copies = new ArrayList<ParameterValue>(newPrams);
 			copies.add(nodeParameterValue); // where to do the next build
 			listener.getLogger().print("schedule build on node " + nodeName);
