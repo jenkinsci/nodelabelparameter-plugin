@@ -132,7 +132,7 @@ public class AllNodesForLabelBuildParameterFactoryTest extends HudsonTestCase {
                 new TriggerBuilder(new BlockableBuildTriggerConfig(projectB.getName(),
                         blockingBehaviour,
                         ImmutableList.<AbstractBuildParameterFactory>of(new AllNodesForLabelBuildParameterFactory(
-                                "LABEL", label)),
+                                "LABEL", label, false)),
                         Collections.<AbstractBuildParameters>emptyList())));
     }
 

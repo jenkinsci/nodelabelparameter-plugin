@@ -51,7 +51,7 @@ public class AllNodesForLabelBuildParameterFactoryUnitTest {
                 createNodesWithNames("node1", "node2", "node3"));
         setupBuild();
 
-        AllNodesForLabelBuildParameterFactory allNodesFactory = new AllNodesForLabelBuildParameterFactory("RST", label);
+        AllNodesForLabelBuildParameterFactory allNodesFactory = new AllNodesForLabelBuildParameterFactory("RST", label, false);
         List<AbstractBuildParameters> parameters = allNodesFactory.getParameters(build, listener);
 
         Set<String> nodeNames = new HashSet<String>();
@@ -68,7 +68,7 @@ public class AllNodesForLabelBuildParameterFactoryUnitTest {
         setupNodesForLabel(label, Collections.<Node>emptySet());
         setupBuild();
 
-        AllNodesForLabelBuildParameterFactory allNodesFactory = new AllNodesForLabelBuildParameterFactory("LABEL", label);
+        AllNodesForLabelBuildParameterFactory allNodesFactory = new AllNodesForLabelBuildParameterFactory("LABEL", label, false);
         List<AbstractBuildParameters> parameters = allNodesFactory.getParameters(build, listener);
 
         NodeLabelBuildParameter parameter = (NodeLabelBuildParameter) Iterables.getOnlyElement(parameters);
