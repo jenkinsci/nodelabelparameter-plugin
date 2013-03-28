@@ -38,7 +38,7 @@ THE SOFTWARE.
 						<j:forEach var="aNode" items="${it.allowedNodesOrAll}"
 							varStatus="loop">
 							<j:choose>
-								<j:when test="${it.defaultValue==aNode}">
+								<j:when test="${it.defaultSlaves.contains(aNode)}">
 									<option value="${aNode}" selected="selected">${aNode}</option>
 								</j:when>
 								<j:otherwise>

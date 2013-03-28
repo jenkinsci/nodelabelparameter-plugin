@@ -27,28 +27,34 @@ THE SOFTWARE.
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
 	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form"
 	xmlns:i="jelly:fmt" xmlns:p="/lib/hudson/project">
+
+    <st:once>
+        <script type="text/javascript" src="${resURL}/plugin/nodelabelparameter/lib/nodelabel.js" />
+    </st:once>
+    <script >
+    </script>	
+
     <f:entry title="${%Name}" >
 		<f:textbox name="parameter.name" value="${instance.name}" />
 	</f:entry>
 	
-	<f:entry name="defaultValue" title="Select a default slave">
-		<select name="defaultValue">
-			<j:invokeStatic className="org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterDefinition" method="getSlaveNames" var="nodes" />
-			<j:forEach var="aSlave" items="${nodes}"
-				varStatus="loop">
-				<j:choose>
-					<j:when test="${instance.defaultValue==aSlave}">
-						<option value="${aSlave}" selected="selected">${aSlave}</option>
-					</j:when>
-					<j:otherwise>
-						<option value="${aSlave}">${aSlave}</option>
-					</j:otherwise>
-				</j:choose>
-			</j:forEach>
-		</select>
-	</f:entry>
+    <f:entry name="defaultSlaves" title="Default nodes" description="${%defaultNodes}">
+        <select name="defaultSlaves" multiple="multiple" size="5">
+            <j:invokeStatic className="org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterDefinition" method="getSlaveNames" var="allNodes" />
+            <j:forEach var="aNode" items="${allNodes}" varStatus="loop">
+                <j:choose>
+                    <j:when test="${instance.defaultSlaves.contains(aNode)}">
+                        <option value="${aNode}" selected="selected">${aNode}</option>
+                    </j:when>
+                    <j:otherwise>
+                        <option value="${aNode}">${aNode}</option>
+                    </j:otherwise>
+                </j:choose>
+            </j:forEach>
+        </select>
+    </f:entry>
 		
-	<f:entry name="allowedSlaves" title="Define possible nodes">
+	<f:entry name="allowedSlaves" title="Possible nodes" description="${%selectableNodes}">
 		<select name="allowedSlaves" multiple="multiple" size="5">
 			<j:invokeStatic className="org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterDefinition" method="getSlaveNamesForSelection" var="allNodes" />
 			<j:forEach var="aNode" items="${allNodes}" varStatus="loop">
@@ -63,7 +69,7 @@ THE SOFTWARE.
 			</j:forEach>
 		</select>
 	</f:entry>
-
+    
 	<f:entry description="${%criteriaDescription}" help="/plugin/nodelabelparameter/help-triggerIfResult.html">
 		<f:radio  name="triggerIfResult" value="success" checked="${instance.triggerIfResult =='success'}" />
 		<st:nbsp />
@@ -79,7 +85,7 @@ THE SOFTWARE.
 		<br />
 		<f:radio name="triggerIfResult" value="allowMultiSelectionForConcurrentBuilds" checked="${instance.triggerIfResult =='allowMultiSelectionForConcurrentBuilds'}" />
 		<st:nbsp />
-		<label class="attach-previous">${%allowMultiSelectionForConcurrentBuilds}</label>
+		<label class="attach-previous">${%allowMultiSelectionForConcurrentBuilds} <div style="display: none" id="allowmultinodeselection" class="error">${%allowMultiSelectionForConcurrentBuildsIsMandatory}</div></label>
 		<st:nbsp />
 		<br />
 		<j:if test="${instance != null}">
@@ -97,8 +103,14 @@ THE SOFTWARE.
 		<label class="attach-previous">${%multiSelectionDisallowed}</label>
 		<st:nbsp />
 	</f:entry>
-	
+
+    <f:entry field="ignoreOfflineNodes">
+        <f:checkbox title="${%ignoreOfflineNodes}" checked="${instance.isIgnoreOfflineNodes()}" />
+    </f:entry>
+    	
     <f:entry title="${%Description}" >
         <f:textarea name="parameter.description" value="${instance.description}" />
     </f:entry>
+    
+    
 </j:jelly>

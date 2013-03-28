@@ -12,6 +12,7 @@ import hudson.model.ParameterDefinition;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import net.sf.json.JSONArray;
@@ -37,15 +38,37 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 	public static final String ALL_NODES = "ALL (no restriction)";
 
 	public final List<String> allowedSlaves;
-	public final String defaultValue;
+	private List<String> defaultSlaves;
+	@Deprecated
+	public transient String defaultValue;
 	private String triggerIfResult;
 	private boolean allowMultiNodeSelection;
 	private boolean triggerConcurrentBuilds;
+	private boolean ignoreOfflineNodes;
 
-	@DataBoundConstructor
+    @DataBoundConstructor
+    public NodeParameterDefinition(String name, String description, List<String> defaultSlaves, List<String> allowedSlaves, String triggerIfResult, boolean ignoreOfflineNodes) {
+        super(name, description);
+        this.allowedSlaves = allowedSlaves;
+        this.defaultSlaves = defaultSlaves;
+
+        if ("multiSelectionDisallowed".equals(triggerIfResult)) {
+            this.allowMultiNodeSelection = false;
+            this.triggerConcurrentBuilds = false;
+        } else if ("allowMultiSelectionForConcurrentBuilds".equals(triggerIfResult)) {
+            this.allowMultiNodeSelection = true;
+            this.triggerConcurrentBuilds = true;
+        } else {
+            this.allowMultiNodeSelection = true;
+            this.triggerConcurrentBuilds = false;
+        }
+        this.triggerIfResult = triggerIfResult;
+        this.ignoreOfflineNodes = ignoreOfflineNodes;
+    }
+    
+    @Deprecated
 	public NodeParameterDefinition(String name, String description, String defaultValue, List<String> allowedSlaves, String triggerIfResult) {
 		super(name, description);
-		this.defaultValue = defaultValue;
 		this.allowedSlaves = allowedSlaves;
 
 		if (this.allowedSlaves != null && this.allowedSlaves.contains(defaultValue)) {
@@ -64,14 +87,23 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 			this.triggerConcurrentBuilds = false;
 		}
 		this.triggerIfResult = triggerIfResult;
+		this.ignoreOfflineNodes = false;
 	}
+	
+	public List<String> getDefaultSlaves() {
+        return defaultSlaves;
+    }
+	
+	public boolean isIgnoreOfflineNodes() {
+        return ignoreOfflineNodes;
+    }
 
 	/**
 	 * e.g. what to show if a build is triggered by hand?
 	 */
 	@Override
 	public NodeParameterValue getDefaultParameterValue() {
-		return new NodeParameterValue(getName(), getDescription(), defaultValue);
+		return new NodeParameterValue(getName(), getDefaultSlaves(), isIgnoreOfflineNodes());
 	}
 
 	@Override
@@ -81,12 +113,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 
 	@Override
 	public ParameterDefinition copyWithDefaultValue(ParameterValue defaultValueObj) {
-		if (defaultValueObj instanceof NodeParameterValue) {
-			NodeParameterValue value = (NodeParameterValue) defaultValueObj;
-			return new NodeParameterDefinition(getName(), getDescription(), value.getLabel(), getSlaveNames(), triggerIfResult);
-		} else {
-			return this;
-		}
+		return this;
 	}
 
 	/**
@@ -98,11 +125,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 	public List<String> getAllowedNodesOrAll() {
 		final List<String> slaves = allowedSlaves == null || allowedSlaves.isEmpty() || allowedSlaves.contains(ALL_NODES) ? getSlaveNames() : allowedSlaves;
 
-		Collections.sort(slaves);
-
-		// make sure the default is at the first position
-		slaves.remove(defaultValue);
-		slaves.add(0, defaultValue);
+		Collections.sort(slaves, NodeNameComparator.INSTANCE);
 
 		return slaves;
 	}
@@ -122,6 +145,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 	 */
 	public static List<String> getSlaveNamesForSelection() {
 		List<String> slaveNames = getSlaveNames();
+		Collections.sort(slaveNames, NodeNameComparator.INSTANCE);
 		slaveNames.add(0, ALL_NODES);
 		return slaveNames;
 	}
@@ -147,8 +171,21 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 		}
 		return test;
 	}
+	
+	/**
+	 * Comparator preferring the master name
+	 */
+	private static final class NodeNameComparator implements Comparator<String> {
+	    public static final NodeNameComparator INSTANCE = new NodeNameComparator();
+        public int compare(String o1, String o2) {
+            if("master".endsWith(o1)){
+                return -1;
+            }
+            return o1.compareTo(o2);
+        }
+    }
 
-	@Extension
+    @Extension
 	public static class DescriptorImpl extends ParameterDescriptor {
 		@Override
 		public String getDisplayName() {
@@ -179,7 +216,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 			}
 		}
 
-		NodeParameterValue value = new NodeParameterValue(name, nodes);
+		NodeParameterValue value = new NodeParameterValue(name, nodes, isIgnoreOfflineNodes());
 		value.setDescription(getDescription());
 		return value;
 	}
@@ -197,5 +234,18 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 	public boolean isTriggerConcurrentBuilds() {
 		return triggerConcurrentBuilds;
 	}
+	
+    /*
+     * keep backward compatible
+     */
+    public Object readResolve() {
+        if (defaultValue != null) {
+            if (defaultSlaves == null) {
+                defaultSlaves = new ArrayList<String>();
+            }
+            defaultSlaves.add(defaultValue);
+        }
+        return this;
+    }	
 
 }
