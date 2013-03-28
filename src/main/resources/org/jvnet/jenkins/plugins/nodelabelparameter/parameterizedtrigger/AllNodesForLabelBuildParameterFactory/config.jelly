@@ -6,5 +6,8 @@
   <f:entry field="nodeLabel" title="${%Label}">
     <f:textbox />
   </f:entry>
+  <f:entry field="ignoreOfflineNodes" title="${%ignore offline Nodes}">
+      <f:checkbox checked="${it.isIgnoreOfflineNodes()}" />
+  </f:entry>  
 
 </j:jelly>

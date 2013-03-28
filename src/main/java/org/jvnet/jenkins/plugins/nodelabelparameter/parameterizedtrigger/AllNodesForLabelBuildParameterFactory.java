@@ -17,6 +17,7 @@ import java.util.Set;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
 import org.jenkinsci.plugins.tokenmacro.TokenMacro;
 import org.jvnet.jenkins.plugins.nodelabelparameter.Messages;
+import org.jvnet.jenkins.plugins.nodelabelparameter.NodeUtil;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import com.google.common.base.Function;
@@ -28,6 +29,7 @@ import com.google.common.collect.Lists;
 public class AllNodesForLabelBuildParameterFactory extends AbstractBuildParameterFactory {
     public final String name;
     public final String nodeLabel;
+    public final boolean ignoreOfflineNodes;
 
     private static final Function<Node, String> SELF_LABEL_FUNCTION = new Function<Node, String>() {
         public String apply(Node node) {
@@ -36,9 +38,10 @@ public class AllNodesForLabelBuildParameterFactory extends AbstractBuildParamete
     };
 
     @DataBoundConstructor
-    public AllNodesForLabelBuildParameterFactory(String name, String nodeLabel) {
+    public AllNodesForLabelBuildParameterFactory(String name, String nodeLabel, boolean ignoreOfflineNodes) {
         this.name = name;
         this.nodeLabel = nodeLabel;
+        this.ignoreOfflineNodes = ignoreOfflineNodes;
     }
 
     @Override
@@ -60,11 +63,24 @@ public class AllNodesForLabelBuildParameterFactory extends AbstractBuildParamete
             params.add(new NodeLabelBuildParameter(name, labelExpanded));
         } else {
             for (Node node : nodes) {
-                params.add(new NodeLabelBuildParameter(name, node.getSelfLabel().getName()));
+                final String nodeSelfLabel = node.getSelfLabel().getName();
+                if (ignoreOfflineNodes) {
+                    if(NodeUtil.isNodeOnline(nodeSelfLabel)) {
+                        params.add(new NodeLabelBuildParameter(name, nodeSelfLabel));
+                    } else {
+                        listener.getLogger().println(Messages.NodeListBuildParameterFactory_skippOfflineNode(nodeSelfLabel));  
+                    }
+                } else {
+                    params.add(new NodeLabelBuildParameter(name, nodeSelfLabel));
+                }
             }
         }
 
         return params;
+    }
+    
+    public boolean isIgnoreOfflineNodes() {
+        return ignoreOfflineNodes;
     }
 
     @Extension(optional = true)
