@@ -3,23 +3,28 @@
  */
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
+import antlr.ANTLRException;
+import com.google.common.base.Function;
+import com.google.common.base.Strings;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
 import hudson.Extension;
-import hudson.model.ParameterValue;
-import hudson.model.SimpleParameterDefinition;
-import hudson.model.ComputerSet;
-import hudson.model.Hudson;
-import hudson.model.ParameterDefinition;
+import hudson.model.*;
+import hudson.model.labels.LabelExpression;
+import hudson.util.FormValidation;
+import jenkins.model.Jenkins;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import org.apache.commons.lang.StringUtils;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.StaplerRequest;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.StaplerRequest;
 
 /**
  * Defines a build parameter used to select the node where a job should be
@@ -38,7 +43,8 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 	public static final String ALL_NODES = "ALL (no restriction)";
 
 	public final List<String> allowedSlaves;
-	private List<String> defaultSlaves;
+    public final String allowedLabelExpression;
+    private List<String> defaultSlaves;
 	@Deprecated
 	public transient String defaultValue;
 	private String triggerIfResult;
@@ -47,7 +53,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 	private boolean ignoreOfflineNodes;
 
     @DataBoundConstructor
-    public NodeParameterDefinition(String name, String description, List<String> defaultSlaves, List<String> allowedSlaves, String triggerIfResult, boolean ignoreOfflineNodes) {
+    public NodeParameterDefinition(String name, String description, List<String> defaultSlaves, List<String> allowedSlaves, String allowedLabelExpression, String triggerIfResult, boolean ignoreOfflineNodes) {
         super(name, description);
         this.allowedSlaves = allowedSlaves;
         this.defaultSlaves = defaultSlaves;
@@ -64,8 +70,9 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
         }
         this.triggerIfResult = triggerIfResult;
         this.ignoreOfflineNodes = ignoreOfflineNodes;
+        this.allowedLabelExpression = allowedLabelExpression;
     }
-    
+
     @Deprecated
 	public NodeParameterDefinition(String name, String description, String defaultValue, List<String> allowedSlaves, String triggerIfResult) {
 		super(name, description);
@@ -88,12 +95,13 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 		}
 		this.triggerIfResult = triggerIfResult;
 		this.ignoreOfflineNodes = false;
+        this.allowedLabelExpression = null;
 	}
-	
+
 	public List<String> getDefaultSlaves() {
         return defaultSlaves;
     }
-	
+
 	public boolean isIgnoreOfflineNodes() {
         return ignoreOfflineNodes;
     }
@@ -123,11 +131,33 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 	 * @return list of nodenames.
 	 */
 	public List<String> getAllowedNodesOrAll() {
-		final List<String> slaves = allowedSlaves == null || allowedSlaves.isEmpty() || allowedSlaves.contains(ALL_NODES) ? getSlaveNames() : allowedSlaves;
+        final List<String> slaves;
+        if (!Strings.isNullOrEmpty(allowedLabelExpression)) {
+            slaves = getMatchingSlaves();
+        } else {
+            slaves = allowedSlaves == null || allowedSlaves.isEmpty() || allowedSlaves.contains(ALL_NODES) ? getSlaveNames() : allowedSlaves;
+        }
 
 		Collections.sort(slaves, NodeNameComparator.INSTANCE);
 
 		return slaves;
+    }
+
+    private List<String> getMatchingSlaves() {
+        final Label label;
+        try {
+            label = LabelExpression.parseExpression(allowedLabelExpression);
+        } catch (ANTLRException e) {
+            //already checked in form validation, should not happen
+            return Collections.emptyList();
+        }
+        return Lists.newArrayList(
+                Collections2.transform(label.getNodes(), new Function<Node, String>() {
+                    @Nullable
+                    public String apply(@Nullable Node input) {
+                        return input instanceof Hudson ? "master" : input.getNodeName();
+                    }
+                }));
 	}
 
 	/**
@@ -171,7 +201,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 		}
 		return test;
 	}
-	
+
 	/**
 	 * Comparator preferring the master name
 	 */
@@ -196,6 +226,42 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 		public String getHelpFile() {
 			return "/plugin/nodelabelparameter/nodeparam.html";
 		}
+
+        /**
+         * Autocompletion method, called by UI to
+         *
+         * @param value
+         * @return
+         */
+        public AutoCompletionCandidates doAutoCompleteAllowedLabelExpression(@QueryParameter String value) {
+            final AutoCompletionCandidates candidates = new AutoCompletionCandidates();
+
+            for (Label l : Jenkins.getInstance().getLabels()) {
+                String label = l.getExpression();
+                if (StringUtils.containsIgnoreCase(label, value)) {
+                    candidates.add(label);
+                }
+            }
+
+            return candidates;
+
+        }
+
+        public FormValidation doCheckAllowedLabelExpression(@QueryParameter String value, @QueryParameter String allowedSlaves) {
+            if (value.isEmpty())
+                return FormValidation.ok();
+            try {
+                Label label = LabelExpression.parseExpression(value); //validates expression
+                if (!allowedSlaves.isEmpty())
+                    return FormValidation.warning(Messages.NodeLabelParameterDefinition_nodeSelectionNotUsed());
+                int matchingNodeCount = label.getNodes().size();
+                return matchingNodeCount == 0
+                        ? FormValidation.warning(Messages.NodeLabelParameterDefinition_noNodeMatched(value))
+                        : FormValidation.ok();
+            } catch (ANTLRException e) {
+                return FormValidation.error(Messages.NodeLabelParameterDefinition_labelExpressionNotValid(value, e.getMessage()));
+            }
+        }
 	}
 
 	@Override
@@ -234,7 +300,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 	public boolean isTriggerConcurrentBuilds() {
 		return triggerConcurrentBuilds;
 	}
-	
+
     /*
      * keep backward compatible
      */
@@ -246,6 +312,6 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
             defaultSlaves.add(defaultValue);
         }
         return this;
-    }	
+    }
 
 }

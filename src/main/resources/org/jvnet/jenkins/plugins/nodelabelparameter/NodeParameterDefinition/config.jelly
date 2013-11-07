@@ -53,7 +53,12 @@ THE SOFTWARE.
             </j:forEach>
         </select>
     </f:entry>
-		
+
+    <f:entry name="allowedLabelExpression" title="Allowed label expression" description="${%allowedLabelExpression}"
+             field="allowedLabelExpression">
+        <f:textbox name="parameter.allowedLabelExpression" value="${instance.allowedLabelExpression}" />
+    </f:entry>
+
 	<f:entry name="allowedSlaves" title="Possible nodes" description="${%selectableNodes}">
 		<select name="allowedSlaves" multiple="multiple" size="5">
 			<j:invokeStatic className="org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterDefinition" method="getSlaveNamesForSelection" var="allNodes" />
