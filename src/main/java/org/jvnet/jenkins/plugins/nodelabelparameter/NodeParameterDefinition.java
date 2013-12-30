@@ -6,8 +6,7 @@ package org.jvnet.jenkins.plugins.nodelabelparameter;
 import hudson.Extension;
 import hudson.model.ParameterValue;
 import hudson.model.SimpleParameterDefinition;
-import hudson.model.ComputerSet;
-import hudson.model.Hudson;
+import hudson.model.Node;
 import hudson.model.ParameterDefinition;
 
 import java.util.ArrayList;
@@ -15,9 +14,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import jenkins.model.Jenkins;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
@@ -36,6 +37,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 	private static final long serialVersionUID = 1L;
 
 	public static final String ALL_NODES = "ALL (no restriction)";
+	private static final String MASTER = "master";
 
 	public final List<String> allowedSlaves;
 	private List<String> defaultSlaves;
@@ -123,9 +125,12 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 	 * @return list of nodenames.
 	 */
 	public List<String> getAllowedNodesOrAll() {
-		final List<String> slaves = allowedSlaves == null || allowedSlaves.isEmpty() || allowedSlaves.contains(ALL_NODES) ? getSlaveNames() : allowedSlaves;
+		final List<String> slaves = allowedSlaves == null || allowedSlaves.isEmpty() || allowedSlaves.contains(ALL_NODES) ? getNodeNames() : allowedSlaves;
 
 		Collections.sort(slaves, NodeNameComparator.INSTANCE);
+		if(slaves.contains(MASTER)) {
+		    moveMasterToFirstPossition(slaves);
+		}
 
 		return slaves;
 	}
@@ -144,8 +149,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 	 * @return list of node names
 	 */
 	public static List<String> getSlaveNamesForSelection() {
-		List<String> slaveNames = getSlaveNames();
-		Collections.sort(slaveNames, NodeNameComparator.INSTANCE);
+		List<String> slaveNames = getNodeNames();
 		slaveNames.add(0, ALL_NODES);
 		return slaveNames;
 	}
@@ -156,20 +160,34 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 	 *
 	 * @return list with all slave names
 	 */
-	@SuppressWarnings("deprecation")
 	public static List<String> getSlaveNames() {
-		ComputerSet computers = Hudson.getInstance().getComputer();
-		List<String> slaveNames = computers.get_slaveNames();
-
-		// slaveNames is unmodifiable, therefore create a new list
-		List<String> test = new ArrayList<String>();
-		test.addAll(slaveNames);
-
-		// add 'magic' name for master, so all nodes can be handled the same way
-		if (!test.contains("master")) {
-			test.add(0, "master");
-		}
-		return test;
+		return getNodeNames();
+	}
+	
+	/**
+	 * Gets all node names - sorted and 'master' at first position.
+	 *  
+	 * @return a list of all node names. 
+	 */
+	private static List<String> getNodeNames(){
+	    List<String> names = new ArrayList<String>();
+	    final List<Node> nodes = Jenkins.getInstance().getNodes();
+	    for (Node node : nodes) {
+            final String nodeName = node.getNodeName();
+            if(StringUtils.isNotBlank(nodeName)) {
+                names.add(nodeName);
+            }
+        }
+	    Collections.sort(names, NodeNameComparator.INSTANCE);
+	    
+        // add 'magic' name for master, so all nodes can be handled the same way
+        moveMasterToFirstPossition(names);	    
+	    return names;
+	}
+	
+	private static void moveMasterToFirstPossition(List<String> nodeList) {
+	    nodeList.remove(MASTER);
+	    nodeList.add(0, MASTER);
 	}
 	
 	/**
@@ -178,9 +196,6 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
 	private static final class NodeNameComparator implements Comparator<String> {
 	    public static final NodeNameComparator INSTANCE = new NodeNameComparator();
         public int compare(String o1, String o2) {
-            if("master".endsWith(o1)){
-                return -1;
-            }
             return o1.compareTo(o2);
         }
     }
