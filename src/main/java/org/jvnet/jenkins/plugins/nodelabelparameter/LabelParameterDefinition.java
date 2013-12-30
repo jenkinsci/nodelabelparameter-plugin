@@ -3,12 +3,17 @@
  */
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import hudson.Extension;
 import hudson.model.ParameterValue;
 import hudson.model.SimpleParameterDefinition;
 import hudson.model.ParameterDefinition;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
@@ -62,9 +67,14 @@ public class LabelParameterDefinition extends SimpleParameterDefinition {
 	public ParameterValue createValue(StaplerRequest req, JSONObject jo) {
 		LabelParameterValue value = req.bindJSON(LabelParameterValue.class, jo);
 		value.setDescription(getDescription());
+		// JENKINS-17660 for convenience, many users use 'value' instead of label - so we make a smal hack to allow this too 
+		if(StringUtils.isBlank(value.getLabel())) {
+		    final String label = jo.optString("value");
+		    value.setLabel(label);
+		}
 		return value;
 	}
-
+	
 	@Override
 	public ParameterValue createValue(String value) {
 		return new LabelParameterValue(getName(), getDescription(), value);
