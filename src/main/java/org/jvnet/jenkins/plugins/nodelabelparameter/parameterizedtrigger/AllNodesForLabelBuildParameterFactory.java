@@ -74,6 +74,10 @@ public class AllNodesForLabelBuildParameterFactory extends AbstractBuildParamete
                     params.add(new NodeLabelBuildParameter(name, nodeSelfLabel));
                 }
             }
+            if(params.isEmpty()) {
+                params.add(new NodeLabelBuildParameter(name, labelExpanded));
+                listener.getLogger().println(Messages.NodeListBuildParameterFactory_noOnlineNodeFound(labelExpanded));
+            }
         }
 
         return params;
