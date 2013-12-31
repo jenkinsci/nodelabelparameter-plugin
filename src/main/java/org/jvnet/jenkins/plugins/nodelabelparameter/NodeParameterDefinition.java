@@ -4,6 +4,9 @@
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
 import hudson.Extension;
+import hudson.Launcher;
+import hudson.model.AbstractBuild;
+import hudson.model.BuildListener;
 import hudson.model.ParameterValue;
 import hudson.model.SimpleParameterDefinition;
 import hudson.model.Node;
@@ -32,7 +35,7 @@ import org.kohsuke.stapler.StaplerRequest;
  * @author domi
  *
  */
-public class NodeParameterDefinition extends SimpleParameterDefinition {
+public class NodeParameterDefinition extends SimpleParameterDefinition implements MultipleNodeDescribingParameterDefinition {
 
 	private static final long serialVersionUID = 1L;
 
@@ -200,6 +203,16 @@ public class NodeParameterDefinition extends SimpleParameterDefinition {
         }
     }
 
+	public void validateBuild(AbstractBuild build, Launcher launcher, BuildListener listener) {
+        if (build.getProject().isConcurrentBuild() && !this.isTriggerConcurrentBuilds()) {
+            final String msg = Messages.BuildWrapper_param_not_concurrent(this.getName());
+            throw new IllegalStateException(msg);
+        } else if (!build.getProject().isConcurrentBuild() && this.isTriggerConcurrentBuilds()) { 
+            final String msg = Messages.BuildWrapper_project_not_concurrent(this.getName());
+            throw new IllegalStateException(msg);
+        }
+	}
+	
     @Extension
 	public static class DescriptorImpl extends ParameterDescriptor {
 		@Override

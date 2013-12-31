@@ -3,43 +3,61 @@
  */
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import hudson.Extension;
+import hudson.Launcher;
+import hudson.model.AbstractBuild;
+import hudson.model.AutoCompletionCandidates;
+import hudson.model.BuildListener;
 import hudson.model.ParameterValue;
-import hudson.model.SimpleParameterDefinition;
+import hudson.model.Label;
 import hudson.model.ParameterDefinition;
-import net.sf.json.JSONArray;
+import hudson.model.labels.LabelExpression;
+import hudson.util.FormValidation;
+import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
+
+import antlr.ANTLRException;
 
 /**
  * Defines a build parameter used to restrict the node a job will be executed
  * on. Such a label works exactly the same way as if you would define it in the
  * UI "restrict where this job should run".
  *
- * @author domi
+ * @author Dominik Bartholdi (imod)
  *
  */
-public class LabelParameterDefinition extends SimpleParameterDefinition {
+public class LabelParameterDefinition extends ParameterDefinition implements MultipleNodeDescribingParameterDefinition {
 
 	public final String defaultValue;
+	private boolean allNodesMatchingLabel;
+	private boolean ignoreOfflineNodes;
+	private String triggerIfResult;
+	
 
 	@DataBoundConstructor
-	public LabelParameterDefinition(String name, String description, String defaultValue) {
+	public LabelParameterDefinition(String name, String description, String defaultValue, boolean allNodesMatchingLabel, boolean ignoreOfflineNodes, String triggerIfResult) {
 		super(name, description);
 		this.defaultValue = defaultValue;
+		this.allNodesMatchingLabel = allNodesMatchingLabel;
+		this.ignoreOfflineNodes = ignoreOfflineNodes;
+		this.triggerIfResult = StringUtils.isBlank(triggerIfResult) ? ALL_CASES : triggerIfResult;
 	}
 
+	@Deprecated
+	public LabelParameterDefinition(String name, String description, String defaultValue) {
+        this(name, description, defaultValue, false, false, ALL_CASES);
+    }
+	
 	@Override
 	public ParameterDefinition copyWithDefaultValue(ParameterValue defaultValueObj) {
 		if (defaultValueObj instanceof LabelParameterValue) {
 			LabelParameterValue value = (LabelParameterValue) defaultValueObj;
-			return new LabelParameterDefinition(getName(), getDescription(), value.getLabel());
+			return new LabelParameterDefinition(getName(), getDescription(), value.getLabel(), allNodesMatchingLabel, ignoreOfflineNodes, triggerIfResult);
 		} else {
 			return this;
 		}
@@ -49,6 +67,14 @@ public class LabelParameterDefinition extends SimpleParameterDefinition {
 	public LabelParameterValue getDefaultParameterValue() {
 		return new LabelParameterValue(getName(), getDescription(), defaultValue);
 	}
+	
+	public boolean isAllNodesMatchingLabel() {
+        return allNodesMatchingLabel;
+    }
+	
+	public boolean isIgnoreOfflineNodes() {
+        return ignoreOfflineNodes;
+    }
 
 	@Extension
 	public static class DescriptorImpl extends ParameterDescriptor {
@@ -61,23 +87,77 @@ public class LabelParameterDefinition extends SimpleParameterDefinition {
 		public String getHelpFile() {
 			return "/plugin/nodelabelparameter/labelparam.html";
 		}
+		
+        /**
+         * Autocompletion method, called by UI to
+         *
+         * @param value
+         * @return
+         */
+        public AutoCompletionCandidates doAutoCompleteDefaultValue(@QueryParameter String value) {
+            final AutoCompletionCandidates candidates = new AutoCompletionCandidates();
+            for (Label l : Jenkins.getInstance().getLabels()) {
+                String label = l.getExpression();
+                if (StringUtils.containsIgnoreCase(label, value)) {
+                    candidates.add(label);
+                }
+            }
+            return candidates;
+        }
+
+        public FormValidation doCheckDefaultValue(@QueryParameter String value) {
+            if (value.isEmpty())
+                return FormValidation.ok();
+            try {
+                Label label = LabelExpression.parseExpression(value); //validates expression
+                int matchingNodeCount = label.getNodes().size();
+                return matchingNodeCount == 0
+                        ? FormValidation.warning(Messages.NodeLabelParameterDefinition_noNodeMatched(value))
+                                : FormValidation.ok();
+            } catch (ANTLRException e) {
+                return FormValidation.error(Messages.NodeLabelParameterDefinition_labelExpressionNotValid(value, e.getMessage()));
+            }
+        }   		
 	}
 
 	@Override
 	public ParameterValue createValue(StaplerRequest req, JSONObject jo) {
 		LabelParameterValue value = req.bindJSON(LabelParameterValue.class, jo);
 		value.setDescription(getDescription());
-		// JENKINS-17660 for convenience, many users use 'value' instead of label - so we make a smal hack to allow this too 
+		// JENKINS-17660 for convenience, many users use 'value' instead of label - so we make a small hack to allow this too 
 		if(StringUtils.isBlank(value.getLabel())) {
 		    final String label = jo.optString("value");
 		    value.setLabel(label);
 		}
 		return value;
 	}
-	
-	@Override
-	public ParameterValue createValue(String value) {
-		return new LabelParameterValue(getName(), getDescription(), value);
-	}
 
+    @Override
+    public final ParameterValue createValue(StaplerRequest req) {
+        String[] value = req.getParameterValues(getName());
+        if (value == null) {
+            return getDefaultParameterValue();
+        } else if (value.length != 1) {
+            throw new IllegalArgumentException("Illegal number of parameter values for " + getName() + ": " + value.length);
+        } else {
+//            return createValue(value[0]);
+        }
+        return null;
+    }
+
+    public String getTriggerIfResult() {
+        return triggerIfResult;
+    }
+
+    public boolean isTriggerConcurrentBuilds() {
+        return ALL_CASES.equals(triggerIfResult);
+    }
+
+    public void validateBuild(AbstractBuild build, Launcher launcher, BuildListener listener) {
+        if (build.getProject().isConcurrentBuild() && !this.isTriggerConcurrentBuilds()) {
+            final String msg = Messages.BuildWrapper_param_not_concurrent(this.getName());
+            throw new IllegalStateException(msg);
+        }
+    }
+	
 }

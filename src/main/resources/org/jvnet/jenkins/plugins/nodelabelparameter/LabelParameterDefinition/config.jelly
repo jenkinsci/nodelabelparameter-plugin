@@ -27,12 +27,49 @@ THE SOFTWARE.
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
 	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form"
 	xmlns:i="jelly:fmt" xmlns:p="/lib/hudson/project">
+    
+    <st:once>
+        <script type="text/javascript" src="${resURL}/plugin/nodelabelparameter/lib/nodelabel.js" />
+    </st:once>
+    <script >
+    </script>    
+    
     <f:entry title="${%Name}" >
 		<f:textbox name="parameter.name" value="${instance.name}" />
 	</f:entry>
 	<f:entry title="${%Default Value}" >
-		<f:textbox name="parameter.defaultValue" value="${instance.defaultValue}" />
+		<f:textbox name="parameter.defaultValue" value="${instance.defaultValue}" field="defaultValue" />
 	</f:entry>
+    <f:optionalBlock inline="true" name="allNodesMatchingLabel" title="${%allNodesMatchingLabel}" checked="${instance.isAllNodesMatchingLabel()}">
+        <f:entry help="/plugin/nodelabelparameter/help-triggerIfResult.html">
+            <f:radio  name="triggerIfResult" value="success" checked="${instance.triggerIfResult =='success'}" />
+            <st:nbsp />
+            <label class="attach-previous">${%runIfStable}</label>
+            <st:nbsp />
+            <f:radio name="triggerIfResult" value="unstable" checked="${instance.triggerIfResult =='unstable'}" />
+            <st:nbsp />
+            <label class="attach-previous">${%runIfSuccessful}</label>
+            <st:nbsp />
+            <br />
+            <j:if test="${instance != null}">
+                <j:if test="${instance.triggerIfResult == null}">
+                    <f:radio name="triggerIfResult" value="allCases" checked="${true}" />
+                </j:if>
+                <j:if test="${instance.triggerIfResult != null}">
+                    <f:radio name="triggerIfResult" value="allCases" checked="${instance.triggerIfResult =='allCases'}" />
+                </j:if>
+            </j:if>
+            <j:if test="${instance == null}">
+                <f:radio name="triggerIfResult" value="allCases" checked="${true}" />
+            </j:if>
+            <st:nbsp />
+            <label class="attach-previous">${%allowMultiSelectionForConcurrentBuilds} <div style="display: none" id="allowmultinodeselection_label" class="error">${%allowMultiSelectionForConcurrentBuildsIsMandatory}</div></label>
+        </f:entry>
+    
+        <f:entry field="ignoreOfflineNodes">
+            <f:checkbox title="${%ignoreOfflineNodes}" checked="${instance.isIgnoreOfflineNodes()}" />
+        </f:entry>
+    </f:optionalBlock>
     <f:entry title="${%Description}" >
         <f:textarea name="parameter.description" value="${instance.description}" />
     </f:entry>

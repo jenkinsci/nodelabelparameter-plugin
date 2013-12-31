@@ -18,16 +18,15 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterValue;
-import org.jvnet.jenkins.plugins.nodelabelparameter.Messages;
+import org.jvnet.jenkins.plugins.nodelabelparameter.MultipleNodeDescribingParameterDefinition;
 import org.jvnet.jenkins.plugins.nodelabelparameter.NextLabelCause;
-import org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterDefinition;
-import org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterValue;
 
 /**
  * This BuildWrapper is not marked as extension, it gets added dynamically to a
  * build by the ParameterValue implementations.
  * 
- * @author domi
+ * @author Dominik Bartholdi (imod)
+ * 
  * @see LabelParameterValue#createBuildWrapper(AbstractBuild)
  * @see NodeParameterValue#createBuildWrapper(AbstractBuild)
  */
@@ -35,12 +34,10 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 
 	private static final Logger LOGGER = Logger.getLogger(TriggerNextBuildWrapper.class.getName());
 
-	final private String triggerIfResult;
-	final private NodeParameterDefinition nodeParameterDefinition;
+	final private MultipleNodeDescribingParameterDefinition parameterDefinition;
 
-	public TriggerNextBuildWrapper(NodeParameterDefinition nodeParameterDefinition) {
-		this.nodeParameterDefinition = nodeParameterDefinition;
-		this.triggerIfResult = nodeParameterDefinition.getTriggerIfResult();
+	public TriggerNextBuildWrapper(MultipleNodeDescribingParameterDefinition parameterDefinition) {
+		this.parameterDefinition = parameterDefinition;
 	}
 
 	/**
@@ -59,15 +56,7 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 			};
 		}
 
-		if (build.getProject().isConcurrentBuild() && !nodeParameterDefinition.isTriggerConcurrentBuilds()) {
-			final String msg = Messages.BuildWrapper_param_not_concurrent(nodeParameterDefinition.getName());
-			LOGGER.severe(msg);
-			throw new IllegalStateException(msg);
-		} else if (!build.getProject().isConcurrentBuild() && nodeParameterDefinition.isTriggerConcurrentBuilds()) {
-			final String msg = Messages.BuildWrapper_project_not_concurrent(nodeParameterDefinition.getName());
-			LOGGER.severe(msg);
-			throw new IllegalStateException(msg);
-		}
+		parameterDefinition.validateBuild(build, launcher, listener);
 
 		// trigger builds concurrent
 		if (build.getProject().isConcurrentBuild()) {
@@ -80,7 +69,7 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 		return new TriggerNextBuildEnvironment();
 	}
 
-	private void triggerAllBuildsConcurrent(AbstractBuild build, BuildListener listener) {
+	private void triggerAllBuildsConcurrent(AbstractBuild<?, ?> build, BuildListener listener) {
 
 		final List<String> newBuildNodes = new ArrayList<String>();
 		String parmaName = null;
@@ -90,15 +79,15 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 		final List<ParameterValue> newPrams = new ArrayList<ParameterValue>();
 		for (ParameterValue parameterValue : origParams) {
 			if (parameterValue instanceof LabelParameterValue) {
-				if (parameterValue instanceof NodeParameterValue) {
-					NodeParameterValue origNodeParam = (NodeParameterValue) parameterValue;
+//				if (parameterValue instanceof NodeParameterValue) {
+			        LabelParameterValue origNodeParam = (LabelParameterValue) parameterValue;
 					parmaName = origNodeParam.getName();
 					List<String> nextNodes = origNodeParam.getNextLabels();
 					if (nextNodes != null) {
 						listener.getLogger().print("next nodes: " + nextNodes);
 						newBuildNodes.addAll(nextNodes);
 					}
-				}
+//				}
 			} else {
 				newPrams.add(parameterValue);
 			}
@@ -106,9 +95,9 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 		for (String nodeName : newBuildNodes) {
 			final List<String> singleNodeList = new ArrayList<String>();
 			singleNodeList.add(nodeName);
-			final NodeParameterValue nodeParameterValue = new NodeParameterValue(parmaName, singleNodeList, nodeParameterDefinition.isIgnoreOfflineNodes());
+			final LabelParameterValue pValue = new LabelParameterValue(parmaName, singleNodeList, parameterDefinition.isIgnoreOfflineNodes());
 			List<ParameterValue> copies = new ArrayList<ParameterValue>(newPrams);
-			copies.add(nodeParameterValue); // where to do the next build
+			copies.add(pValue); // where to do the next build
 			listener.getLogger().print("schedule build on node " + nodeName);
 			build.getProject().scheduleBuild(0, new NextLabelCause(nodeName, build), new ParametersAction(copies));
 		}
@@ -126,7 +115,7 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 			return true;
 		}
 
-		private void triggerBuilds(AbstractBuild build, BuildListener listener) {
+		private void triggerBuilds(AbstractBuild<?, ?> build, BuildListener listener) {
 			final ParametersAction origParamsAction = build.getAction(ParametersAction.class);
 			final List<ParameterValue> origParams = origParamsAction.getParameters();
 			final List<ParameterValue> newPrams = new ArrayList<ParameterValue>();
@@ -134,11 +123,12 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 			NextLabelCause nextLabelCause = null;
 			for (ParameterValue parameterValue : origParams) {
 				if (parameterValue instanceof LabelParameterValue) {
-					if (parameterValue instanceof NodeParameterValue) {
-						NodeParameterValue origNodePram = (NodeParameterValue) parameterValue;
+//					if (parameterValue instanceof NodeParameterValue) {
+						LabelParameterValue origNodePram = (LabelParameterValue) parameterValue;
 						final List<String> nextNodes = origNodePram.getNextLabels();
-						if (nextNodes != null && !nextNodes.isEmpty() && shouldScheduleNextJob(build.getResult(), triggerIfResult)) {
-							NodeParameterValue newNodeParam = new NodeParameterValue(origNodePram.getName(), nextNodes, nodeParameterDefinition.isIgnoreOfflineNodes());
+						if (nextNodes != null && !nextNodes.isEmpty() && shouldScheduleNextJob(build.getResult(), parameterDefinition.getTriggerIfResult())) {
+						    System.out.println("TriggerNextBuildWrapper.TriggerNextBuildEnvironment.triggerBuilds()");
+						    LabelParameterValue newNodeParam = new LabelParameterValue(origNodePram.getName(), nextNodes, parameterDefinition.isIgnoreOfflineNodes());
 							newPrams.add(newNodeParam);
 							final String nextLabel = newNodeParam.getLabel();
 							if (nextLabel != null) {
@@ -146,10 +136,12 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 								nextLabelCause = new NextLabelCause(nextLabel, build);
 								triggerNewBuild = true;
 							} else {
-								LOGGER.severe("can't trigger next build because next label could not be determined!");
+							    listener.getLogger().print("ERROR: can't trigger next build because next label could not be determined!");
 							}
 						}
-					}
+//					} else {
+//					    listener.getLogger().print("got: "+parameterValue);
+//					}
 				} else {
 					newPrams.add(parameterValue);
 				}
@@ -174,18 +166,18 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 		private boolean shouldScheduleNextJob(Result buildResult, String runIfResult) {
 			// If runIfResult is null, set it to "allCases".
 			if (runIfResult == null) {
-				runIfResult = "allCases";
+				runIfResult = MultipleNodeDescribingParameterDefinition.ALL_CASES;
 			}
 			// If runIfResult is "allCases", we're running regardless.
-			if (runIfResult.equals("allCases")) {
+			if (runIfResult.equals(MultipleNodeDescribingParameterDefinition.ALL_CASES)) {
 				return true;
 			} else {
 				// Otherwise, we're going to need to compare against the build
 				// result.
 
-				if (runIfResult.equals("success")) {
+				if (MultipleNodeDescribingParameterDefinition.CASE_SUCCESS.equals(runIfResult)) {
 					return ((buildResult == null) || (buildResult.isBetterOrEqualTo(Result.SUCCESS)));
-				} else if (runIfResult.equals("unstable")) {
+				} else if (MultipleNodeDescribingParameterDefinition.CASE_UNSTABLE.equals(runIfResult)) {
 					return ((buildResult == null) || (buildResult.isBetterOrEqualTo(Result.UNSTABLE)));
 				}
 			}
