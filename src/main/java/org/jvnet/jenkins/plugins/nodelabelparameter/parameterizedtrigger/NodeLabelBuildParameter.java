@@ -40,7 +40,7 @@ public class NodeLabelBuildParameter extends AbstractBuildParameters {
             labelExpanded = nodeLabel;
             e.printStackTrace(listener.getLogger());
         }
-        LabelParameterValue parameterValue = new LabelParameterValue(name, labelExpanded);
+        LabelParameterValue parameterValue = new LabelParameterValue(name, labelExpanded, false, false);
         listener.getLogger().println("define: " + parameterValue);
 
         return new ParametersAction(parameterValue);

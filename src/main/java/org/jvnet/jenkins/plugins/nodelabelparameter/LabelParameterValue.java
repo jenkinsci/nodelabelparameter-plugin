@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.lang.StringUtils;
@@ -50,21 +51,6 @@ public class LabelParameterValue extends ParameterValue {
 
     public LabelParameterValue(String name) {
         super(nameOrDefault(name));
-    }
-
-    private List<String> getNodeNamesForLabelExpression(String labelExp) {
-        List<String> nodeNames = new ArrayList<String>();
-        try {
-            Label label = LabelExpression.parseExpression(labelExp);
-            for (Node node : label.getNodes()) {
-                final String nodeName = node.getNodeName();
-                nodeNames.add(nodeName);
-//                nodeNames.add(node.getSelfLabel().getName());
-            }
-        } catch (ANTLRException e) {
-            e.printStackTrace();
-        }
-        return nodeNames;
     }
 
     @Deprecated
@@ -132,6 +118,19 @@ public class LabelParameterValue extends ParameterValue {
                 setLabel("Job triggered, but no node given");
             }
         }
+    }
+
+    private List<String> getNodeNamesForLabelExpression(String labelExp) {
+        List<String> nodeNames = new ArrayList<String>();
+        try {
+            Label label = LabelExpression.parseExpression(labelExp);
+            for (Node node : label.getNodes()) {
+                nodeNames.add(node.getSelfLabel().getName());
+            }
+        } catch (ANTLRException e) {
+            LOGGER.log(Level.SEVERE, "failed to parse label ["+labelExp+"]", e);
+        }
+        return nodeNames;
     }
 
     /**
