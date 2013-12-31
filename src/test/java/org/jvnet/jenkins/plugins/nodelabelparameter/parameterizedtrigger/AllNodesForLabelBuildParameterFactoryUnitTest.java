@@ -1,105 +1,115 @@
 package org.jvnet.jenkins.plugins.nodelabelparameter.parameterizedtrigger;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
 import hudson.EnvVars;
-import hudson.model.TaskListener;
+import hudson.Launcher;
+import hudson.model.BuildListener;
+import hudson.model.Result;
 import hudson.model.AbstractBuild;
-import hudson.model.Hudson;
-import hudson.model.Label;
-import hudson.model.Node;
-import hudson.model.labels.LabelAtom;
+import hudson.model.AbstractProject;
+import hudson.model.Cause;
+import hudson.model.FreeStyleProject;
+import hudson.plugins.parameterizedtrigger.AbstractBuildParameterFactory;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameters;
+import hudson.plugins.parameterizedtrigger.AbstractBuildParameters.DontTriggerException;
+import hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig;
+import hudson.plugins.parameterizedtrigger.BlockingBehaviour;
+import hudson.plugins.parameterizedtrigger.TriggerBuilder;
+import hudson.slaves.DumbSlave;
 
 import java.io.IOException;
-import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.TestBuilder;
 
-import com.google.common.collect.Iterables;
+import com.google.common.collect.ImmutableList;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(Hudson.class)
 public class AllNodesForLabelBuildParameterFactoryUnitTest {
 
-    @Mock
-    Label mockLabel;
-    @Mock
-    AbstractBuild<?,?> build;
-    @Mock
-    TaskListener listener;
-    @Mock
-    PrintStream listenerLogger;
+    @Rule
+    public JenkinsRule j = new JenkinsRule();
 
+    @Before
+    public void setUp() throws Exception {
+        j.createSlave("node1", "otherlabel", new EnvVars());
+        j.createSlave("node2", "label", new EnvVars());
+        final DumbSlave n3 = j.createSlave("node3", "label", new EnvVars());
+    }
+
+    /**
+     * This test case is checks different behaviors of the {@link AllNodesForLabelBuildParameterFactory}, these are combined into one, otherwise #oMatchingNodeShouldYieldSameLabel would stuck in the
+     * queue and the test would never finish.
+     * 
+     * @throws Exception
+     */
     @Test
-    public void shouldGetParameterForEachMatchingNode() throws Exception {
-        String label="label";
-        setupNodesForLabel(
-                label,
-                createNodesWithNames("node1", "node2", "node3"));
-        setupBuild();
+    public void labelParameterFactoresMustOnlyCreateValidParameters() throws Exception {
 
-        AllNodesForLabelBuildParameterFactory allNodesFactory = new AllNodesForLabelBuildParameterFactory("RST", label, false);
-        List<AbstractBuildParameters> parameters = allNodesFactory.getParameters(build, listener);
+        final AllNodesForLabelBuildParameterFactory twoNodesFactory = new AllNodesForLabelBuildParameterFactory("LABEL", "label", false);
+        final AllNodesForLabelBuildParameterFactory dummyNodesFactory = new AllNodesForLabelBuildParameterFactory("LABEL", "dummy", false);
 
+        FreeStyleProject projectA = j.createFreeStyleProject("projectA");
+        FreeStyleProject projectB = j.createFreeStyleProject("projectB");
+
+        final List<Boolean> executed = new ArrayList<Boolean>();
+
+        projectA.getBuildersList().add(new TestBuilder() {
+            public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
+                try {
+
+                    shouldGetParameterForEachMatchingNode(twoNodesFactory, build, listener);
+                    noMatchingNodeShouldYieldSameLabel(dummyNodesFactory, build, listener);
+
+                } catch (DontTriggerException e) {
+                    e.printStackTrace();
+                    Assert.fail(e.getMessage());
+                    return false;
+                }
+
+                executed.add(Boolean.TRUE);
+                return true;
+            }
+
+        });
+
+        projectA.getBuildersList().add(createTriggerBuilder(projectB, twoNodesFactory));
+        j.assertBuildStatus(Result.SUCCESS, projectA.scheduleBuild2(0, new Cause.UserIdCause()).get());
+        // make sure the test was really executed
+        assertThat(executed).containsOnly(Boolean.TRUE);
+
+    }
+
+    public static void noMatchingNodeShouldYieldSameLabel(final AllNodesForLabelBuildParameterFactory dummyNodesFactory, AbstractBuild<?, ?> build, BuildListener listener) throws IOException, InterruptedException, DontTriggerException {
+        List<AbstractBuildParameters> parameters = dummyNodesFactory.getParameters(build, listener);
         Set<String> nodeNames = new HashSet<String>();
         for (AbstractBuildParameters parameter : parameters) {
             nodeNames.add(((NodeLabelBuildParameter) parameter).nodeLabel);
         }
-
-        assertThat(nodeNames).containsOnly("node1", "node2", "node3");
+        assertThat(nodeNames).containsOnly("dummy");
     }
 
-    @Test
-    public void noMatchingNodeShouldYieldSameLabel() throws Exception {
-        String label="label";
-        setupNodesForLabel(label, Collections.<Node>emptySet());
-        setupBuild();
-
-        AllNodesForLabelBuildParameterFactory allNodesFactory = new AllNodesForLabelBuildParameterFactory("LABEL", label, false);
-        List<AbstractBuildParameters> parameters = allNodesFactory.getParameters(build, listener);
-
-        NodeLabelBuildParameter parameter = (NodeLabelBuildParameter) Iterables.getOnlyElement(parameters);
-        assertThat(parameter.nodeLabel).isEqualTo(label);
-    }
-
-    private Node createNodeWithName(String name) {
-        Node node = mock(Node.class);
-        when(node.getNodeName()).thenReturn(name);
-        when(node.getSelfLabel()).thenReturn(new LabelAtom(name));
-        return node;
-    }
-
-    private Set<Node> createNodesWithNames(String... names) {
-        Set<Node> nodes = new HashSet<Node>();
-        for (String name : names) {
-            nodes.add(createNodeWithName(name));
+    public static void shouldGetParameterForEachMatchingNode(final AllNodesForLabelBuildParameterFactory twoNodesFactory, AbstractBuild<?, ?> build, BuildListener listener) throws IOException, InterruptedException, DontTriggerException {
+        // test: shouldGetParameterForEachMatchingNode
+        List<AbstractBuildParameters> parameters = twoNodesFactory.getParameters(build, listener);
+        Set<String> nodeNames = new HashSet<String>();
+        for (AbstractBuildParameters parameter : parameters) {
+            nodeNames.add(((NodeLabelBuildParameter) parameter).nodeLabel);
         }
-        return nodes;
+        assertThat(nodeNames).containsOnly("node2", "node3");
     }
 
-    private void setupBuild() throws IOException, InterruptedException {
-        when(build.getEnvironment(any(TaskListener.class))).thenReturn(new EnvVars());
-        when(listener.getLogger()).thenReturn(listenerLogger);
-    }
-
-    private void setupNodesForLabel(String label, Set<Node> nodes) {
-        PowerMockito.mockStatic(Hudson.class);
-        Hudson hudsonMock = Mockito.mock(Hudson.class);
-        when(Hudson.getInstance()).thenReturn(hudsonMock);
-        when(hudsonMock.getLabel(label)).thenReturn(mockLabel);
-        when(mockLabel.getNodes()).thenReturn(nodes);
+    private TriggerBuilder createTriggerBuilder(AbstractProject<?, ?> project, AbstractBuildParameterFactory factory) {
+        TriggerBuilder tBuilder = new TriggerBuilder(new BlockableBuildTriggerConfig(project.getName(), new BlockingBehaviour(Result.FAILURE, Result.UNSTABLE, Result.FAILURE), ImmutableList.<AbstractBuildParameterFactory> of(factory),
+                Collections.<AbstractBuildParameters> emptyList()));
+        return tBuilder;
     }
 }
