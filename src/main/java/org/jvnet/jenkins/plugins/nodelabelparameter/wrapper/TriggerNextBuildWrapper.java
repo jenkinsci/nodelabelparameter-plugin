@@ -79,15 +79,13 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 		final List<ParameterValue> newPrams = new ArrayList<ParameterValue>();
 		for (ParameterValue parameterValue : origParams) {
 			if (parameterValue instanceof LabelParameterValue) {
-//				if (parameterValue instanceof NodeParameterValue) {
-			        LabelParameterValue origNodeParam = (LabelParameterValue) parameterValue;
-					parmaName = origNodeParam.getName();
-					List<String> nextNodes = origNodeParam.getNextLabels();
-					if (nextNodes != null) {
-						listener.getLogger().print("next nodes: " + nextNodes);
-						newBuildNodes.addAll(nextNodes);
-					}
-//				}
+		        LabelParameterValue origNodeParam = (LabelParameterValue) parameterValue;
+				parmaName = origNodeParam.getName();
+				List<String> nextNodes = origNodeParam.getNextLabels();
+				if (nextNodes != null) {
+					listener.getLogger().print("next nodes: " + nextNodes);
+					newBuildNodes.addAll(nextNodes);
+				}
 			} else {
 				newPrams.add(parameterValue);
 			}
@@ -123,25 +121,20 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 			NextLabelCause nextLabelCause = null;
 			for (ParameterValue parameterValue : origParams) {
 				if (parameterValue instanceof LabelParameterValue) {
-//					if (parameterValue instanceof NodeParameterValue) {
-						LabelParameterValue origNodePram = (LabelParameterValue) parameterValue;
-						final List<String> nextNodes = origNodePram.getNextLabels();
-						if (nextNodes != null && !nextNodes.isEmpty() && shouldScheduleNextJob(build.getResult(), parameterDefinition.getTriggerIfResult())) {
-						    System.out.println("TriggerNextBuildWrapper.TriggerNextBuildEnvironment.triggerBuilds()");
-						    LabelParameterValue newNodeParam = new LabelParameterValue(origNodePram.getName(), nextNodes, parameterDefinition.isIgnoreOfflineNodes());
-							newPrams.add(newNodeParam);
-							final String nextLabel = newNodeParam.getLabel();
-							if (nextLabel != null) {
-								listener.getLogger().print("schedule single build on node " + nextLabel);
-								nextLabelCause = new NextLabelCause(nextLabel, build);
-								triggerNewBuild = true;
-							} else {
-							    listener.getLogger().print("ERROR: can't trigger next build because next label could not be determined!");
-							}
+					LabelParameterValue origNodePram = (LabelParameterValue) parameterValue;
+					final List<String> nextNodes = origNodePram.getNextLabels();
+					if (nextNodes != null && !nextNodes.isEmpty() && shouldScheduleNextJob(build.getResult(), parameterDefinition.getTriggerIfResult())) {
+					    LabelParameterValue newNodeParam = new LabelParameterValue(origNodePram.getName(), nextNodes, parameterDefinition.isIgnoreOfflineNodes());
+						newPrams.add(newNodeParam);
+						final String nextLabel = newNodeParam.getLabel();
+						if (nextLabel != null) {
+							listener.getLogger().print("schedule single build on node " + nextLabel);
+							nextLabelCause = new NextLabelCause(nextLabel, build);
+							triggerNewBuild = true;
+						} else {
+						    listener.getLogger().print("ERROR: can't trigger next build because next label could not be determined!");
 						}
-//					} else {
-//					    listener.getLogger().print("got: "+parameterValue);
-//					}
+					}
 				} else {
 					newPrams.add(parameterValue);
 				}

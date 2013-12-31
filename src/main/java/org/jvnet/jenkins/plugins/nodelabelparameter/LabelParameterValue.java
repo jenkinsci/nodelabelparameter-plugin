@@ -4,22 +4,19 @@
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
 import hudson.EnvVars;
-import hudson.Launcher;
 import hudson.Util;
-import hudson.model.BuildListener;
-import hudson.model.Node;
-import hudson.model.ParameterDefinition;
 import hudson.model.ParameterValue;
 import hudson.model.AbstractBuild;
 import hudson.model.Computer;
 import hudson.model.Label;
+import hudson.model.Node;
+import hudson.model.ParameterDefinition;
 import hudson.model.ParametersDefinitionProperty;
 import hudson.model.labels.LabelExpression;
 import hudson.model.queue.SubTask;
 import hudson.tasks.BuildWrapper;
 import hudson.util.VariableResolver;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -201,14 +198,6 @@ public class LabelParameterValue extends ParameterValue {
         }
     }
 
-    // /**
-    // * @see hudson.model.ParameterValue#createBuildWrapper(hudson.model.AbstractBuild)
-    // */
-    // @Override
-    // public BuildWrapper createBuildWrapper(AbstractBuild<?, ?> build) {
-    // return new AddBadgeBuildWrapper();
-    // }
-
     /**
      * @see hudson.model.ParameterValue#createBuildWrapper(hudson.model.AbstractBuild)
      */
@@ -216,7 +205,7 @@ public class LabelParameterValue extends ParameterValue {
     public BuildWrapper createBuildWrapper(AbstractBuild<?, ?> build) {
 
         // add a badge icon to the build
-        build.addAction(new LabelBadgeAction(getLabel(), Messages.LabelBadgeAction_node_tooltip(getLabel())));
+        addBadgeToBuild(build);
 
         final ParametersDefinitionProperty property = build.getProject().getProperty(hudson.model.ParametersDefinitionProperty.class);
         if (property != null) {
@@ -259,20 +248,14 @@ public class LabelParameterValue extends ParameterValue {
         result = 31 * result + (label != null ? label.hashCode() : 0);
         return result;
     }
-
-    private class AddBadgeBuildWrapper extends BuildWrapper {
-        @Override
-        public Environment setUp(AbstractBuild build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
-            // add a badge icon to the build
-            final Computer c = Computer.currentComputer();
-            if (c != null) {
-                String cName = StringUtils.isBlank(c.getName()) ? "master" : c.getName();
-                build.addAction(new LabelBadgeAction(getLabel(), Messages.LabelBadgeAction_label_tooltip_node(getLabel(), cName)));
-            } else {
-                build.addAction(new LabelBadgeAction(getLabel(), Messages.LabelBadgeAction_label_tooltip(getLabel())));
-            }
-            return new Environment() {
-            };
+    
+    private void addBadgeToBuild(AbstractBuild<?, ?> build) {
+        final Computer c = Computer.currentComputer();
+        if (c != null) {
+            String cName = StringUtils.isBlank(c.getName()) ? "master" : c.getName();
+            build.addAction(new LabelBadgeAction(getLabel(), Messages.LabelBadgeAction_label_tooltip_node(getLabel(), cName)));
+        } else {
+            build.addAction(new LabelBadgeAction(getLabel(), Messages.LabelBadgeAction_label_tooltip(getLabel())));
         }
     }
 }

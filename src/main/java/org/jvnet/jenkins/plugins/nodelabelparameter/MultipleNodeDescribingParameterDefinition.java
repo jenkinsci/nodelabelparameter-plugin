@@ -4,18 +4,48 @@ import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
 
+/**
+ * 
+ * @author Dominik Bartholdi (imod)
+ */
 public interface MultipleNodeDescribingParameterDefinition {
 
-    public static final String ALL_CASES = "allCases";
-    public static final String CASE_SUCCESS = "success";
+    public static final String ALL_CASES     = "allCases";
+    public static final String CASE_SUCCESS  = "success";
     public static final String CASE_UNSTABLE = "unstable";
 
-    String getTriggerIfResult();
+    /**
+     * Get the requested build result definition
+     * 
+     * @return
+     */
+    public String getTriggerIfResult();
 
-    String getName();
+    /**
+     * The name of the parameter
+     * 
+     * @return the name of the parameter
+     */
+    public String getName();
 
-    boolean isIgnoreOfflineNodes();
+    /**
+     * Should a build be triggered for nodes currently offline
+     * 
+     * @return <code>true</code> if offline nodes should be ignored
+     */
+    public boolean isIgnoreOfflineNodes();
 
-    void validateBuild(AbstractBuild build, Launcher launcher, BuildListener listener);
+    /**
+     * Callback to allow the parameter definition to do a final validation if everything is OK to proceed. Implementations are asked to throw a runtime exception if something is not OK and the build
+     * should be stopped.
+     * 
+     * @param build
+     *            build to be validated
+     * @param launcher
+     *            build launcher
+     * @param listener
+     *            provides access to the log stream
+     */
+    public void validateBuild(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener);
 
 }

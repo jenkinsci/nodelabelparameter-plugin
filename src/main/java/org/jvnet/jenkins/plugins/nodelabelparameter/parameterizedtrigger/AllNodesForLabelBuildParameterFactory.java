@@ -1,6 +1,8 @@
 package org.jvnet.jenkins.plugins.nodelabelparameter.parameterizedtrigger;
 
 import hudson.Extension;
+import hudson.model.ParameterValue;
+import hudson.model.ParametersAction;
 import hudson.model.TaskListener;
 import hudson.model.AbstractBuild;
 import hudson.model.Hudson;
@@ -16,6 +18,7 @@ import java.util.Set;
 
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
 import org.jenkinsci.plugins.tokenmacro.TokenMacro;
+import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterValue;
 import org.jvnet.jenkins.plugins.nodelabelparameter.Messages;
 import org.jvnet.jenkins.plugins.nodelabelparameter.NodeUtil;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -53,7 +56,7 @@ public class AllNodesForLabelBuildParameterFactory extends AbstractBuildParamete
             labelExpanded = nodeLabel;
             e.printStackTrace(listener.getLogger());
         }
-
+        
         listener.getLogger().println("Getting all nodes with label: " + labelExpanded);
         Set<Node> nodes = Hudson.getInstance().getLabel(labelExpanded).getNodes();
         List<String> selfLabels = Lists.transform(new ArrayList<Node>(nodes), SELF_LABEL_FUNCTION);
