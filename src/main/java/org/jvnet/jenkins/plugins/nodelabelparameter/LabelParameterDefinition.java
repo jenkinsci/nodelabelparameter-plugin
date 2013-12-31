@@ -139,10 +139,8 @@ public class LabelParameterDefinition extends ParameterDefinition implements Mul
             return getDefaultParameterValue();
         } else if (value.length != 1) {
             throw new IllegalArgumentException("Illegal number of parameter values for " + getName() + ": " + value.length);
-        } else {
-//            return createValue(value[0]);
-        }
-        return null;
+        } 
+        return new LabelParameterValue(getName(), value[0], allNodesMatchingLabel, ignoreOfflineNodes);
     }
 
     public String getTriggerIfResult() {

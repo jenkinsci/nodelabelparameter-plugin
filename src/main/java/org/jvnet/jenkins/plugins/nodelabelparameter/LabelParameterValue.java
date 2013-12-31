@@ -34,7 +34,7 @@ import antlr.ANTLRException;
 
 /**
  * 
- * @author domi
+ * @author Dominik Bartholdi (imod)
  * 
  */
 public class LabelParameterValue extends ParameterValue {
@@ -50,7 +50,6 @@ public class LabelParameterValue extends ParameterValue {
 
     public LabelParameterValue(String name) {
         super(nameOrDefault(name));
-        System.out.println("LabelParameterValue.LabelParameterValue() 0");
     }
 
     private List<String> getNodeNamesForLabelExpression(String labelExp) {
@@ -58,7 +57,9 @@ public class LabelParameterValue extends ParameterValue {
         try {
             Label label = LabelExpression.parseExpression(labelExp);
             for (Node node : label.getNodes()) {
-                nodeNames.add(node.getSelfLabel().getName());
+                final String nodeName = node.getNodeName();
+                nodeNames.add(nodeName);
+//                nodeNames.add(node.getSelfLabel().getName());
             }
         } catch (ANTLRException e) {
             e.printStackTrace();
@@ -68,13 +69,11 @@ public class LabelParameterValue extends ParameterValue {
 
     @Deprecated
     public LabelParameterValue(String name, String label) {
-        this(name, label, false);
-        System.out.println("LabelParameterValue.LabelParameterValue() 1");
+        this(name, label, false, false);
     }
 
     public LabelParameterValue(String name, List<String> labels, boolean ignoreOfflineNodes) {
         super(name);
-        System.out.println("LabelParameterValue.LabelParameterValue() 2");
         setNextLabels(labels, ignoreOfflineNodes);
     }
 
@@ -82,19 +81,20 @@ public class LabelParameterValue extends ParameterValue {
      * @param name
      */
     @DataBoundConstructor
-    public LabelParameterValue(String name, String label, boolean ignoreOfflineNodes) {
+    public LabelParameterValue(String name, String label, boolean allNodesMatchingLabel,  boolean ignoreOfflineNodes) {
         super(nameOrDefault(name));
-        System.out.println("LabelParameterValue.LabelParameterValue() 3");
         if (label != null) {
             this.label = label.trim();
         }
 
-        List<String> labels = getNodeNamesForLabelExpression(label);
-        if(labels.isEmpty()) {
-            // we are not able to determine a node for the given label - let Jenkins inform the user about it, by placing the job into the queue
-            labels.add(label);
+        if(allNodesMatchingLabel) {
+            List<String> labels = getNodeNamesForLabelExpression(label);
+            if(labels.isEmpty()) {
+                // we are not able to determine a node for the given label - let Jenkins inform the user about it, by placing the job into the queue
+                labels.add(label);
+            }
+            setNextLabels(labels, ignoreOfflineNodes);
         }
-        setNextLabels(labels, ignoreOfflineNodes);
     }
 
     private void setNextLabels(List<String> labels, boolean ignoreOfflineNodes) {
