@@ -224,7 +224,7 @@ public class LabelParameterValue extends ParameterValue {
         }
         return null;
     }
-
+    
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -249,7 +249,12 @@ public class LabelParameterValue extends ParameterValue {
         return result;
     }
     
-    private void addBadgeToBuild(AbstractBuild<?, ?> build) {
+    /**
+     * adds a badge to the build which will be visible in the build history as an icon
+     * 
+     * @param build the build to add the badge to
+     */
+    protected void addBadgeToBuild(AbstractBuild<?, ?> build) {
         final Computer c = Computer.currentComputer();
         if (c != null) {
             String cName = StringUtils.isBlank(c.getName()) ? Constants.MASTER : c.getName();
