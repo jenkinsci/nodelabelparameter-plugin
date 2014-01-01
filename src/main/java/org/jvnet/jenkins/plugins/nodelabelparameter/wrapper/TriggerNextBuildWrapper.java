@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.jvnet.jenkins.plugins.nodelabelparameter.Constants;
 import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterValue;
 import org.jvnet.jenkins.plugins.nodelabelparameter.MultipleNodeDescribingParameterDefinition;
 import org.jvnet.jenkins.plugins.nodelabelparameter.NextLabelCause;
@@ -159,18 +160,18 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 		private boolean shouldScheduleNextJob(Result buildResult, String runIfResult) {
 			// If runIfResult is null, set it to "allCases".
 			if (runIfResult == null) {
-				runIfResult = MultipleNodeDescribingParameterDefinition.ALL_CASES;
+				runIfResult = Constants.ALL_CASES;
 			}
 			// If runIfResult is "allCases", we're running regardless.
-			if (runIfResult.equals(MultipleNodeDescribingParameterDefinition.ALL_CASES)) {
+			if (runIfResult.equals(Constants.ALL_CASES)) {
 				return true;
 			} else {
 				// Otherwise, we're going to need to compare against the build
 				// result.
 
-				if (MultipleNodeDescribingParameterDefinition.CASE_SUCCESS.equals(runIfResult)) {
+				if (Constants.CASE_SUCCESS.equals(runIfResult)) {
 					return ((buildResult == null) || (buildResult.isBetterOrEqualTo(Result.SUCCESS)));
-				} else if (MultipleNodeDescribingParameterDefinition.CASE_UNSTABLE.equals(runIfResult)) {
+				} else if (Constants.CASE_UNSTABLE.equals(runIfResult)) {
 					return ((buildResult == null) || (buildResult.isBetterOrEqualTo(Result.UNSTABLE)));
 				}
 			}

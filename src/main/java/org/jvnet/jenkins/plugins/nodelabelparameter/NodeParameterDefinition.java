@@ -32,15 +32,12 @@ import org.kohsuke.stapler.StaplerRequest;
  * node. This parameter actually allows to define a list of possible nodes and
  * ask the user before execution.
  *
- * @author domi
+ * @author Dominik Bartholdi (imod)
  *
  */
 public class NodeParameterDefinition extends SimpleParameterDefinition implements MultipleNodeDescribingParameterDefinition {
 
 	private static final long serialVersionUID = 1L;
-
-	public static final String ALL_NODES = "ALL (no restriction)";
-	private static final String MASTER = "master";
 
 	public final List<String> allowedSlaves;
 	private List<String> defaultSlaves;
@@ -57,10 +54,10 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
         this.allowedSlaves = allowedSlaves;
         this.defaultSlaves = defaultSlaves;
 
-        if ("multiSelectionDisallowed".equals(triggerIfResult)) {
+        if (Constants.CASE_MULTISELECT_DISALLOWED.equals(triggerIfResult)) {
             this.allowMultiNodeSelection = false;
             this.triggerConcurrentBuilds = false;
-        } else if ("allowMultiSelectionForConcurrentBuilds".equals(triggerIfResult)) {
+        } else if (Constants.CASE_MULTISELECT_CONCURRENT_BUILDS.equals(triggerIfResult)) {
             this.allowMultiNodeSelection = true;
             this.triggerConcurrentBuilds = true;
         } else {
@@ -74,6 +71,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
     @Deprecated
 	public NodeParameterDefinition(String name, String description, String defaultValue, List<String> allowedSlaves, String triggerIfResult) {
 		super(name, description);
+		
 		this.allowedSlaves = allowedSlaves;
 
 		if (this.allowedSlaves != null && this.allowedSlaves.contains(defaultValue)) {
@@ -128,10 +126,10 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
 	 * @return list of nodenames.
 	 */
 	public List<String> getAllowedNodesOrAll() {
-		final List<String> slaves = allowedSlaves == null || allowedSlaves.isEmpty() || allowedSlaves.contains(ALL_NODES) ? getNodeNames() : allowedSlaves;
+		final List<String> slaves = allowedSlaves == null || allowedSlaves.isEmpty() || allowedSlaves.contains(Constants.ALL_NODES) ? getNodeNames() : allowedSlaves;
 
 		Collections.sort(slaves, NodeNameComparator.INSTANCE);
-		if(slaves.contains(MASTER)) {
+		if(slaves.contains(Constants.MASTER)) {
 		    moveMasterToFirstPossition(slaves);
 		}
 
@@ -153,7 +151,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
 	 */
 	public static List<String> getSlaveNamesForSelection() {
 		List<String> slaveNames = getNodeNames();
-		slaveNames.add(0, ALL_NODES);
+		slaveNames.add(0, Constants.ALL_NODES);
 		return slaveNames;
 	}
 
@@ -189,8 +187,8 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
 	}
 	
 	private static void moveMasterToFirstPossition(List<String> nodeList) {
-	    nodeList.remove(MASTER);
-	    nodeList.add(0, MASTER);
+	    nodeList.remove(Constants.MASTER);
+	    nodeList.add(0, Constants.MASTER);
 	}
 	
 	/**
@@ -203,7 +201,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
         }
     }
 
-	public void validateBuild(AbstractBuild build, Launcher launcher, BuildListener listener) {
+	public void validateBuild(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
         if (build.getProject().isConcurrentBuild() && !this.isTriggerConcurrentBuilds()) {
             final String msg = Messages.BuildWrapper_param_not_concurrent(this.getName());
             throw new IllegalStateException(msg);

@@ -94,7 +94,7 @@ public class LabelParameterValue extends ParameterValue {
                             nextLabels.add(nodeName);
                         }
                     } else {
-                        LOGGER.fine("Skipping execution on offline node [" + nodeName + "]");
+                        LOGGER.fine(Messages.NodeListBuildParameterFactory_skippOfflineNode(nodeName));
                     }
                 }
             } else {
@@ -110,9 +110,9 @@ public class LabelParameterValue extends ParameterValue {
         if (getLabel() == null || getLabel().length() == 0) {
             // these artificial labels will cause the job to stay in the queue and the user will see this label
             if (ignoreOfflineNodes) {
-                setLabel("Job triggered without a valid online node, given where: " + StringUtils.join(labels, ','));
+                setLabel(Messages.LabelParameterValue_triggerWithoutValidOnlineNode(StringUtils.join(labels, ',')));
             } else {
-                setLabel("Job triggered, but no node given");
+                setLabel(Messages.LabelParameterValue_triggeredButNoNodeGiven());
             }
         }
     }
@@ -252,7 +252,7 @@ public class LabelParameterValue extends ParameterValue {
     private void addBadgeToBuild(AbstractBuild<?, ?> build) {
         final Computer c = Computer.currentComputer();
         if (c != null) {
-            String cName = StringUtils.isBlank(c.getName()) ? "master" : c.getName();
+            String cName = StringUtils.isBlank(c.getName()) ? Constants.MASTER : c.getName();
             build.addAction(new LabelBadgeAction(getLabel(), Messages.LabelBadgeAction_label_tooltip_node(getLabel(), cName)));
         } else {
             build.addAction(new LabelBadgeAction(getLabel(), Messages.LabelBadgeAction_label_tooltip(getLabel())));

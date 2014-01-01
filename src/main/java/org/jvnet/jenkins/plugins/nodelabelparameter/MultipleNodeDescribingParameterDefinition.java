@@ -10,10 +10,6 @@ import hudson.model.BuildListener;
  */
 public interface MultipleNodeDescribingParameterDefinition {
 
-    public static final String ALL_CASES     = "allCases";
-    public static final String CASE_SUCCESS  = "success";
-    public static final String CASE_UNSTABLE = "unstable";
-
     /**
      * Get the requested build result definition
      * 

@@ -55,12 +55,12 @@ public class LabelParameterDefinition extends ParameterDefinition implements Mul
 		this.defaultValue = defaultValue;
 		this.allNodesMatchingLabel = allNodesMatchingLabel;
 		this.ignoreOfflineNodes = ignoreOfflineNodes;
-		this.triggerIfResult = StringUtils.isBlank(triggerIfResult) ? ALL_CASES : triggerIfResult;
+		this.triggerIfResult = StringUtils.isBlank(triggerIfResult) ? Constants.ALL_CASES : triggerIfResult;
 	}
 
 	@Deprecated
 	public LabelParameterDefinition(String name, String description, String defaultValue) {
-        this(name, description, defaultValue, false, false, ALL_CASES);
+        this(name, description, defaultValue, false, false, Constants.ALL_CASES);
     }
 	
 	@Override
@@ -99,9 +99,9 @@ public class LabelParameterDefinition extends ParameterDefinition implements Mul
 		}
 		
         /**
-         * Autocompletion method, called by UI to
+         * Called by UI - Autocompletion for label values
          *
-         * @param value
+         * @param value the current value in the text field to base the automcompetion upon.
          * @return
          */
         public AutoCompletionCandidates doAutoCompleteDefaultValue(@QueryParameter String value) {
@@ -115,6 +115,11 @@ public class LabelParameterDefinition extends ParameterDefinition implements Mul
             return candidates;
         }
 
+        /**
+         * Called by UI - Checks whether the given label is valid
+         * @param value the label to be checked
+         * @return 
+         */
         public FormValidation doCheckDefaultValue(@QueryParameter String value) {
             if (value.isEmpty())
                 return FormValidation.ok();
@@ -128,10 +133,16 @@ public class LabelParameterDefinition extends ParameterDefinition implements Mul
             }
         }
         
+        /**
+         * Called by validation button in UI when triggering a job manually 
+         * @param label the label to search the nodes for
+         * @return if ok, a list of nodes matching the given label
+         * @throws ServletException
+         */
         public FormValidation doListNodesForLabel(@QueryParameter("label") final String label) throws ServletException {
 
             if (StringUtils.isBlank(label))
-                return FormValidation.error("a label is required");
+                return FormValidation.error(Messages.LabelParameterDefinition_labelRequired());
             try {
                 final Set<Node> nodes = getNodesForLabel(label);
                 if(nodes.isEmpty()) {
@@ -139,7 +150,7 @@ public class LabelParameterDefinition extends ParameterDefinition implements Mul
                 }
                 final Collection<String> nodeNames = Collections2.transform(nodes, new NodeDescFunction());
                 final String html = Joiner.on("</li><li>").join(nodeNames);
-                return FormValidation.okWithMarkup("<b>Found nodes:</b> <ul><li>" + html +"</li></ul>");
+                return FormValidation.okWithMarkup("<b>"+Messages.LabelParameterDefinition_matchingNodes()+"</b><ul><li>" + html +"</li></ul>");
             } catch (ANTLRException e) {
                 return FormValidation.error(Messages.NodeLabelParameterDefinition_labelExpressionNotValid(label, e.getMessage()));
             }
@@ -155,7 +166,7 @@ public class LabelParameterDefinition extends ParameterDefinition implements Mul
          */
         private static final class NodeDescFunction implements Function<Node, String> {
             public String apply(Node n) {
-                final String nodeName = StringUtils.isBlank(n.getNodeName()) ? "master" : n.getNodeName(); 
+                final String nodeName = StringUtils.isBlank(n.getNodeName()) ? Constants.MASTER : n.getNodeName(); 
                 return nodeName + (NodeUtil.isNodeOnline(nodeName) ? "" : " (offline)");
             }
         }
@@ -189,10 +200,10 @@ public class LabelParameterDefinition extends ParameterDefinition implements Mul
     }
 
     public boolean isTriggerConcurrentBuilds() {
-        return ALL_CASES.equals(triggerIfResult);
+        return Constants.ALL_CASES.equals(triggerIfResult);
     }
 
-    public void validateBuild(AbstractBuild build, Launcher launcher, BuildListener listener) {
+    public void validateBuild(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
         if (build.getProject().isConcurrentBuild() && !this.isTriggerConcurrentBuilds()) {
             final String msg = Messages.BuildWrapper_param_not_concurrent(this.getName());
             throw new IllegalStateException(msg);
