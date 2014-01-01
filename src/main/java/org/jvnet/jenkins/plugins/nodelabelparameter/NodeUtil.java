@@ -15,7 +15,7 @@ public final class NodeUtil {
      * @return <code>true</code> if the job is ok to be used
      */
     public static boolean isNodeOnline(String nodeName){
-        if("master".equals(nodeName)){
+        if(Constants.MASTER.equals(nodeName)){
             return true;
         }
         final Computer c = Jenkins.getInstance().getComputer(nodeName);

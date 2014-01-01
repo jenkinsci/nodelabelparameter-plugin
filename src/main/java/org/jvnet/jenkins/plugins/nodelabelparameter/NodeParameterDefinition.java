@@ -71,7 +71,6 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
     @Deprecated
 	public NodeParameterDefinition(String name, String description, String defaultValue, List<String> allowedSlaves, String triggerIfResult) {
 		super(name, description);
-		
 		this.allowedSlaves = allowedSlaves;
 
 		if (this.allowedSlaves != null && this.allowedSlaves.contains(defaultValue)) {
@@ -79,10 +78,10 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
 			this.allowedSlaves.add(0, defaultValue);
 		}
 
-		if ("multiSelectionDisallowed".equals(triggerIfResult)) {
+		if (Constants.CASE_MULTISELECT_DISALLOWED.equals(triggerIfResult)) {
 			this.allowMultiNodeSelection = false;
 			this.triggerConcurrentBuilds = false;
-		} else if ("allowMultiSelectionForConcurrentBuilds".equals(triggerIfResult)) {
+		} else if (Constants.CASE_MULTISELECT_CONCURRENT_BUILDS.equals(triggerIfResult)) {
 			this.allowMultiNodeSelection = true;
 			this.triggerConcurrentBuilds = true;
 		} else {
