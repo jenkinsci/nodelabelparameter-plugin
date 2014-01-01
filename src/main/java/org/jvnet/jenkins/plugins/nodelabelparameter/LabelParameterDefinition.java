@@ -3,6 +3,11 @@
  */
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
+import java.util.Collection;
+import java.util.Set;
+
+import javax.servlet.ServletException;
+
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
@@ -10,6 +15,7 @@ import hudson.model.AutoCompletionCandidates;
 import hudson.model.BuildListener;
 import hudson.model.ParameterValue;
 import hudson.model.Label;
+import hudson.model.Node;
 import hudson.model.ParameterDefinition;
 import hudson.model.labels.LabelExpression;
 import hudson.util.FormValidation;
@@ -20,6 +26,10 @@ import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
+
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Collections2;
 
 import antlr.ANTLRException;
 
@@ -109,15 +119,46 @@ public class LabelParameterDefinition extends ParameterDefinition implements Mul
             if (value.isEmpty())
                 return FormValidation.ok();
             try {
-                Label label = LabelExpression.parseExpression(value); //validates expression
-                int matchingNodeCount = label.getNodes().size();
+                int matchingNodeCount = getNodesForLabel(value).size(); //validates expression
                 return matchingNodeCount == 0
                         ? FormValidation.warning(Messages.NodeLabelParameterDefinition_noNodeMatched(value))
                                 : FormValidation.ok();
             } catch (ANTLRException e) {
                 return FormValidation.error(Messages.NodeLabelParameterDefinition_labelExpressionNotValid(value, e.getMessage()));
             }
-        }   		
+        }
+        
+        public FormValidation doListNodesForLabel(@QueryParameter("label") final String label) throws ServletException {
+
+            if (StringUtils.isBlank(label))
+                return FormValidation.error("a label is required");
+            try {
+                final Set<Node> nodes = getNodesForLabel(label);
+                if(nodes.isEmpty()) {
+                    return FormValidation.warning(Messages.NodeLabelParameterDefinition_noNodeMatched(label));
+                }
+                final Collection<String> nodeNames = Collections2.transform(nodes, new NodeDescFunction());
+                final String html = Joiner.on("</li><li>").join(nodeNames);
+                return FormValidation.okWithMarkup("<b>Found nodes:</b> <ul><li>" + html +"</li></ul>");
+            } catch (ANTLRException e) {
+                return FormValidation.error(Messages.NodeLabelParameterDefinition_labelExpressionNotValid(label, e.getMessage()));
+            }
+        }        
+        
+        private Set<Node> getNodesForLabel(String labelExp) throws ANTLRException {
+            Label label = LabelExpression.parseExpression(labelExp);
+            return label.getNodes();
+        }
+        
+        /**
+         * function providing the node description for UI when listing matching nodes
+         */
+        private static final class NodeDescFunction implements Function<Node, String> {
+            public String apply(Node n) {
+                final String nodeName = StringUtils.isBlank(n.getNodeName()) ? "master" : n.getNodeName(); 
+                return nodeName + (NodeUtil.isNodeOnline(nodeName) ? "" : " (offline)");
+            }
+        }
 	}
 
 	@Override

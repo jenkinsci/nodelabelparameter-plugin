@@ -34,5 +34,6 @@ THE SOFTWARE.
 			<f:textbox name="label" value="${it.defaultValue}" />
 		</div>
 	</f:entry>	
-	
+    <j:set var="descriptor" value="${it.descriptor}"/>
+    <f:validateButton title="${%Show nodes}" progress="${%searching...}" method="listNodesForLabel" with="label" />
 </j:jelly>
