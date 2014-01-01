@@ -3,16 +3,9 @@
  */
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
-import hudson.model.AbstractBuild;
-import hudson.model.ParameterDefinition;
-import hudson.model.ParametersDefinitionProperty;
-import hudson.tasks.BuildWrapper;
-
 import java.util.List;
-import java.util.logging.Logger;
 
 import org.apache.commons.lang.StringUtils;
-import org.jvnet.jenkins.plugins.nodelabelparameter.wrapper.TriggerNextBuildWrapper;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
@@ -20,8 +13,6 @@ import org.kohsuke.stapler.DataBoundConstructor;
  */
 public class NodeParameterValue extends LabelParameterValue {
     
-    private static final Logger LOGGER = Logger.getLogger(NodeParameterValue.class.getName());
-
 	private static final long serialVersionUID = 1L;
 
 	/**
@@ -53,33 +44,6 @@ public class NodeParameterValue extends LabelParameterValue {
 		s.append("]");
 		return s.toString();
 	}
-
-	/**
-	 * @see hudson.model.ParameterValue#createBuildWrapper(hudson.model.AbstractBuild)
-	 */
-//	@Override
-//	public BuildWrapper createBuildWrapper(AbstractBuild<?, ?> build) {
-//
-//		// add a badge icon to the build
-//		build.addAction(new LabelBadgeAction(getLabel(), Messages.LabelBadgeAction_node_tooltip(getLabel())));
-//
-//		final ParametersDefinitionProperty property = build.getProject().getProperty(hudson.model.ParametersDefinitionProperty.class);
-//        if (property != null) {
-//            final List<ParameterDefinition> parameterDefinitions = property.getParameterDefinitions();
-//            for (ParameterDefinition paramDef : parameterDefinitions) {
-//                if (paramDef instanceof NodeParameterDefinition) {
-//                    final NodeParameterDefinition nodeParameterDefinition = (NodeParameterDefinition) paramDef;
-//                    if (nodeParameterDefinition.getAllowMultiNodeSelection()) {
-//                        // we expect only one node parameter definition per job
-//                        return new TriggerNextBuildWrapper(nodeParameterDefinition);
-//                    } else {
-//                        return null;
-//                    }
-//                }
-//            }
-//		}
-//		return null;
-//	}
 
     @Override
     public boolean equals(Object o) {
