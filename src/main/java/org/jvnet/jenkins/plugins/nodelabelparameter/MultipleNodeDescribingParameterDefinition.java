@@ -1,5 +1,7 @@
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
+import org.jvnet.jenkins.plugins.nodelabelparameter.wrapper.TriggerNextBuildWrapper;
+
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
@@ -43,5 +45,12 @@ public interface MultipleNodeDescribingParameterDefinition {
      *            provides access to the log stream
      */
     public void validateBuild(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener);
+
+    /**
+     * Returns the wrapper to trigger the next build
+     * 
+     * @return <code>null</code> if there is no new build to be triggered.
+     */
+    public TriggerNextBuildWrapper createBuildWrapper();
 
 }

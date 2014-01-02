@@ -22,6 +22,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
+import org.jvnet.jenkins.plugins.nodelabelparameter.wrapper.TriggerNextBuildWrapper;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
@@ -272,5 +273,13 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
         }
         return this;
     }	
+    
+    public TriggerNextBuildWrapper createBuildWrapper() {
+        if (this.getAllowMultiNodeSelection()) {
+            // we expect only one node parameter definition per job
+            return new TriggerNextBuildWrapper(this);
+        }
+        return null;
+    }
 
 }

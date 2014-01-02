@@ -64,15 +64,15 @@ public class LabelParameterValue extends ParameterValue {
      * @param name
      */
     @DataBoundConstructor
-    public LabelParameterValue(String name, String label, boolean allNodesMatchingLabel,  boolean ignoreOfflineNodes) {
+    public LabelParameterValue(String name, String label, boolean allNodesMatchingLabel, boolean ignoreOfflineNodes) {
         super(nameOrDefault(name));
         if (label != null) {
             this.label = label.trim();
         }
 
-        if(allNodesMatchingLabel) {
+        if (allNodesMatchingLabel) {
             List<String> labels = getNodeNamesForLabelExpression(label);
-            if(labels.isEmpty()) {
+            if (labels.isEmpty()) {
                 // we are not able to determine a node for the given label - let Jenkins inform the user about it, by placing the job into the queue
                 labels.add(label);
             }
@@ -82,10 +82,12 @@ public class LabelParameterValue extends ParameterValue {
 
     private void setNextLabels(List<String> labels, boolean ignoreOfflineNodes) {
         if (labels != null && !labels.isEmpty()) {
+            
+            List<String> tmpLabels = new ArrayList<String>(labels);
 
             nextLabels = new ArrayList<String>();
             if (ignoreOfflineNodes) {
-                for (String nodeName : labels) {
+                for (String nodeName : tmpLabels) {
                     nodeName = nodeName.trim();
                     if (NodeUtil.isNodeOnline(nodeName)) {
                         if (getLabel() == null) {
@@ -98,13 +100,25 @@ public class LabelParameterValue extends ParameterValue {
                     }
                 }
             } else {
-                this.setLabel(labels.get(0).trim());
-                if (labels.size() > 1) {
-                    final List<String> subList = labels.subList(1, labels.size());
-                    for (String l : subList) {
-                        nextLabels.add(l.trim());
+
+                // search for the first online node we can use, otherwise we might get needlessly stuck in the queue before we even start the first job
+                String firstOnlineNodeName = null;
+                for (String nodeName : tmpLabels) {
+                    if (NodeUtil.isNodeOnline(nodeName.trim())) {
+                        firstOnlineNodeName = nodeName;
+                        break;
                     }
                 }
+
+                if (firstOnlineNodeName == null) {
+                    // we did not find an online node, therefore we use the first entry in the requested list
+                    firstOnlineNodeName = tmpLabels.remove(0);
+                } else {
+                    tmpLabels.remove(firstOnlineNodeName);
+                }
+                this.setLabel(firstOnlineNodeName.trim());
+                nextLabels.addAll(tmpLabels);
+
             }
         }
         if (getLabel() == null || getLabel().length() == 0) {
@@ -125,7 +139,7 @@ public class LabelParameterValue extends ParameterValue {
                 nodeNames.add(node.getSelfLabel().getName());
             }
         } catch (ANTLRException e) {
-            LOGGER.log(Level.SEVERE, "failed to parse label ["+labelExp+"]", e);
+            LOGGER.log(Level.SEVERE, "failed to parse label [" + labelExp + "]", e);
         }
         return nodeNames;
     }
@@ -211,20 +225,23 @@ public class LabelParameterValue extends ParameterValue {
         if (property != null) {
             final List<ParameterDefinition> parameterDefinitions = property.getParameterDefinitions();
             for (ParameterDefinition paramDef : parameterDefinitions) {
-                if (paramDef instanceof LabelParameterDefinition) {
-                    final LabelParameterDefinition labelParameterDefinition = (LabelParameterDefinition) paramDef;
-                    if (labelParameterDefinition.isAllNodesMatchingLabel()) {
-                        // we expect only one node parameter definition per job
-                        return new TriggerNextBuildWrapper(labelParameterDefinition);
-                    } else {
-                        return null;
-                    }
+                if(MultipleNodeDescribingParameterDefinition.class.isInstance(paramDef)) {
+                    return ((MultipleNodeDescribingParameterDefinition)paramDef).createBuildWrapper();
                 }
+//                if (paramDef instanceof LabelParameterDefinition) {
+//                    final LabelParameterDefinition labelParameterDefinition = (LabelParameterDefinition) paramDef;
+//                    if (labelParameterDefinition.isAllNodesMatchingLabel()) {
+//                        // we expect only one node parameter definition per job
+//                        return new TriggerNextBuildWrapper(labelParameterDefinition);
+//                    } else {
+//                        return null;
+//                    }
+//                }
             }
         }
         return null;
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -248,11 +265,12 @@ public class LabelParameterValue extends ParameterValue {
         result = 31 * result + (label != null ? label.hashCode() : 0);
         return result;
     }
-    
+
     /**
      * adds a badge to the build which will be visible in the build history as an icon
      * 
-     * @param build the build to add the badge to
+     * @param build
+     *            the build to add the badge to
      */
     protected void addBadgeToBuild(AbstractBuild<?, ?> build) {
         final Computer c = Computer.currentComputer();

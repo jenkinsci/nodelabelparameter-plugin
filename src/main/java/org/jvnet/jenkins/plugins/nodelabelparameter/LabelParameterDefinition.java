@@ -23,6 +23,7 @@ import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
+import org.jvnet.jenkins.plugins.nodelabelparameter.wrapper.TriggerNextBuildWrapper;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
@@ -208,6 +209,15 @@ public class LabelParameterDefinition extends ParameterDefinition implements Mul
             final String msg = Messages.BuildWrapper_param_not_concurrent(this.getName());
             throw new IllegalStateException(msg);
         }
+    }
+    
+    
+    public TriggerNextBuildWrapper createBuildWrapper() {
+        if (this.isAllNodesMatchingLabel()) {
+            // we expect only one node parameter definition per job
+            return new TriggerNextBuildWrapper(this);
+        } 
+        return null;
     }
 	
 }
