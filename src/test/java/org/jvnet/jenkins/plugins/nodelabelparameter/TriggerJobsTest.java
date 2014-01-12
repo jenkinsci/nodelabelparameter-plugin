@@ -58,7 +58,7 @@ public class TriggerJobsTest {
     public void jobMustRunOnAllRequestedSlaves_IgnoreOfflineNodes() throws Exception {
 
         final ArrayList<String> defaultNodeNames = Lists.newArrayList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
-        runTest(2, 0, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Lists.newArrayList(Constants.ALL_NODES), Constants.ALL_CASES, true), false);
+        runTest(2, 0, false, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Lists.newArrayList(Constants.ALL_NODES), Constants.ALL_CASES, true));
 
     }
 
@@ -71,7 +71,7 @@ public class TriggerJobsTest {
     public void jobMustRunOnAllRequestedSlaves_NotIgnoringOfflineNodes() throws Exception {
 
         final ArrayList<String> defaultNodeNames = Lists.newArrayList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
-        runTest(2, 1, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Lists.newArrayList(Constants.ALL_NODES), Constants.ALL_CASES, false), false);
+        runTest(2, 1, false, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Lists.newArrayList(Constants.ALL_NODES), Constants.ALL_CASES, false));
     }
 
     /**
@@ -83,7 +83,7 @@ public class TriggerJobsTest {
     public void jobMustRunOnAllRequestedSlaves_Concurrent_NotIgnoringOfflineNodes() throws Exception {
 
         final ArrayList<String> defaultNodeNames = Lists.newArrayList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
-        runTest(2, 1, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Lists.newArrayList(Constants.ALL_NODES), Constants.CASE_MULTISELECT_CONCURRENT_BUILDS, false), true);
+        runTest(2, 1, true, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Lists.newArrayList(Constants.ALL_NODES), Constants.CASE_MULTISELECT_CONCURRENT_BUILDS, false));
 
     }
 
@@ -96,12 +96,12 @@ public class TriggerJobsTest {
     public void jobMustRunOnAllRequestedSlaves_Concurrent_IgnoreOfflineNodes() throws Exception {
 
         final ArrayList<String> defaultNodeNames = Lists.newArrayList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
-        runTest(2, 0, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Lists.newArrayList(Constants.ALL_NODES), Constants.CASE_MULTISELECT_CONCURRENT_BUILDS, true), true);
+        runTest(2, 0, true, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Lists.newArrayList(Constants.ALL_NODES), Constants.CASE_MULTISELECT_CONCURRENT_BUILDS, true));
 
     }
 
     /**
-     * usescase: job is configured to be executed on four nodes per default (concurrent), only two nodes and master are online - offline nodes are
+     * usescase: job is configured to be executed on four nodes per default (concurrent), only two nodes and master are online
      * 
      * @throws Exception
      */
@@ -109,11 +109,11 @@ public class TriggerJobsTest {
     public void jobMustRunOnAllRequestedSlaves_including_Master_IgnoreOfflineNodes() throws Exception {
 
         final ArrayList<String> defaultNodeNames = Lists.newArrayList("master", onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
-        runTest(3, 0, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Lists.newArrayList(Constants.ALL_NODES), Constants.ALL_CASES, true), false);
+        runTest(3, 0, false, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Lists.newArrayList(Constants.ALL_NODES), Constants.ALL_CASES, true));
 
     }
 
-    public void runTest(int expectedNumberOfExecutedRuns, int expectedNumberOfItemsInTheQueue, NodeParameterDefinition parameterDefinition, boolean configureProjectForConcurrentBuilds) throws Exception {
+    protected void runTest(int expectedNumberOfExecutedRuns, int expectedNumberOfItemsInTheQueue, boolean configureProjectForConcurrentBuilds, NodeParameterDefinition parameterDefinition) throws Exception {
 
         assertTrue(NodeUtil.isNodeOnline(onlineNode1.getNodeName()));
         assertTrue(NodeUtil.isNodeOnline(onlineNode2.getNodeName()));
@@ -131,6 +131,6 @@ public class TriggerJobsTest {
         Thread.sleep(10000); // give async triggered jobs some time to finish (10 Seconds)
         assertEquals("expcted number of runs", expectedNumberOfExecutedRuns, projectA.getLastBuild().number);
         assertEquals("expected number of items in the queue", expectedNumberOfItemsInTheQueue, j.jenkins.getQueue().getBuildableItems().size());
-        
+
     }
 }

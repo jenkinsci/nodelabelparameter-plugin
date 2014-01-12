@@ -13,12 +13,13 @@ import java.io.IOException;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
 import org.jenkinsci.plugins.tokenmacro.TokenMacro;
 import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterValue;
+import org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
  * As this plugin is build against Jenkins1.398 and dynamic nodelabel assignment was only introduced with Jenkins1.417, this extension is marked as optional!
  * 
- * @author domi
+ * @author Dominik Bartholdi (imod)
  * 
  */
 public class NodeLabelBuildParameter extends AbstractBuildParameters {
@@ -40,7 +41,7 @@ public class NodeLabelBuildParameter extends AbstractBuildParameters {
             labelExpanded = nodeLabel;
             e.printStackTrace(listener.getLogger());
         }
-        LabelParameterValue parameterValue = new LabelParameterValue(name, labelExpanded, false, false);
+        LabelParameterValue parameterValue = new LabelParameterValue(name, labelExpanded, false, new AllNodeEligibility());
         listener.getLogger().println("define: " + parameterValue);
 
         return new ParametersAction(parameterValue);

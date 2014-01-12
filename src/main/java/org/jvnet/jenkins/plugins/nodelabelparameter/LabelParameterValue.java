@@ -24,7 +24,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.lang.StringUtils;
-import org.jvnet.jenkins.plugins.nodelabelparameter.wrapper.TriggerNextBuildWrapper;
+import org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility;
+import org.jvnet.jenkins.plugins.nodelabelparameter.node.NodeEligibility;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.export.Exported;
 
@@ -52,19 +53,19 @@ public class LabelParameterValue extends ParameterValue {
 
     @Deprecated
     public LabelParameterValue(String name, String label) {
-        this(name, label, false, false);
+        this(name, label, false, new AllNodeEligibility());
     }
 
-    public LabelParameterValue(String name, List<String> labels, boolean ignoreOfflineNodes) {
+    public LabelParameterValue(String name, List<String> labels, NodeEligibility nodeEligibility) {
         super(name);
-        setNextLabels(labels, ignoreOfflineNodes);
+        setNextLabels(labels, nodeEligibility);
     }
 
     /**
      * @param name
      */
     @DataBoundConstructor
-    public LabelParameterValue(String name, String label, boolean allNodesMatchingLabel, boolean ignoreOfflineNodes) {
+    public LabelParameterValue(String name, String label, boolean allNodesMatchingLabel, NodeEligibility nodeEligibility) {
         super(nameOrDefault(name));
         if (label != null) {
             this.label = label.trim();
@@ -76,58 +77,40 @@ public class LabelParameterValue extends ParameterValue {
                 // we are not able to determine a node for the given label - let Jenkins inform the user about it, by placing the job into the queue
                 labels.add(label);
             }
-            setNextLabels(labels, ignoreOfflineNodes);
+            setNextLabels(labels, nodeEligibility);
         }
     }
 
-    private void setNextLabels(List<String> labels, boolean ignoreOfflineNodes) {
+    private void setNextLabels(List<String> labels, NodeEligibility nodeEligibility) {
         if (labels != null && !labels.isEmpty()) {
-            
+
             List<String> tmpLabels = new ArrayList<String>(labels);
-
             nextLabels = new ArrayList<String>();
-            if (ignoreOfflineNodes) {
-                for (String nodeName : tmpLabels) {
-                    nodeName = nodeName.trim();
-                    if (NodeUtil.isNodeOnline(nodeName)) {
-                        if (getLabel() == null) {
-                            this.setLabel(nodeName);
-                        } else {
-                            nextLabels.add(nodeName);
-                        }
+
+            for (String nodeName : tmpLabels) {
+                if (nodeEligibility.isEligible(nodeName)) {
+                    if (getLabel() == null && NodeUtil.isNodeOnline(nodeName)) {
+                        // search for the first online node we can use, otherwise we might get needlessly stuck in the queue before we even start the first job
+                        this.setLabel(nodeName.trim());
                     } else {
-                        LOGGER.fine(Messages.NodeListBuildParameterFactory_skippOfflineNode(nodeName));
+                        nextLabels.add(nodeName);
                     }
-                }
-            } else {
-
-                // search for the first online node we can use, otherwise we might get needlessly stuck in the queue before we even start the first job
-                String firstOnlineNodeName = null;
-                for (String nodeName : tmpLabels) {
-                    if (NodeUtil.isNodeOnline(nodeName.trim())) {
-                        firstOnlineNodeName = nodeName;
-                        break;
-                    }
-                }
-
-                if (firstOnlineNodeName == null) {
-                    // we did not find an online node, therefore we use the first entry in the requested list
-                    firstOnlineNodeName = tmpLabels.remove(0);
                 } else {
-                    tmpLabels.remove(firstOnlineNodeName);
+                    LOGGER.fine(Messages.NodeListBuildParameterFactory_skippOfflineNode(nodeName));
                 }
-                this.setLabel(firstOnlineNodeName.trim());
-                nextLabels.addAll(tmpLabels);
+            }
 
+            if (getLabel() == null) {
+                // we did not find an online node, therefore we use the first entry in the requested list
+                if(!nextLabels.isEmpty()) {
+                    this.setLabel(nextLabels.remove(0).trim());
+                }
             }
+
         }
-        if (getLabel() == null || getLabel().length() == 0) {
-            // these artificial labels will cause the job to stay in the queue and the user will see this label
-            if (ignoreOfflineNodes) {
-                setLabel(Messages.LabelParameterValue_triggerWithoutValidOnlineNode(StringUtils.join(labels, ',')));
-            } else {
-                setLabel(Messages.LabelParameterValue_triggeredButNoNodeGiven());
-            }
+        if (StringUtils.isBlank(getLabel())) {
+            // these artificial label will cause the job to stay in the queue and the user will see this label
+            setLabel(Messages.LabelParameterValue_triggerWithoutValidOnlineNode(StringUtils.join(labels, ',')));
         }
     }
 
@@ -225,18 +208,9 @@ public class LabelParameterValue extends ParameterValue {
         if (property != null) {
             final List<ParameterDefinition> parameterDefinitions = property.getParameterDefinitions();
             for (ParameterDefinition paramDef : parameterDefinitions) {
-                if(MultipleNodeDescribingParameterDefinition.class.isInstance(paramDef)) {
-                    return ((MultipleNodeDescribingParameterDefinition)paramDef).createBuildWrapper();
+                if (MultipleNodeDescribingParameterDefinition.class.isInstance(paramDef)) {
+                    return ((MultipleNodeDescribingParameterDefinition) paramDef).createBuildWrapper();
                 }
-//                if (paramDef instanceof LabelParameterDefinition) {
-//                    final LabelParameterDefinition labelParameterDefinition = (LabelParameterDefinition) paramDef;
-//                    if (labelParameterDefinition.isAllNodesMatchingLabel()) {
-//                        // we expect only one node parameter definition per job
-//                        return new TriggerNextBuildWrapper(labelParameterDefinition);
-//                    } else {
-//                        return null;
-//                    }
-//                }
             }
         }
         return null;

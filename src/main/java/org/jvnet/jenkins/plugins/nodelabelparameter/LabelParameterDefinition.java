@@ -3,36 +3,40 @@
  */
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
-import java.util.Collection;
-import java.util.Set;
-
-import javax.servlet.ServletException;
-
 import hudson.Extension;
 import hudson.Launcher;
-import hudson.model.AbstractBuild;
 import hudson.model.AutoCompletionCandidates;
 import hudson.model.BuildListener;
 import hudson.model.ParameterValue;
+import hudson.model.AbstractBuild;
 import hudson.model.Label;
 import hudson.model.Node;
 import hudson.model.ParameterDefinition;
 import hudson.model.labels.LabelExpression;
 import hudson.util.FormValidation;
+
+import java.util.Collection;
+import java.util.Set;
+
+import javax.servlet.ServletException;
+
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
+import org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility;
+import org.jvnet.jenkins.plugins.nodelabelparameter.node.IgnoreOfflineNodeEligibility;
+import org.jvnet.jenkins.plugins.nodelabelparameter.node.NodeEligibility;
 import org.jvnet.jenkins.plugins.nodelabelparameter.wrapper.TriggerNextBuildWrapper;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
+import antlr.ANTLRException;
+
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Collections2;
-
-import antlr.ANTLRException;
 
 /**
  * Defines a build parameter used to restrict the node a job will be executed
@@ -46,16 +50,31 @@ public class LabelParameterDefinition extends ParameterDefinition implements Mul
 
 	public final String defaultValue;
 	private boolean allNodesMatchingLabel;
-	private boolean ignoreOfflineNodes;
+	@Deprecated
+	private transient boolean ignoreOfflineNodes;
 	private String triggerIfResult;
 	
-
+	private NodeEligibility nodeEligibility;
+	
 	@DataBoundConstructor
+    public LabelParameterDefinition(String name, String description, String defaultValue, boolean allNodesMatchingLabel, NodeEligibility nodeEligibility, String triggerIfResult) {
+	    super(name, description);
+        this.defaultValue = defaultValue;
+        this.allNodesMatchingLabel = allNodesMatchingLabel;
+        this.nodeEligibility = nodeEligibility == null ? new AllNodeEligibility() : nodeEligibility;
+        this.triggerIfResult = StringUtils.isBlank(triggerIfResult) ? Constants.ALL_CASES : triggerIfResult;
+	}
+	
+	@Deprecated
 	public LabelParameterDefinition(String name, String description, String defaultValue, boolean allNodesMatchingLabel, boolean ignoreOfflineNodes, String triggerIfResult) {
 		super(name, description);
 		this.defaultValue = defaultValue;
 		this.allNodesMatchingLabel = allNodesMatchingLabel;
-		this.ignoreOfflineNodes = ignoreOfflineNodes;
+		if(ignoreOfflineNodes) {
+		    this.nodeEligibility = new IgnoreOfflineNodeEligibility();
+		} else {
+		    this.nodeEligibility = new AllNodeEligibility();
+        }
 		this.triggerIfResult = StringUtils.isBlank(triggerIfResult) ? Constants.ALL_CASES : triggerIfResult;
 	}
 
@@ -83,8 +102,8 @@ public class LabelParameterDefinition extends ParameterDefinition implements Mul
         return allNodesMatchingLabel;
     }
 	
-	public boolean isIgnoreOfflineNodes() {
-        return ignoreOfflineNodes;
+	public NodeEligibility getNodeEligibility() {
+        return nodeEligibility;
     }
 
 	@Extension
@@ -161,14 +180,20 @@ public class LabelParameterDefinition extends ParameterDefinition implements Mul
             Label label = LabelExpression.parseExpression(labelExp);
             return label.getNodes();
         }
+
+        /**
+         * provides the default node eligibility for the UI
+         */
+        public NodeEligibility getDefaultNodeEligibility() {
+            return new AllNodeEligibility();
+        }
         
         /**
          * function providing the node description for UI when listing matching nodes
          */
         private static final class NodeDescFunction implements Function<Node, String> {
             public String apply(Node n) {
-                final String nodeName = StringUtils.isBlank(n.getNodeName()) ? Constants.MASTER : n.getNodeName(); 
-                return nodeName + (NodeUtil.isNodeOnline(nodeName) ? "" : " (offline)");
+                return StringUtils.isBlank(n.getNodeName()) ? Constants.MASTER : n.getNodeName(); 
             }
         }
 	}
@@ -193,7 +218,7 @@ public class LabelParameterDefinition extends ParameterDefinition implements Mul
         } else if (value.length != 1) {
             throw new IllegalArgumentException("Illegal number of parameter values for " + getName() + ": " + value.length);
         } 
-        return new LabelParameterValue(getName(), value[0], allNodesMatchingLabel, ignoreOfflineNodes);
+        return new LabelParameterValue(getName(), value[0], allNodesMatchingLabel, nodeEligibility);
     }
 
     public String getTriggerIfResult() {

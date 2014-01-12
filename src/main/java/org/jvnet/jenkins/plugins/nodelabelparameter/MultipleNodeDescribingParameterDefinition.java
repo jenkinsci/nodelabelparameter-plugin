@@ -1,5 +1,6 @@
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
+import org.jvnet.jenkins.plugins.nodelabelparameter.node.NodeEligibility;
 import org.jvnet.jenkins.plugins.nodelabelparameter.wrapper.TriggerNextBuildWrapper;
 
 import hudson.Launcher;
@@ -27,11 +28,11 @@ public interface MultipleNodeDescribingParameterDefinition {
     public String getName();
 
     /**
-     * Should a build be triggered for nodes currently offline
+     * gets the strategy which decides whether a node should be ignored or not 
      * 
-     * @return <code>true</code> if offline nodes should be ignored
+     * @return the eligibility definition
      */
-    public boolean isIgnoreOfflineNodes();
+    public NodeEligibility getNodeEligibility();
 
     /**
      * Callback to allow the parameter definition to do a final validation if everything is OK to proceed. Implementations are asked to throw a runtime exception if something is not OK and the build

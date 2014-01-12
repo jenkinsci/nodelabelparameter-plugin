@@ -6,6 +6,7 @@ package org.jvnet.jenkins.plugins.nodelabelparameter;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.jvnet.jenkins.plugins.nodelabelparameter.node.NodeEligibility;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
@@ -22,12 +23,12 @@ public class NodeParameterValue extends LabelParameterValue {
 	 *            the name of the parameter
 	 * @param labels
 	 *            the node labels to trigger one build after the other with
-	 * @param ignoreOfflineNodes
-	 *            if the job should also be triggered on nodes which currently are not available for execution.             
+	 * @param nodeEligibility
+	 *            defines if a node should be ignored at execution or not.             
 	 */
 	@DataBoundConstructor
-	public NodeParameterValue(String name, List<String> labels, boolean ignoreOfflineNodes) {
-		super(name, labels, ignoreOfflineNodes);
+	public NodeParameterValue(String name, List<String> labels, NodeEligibility nodeEligibility) {
+		super(name, labels, nodeEligibility);
 	}
 	
 	public NodeParameterValue(String name, String description, String label) {

@@ -94,7 +94,7 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 		for (String nodeName : newBuildNodes) {
 			final List<String> singleNodeList = new ArrayList<String>();
 			singleNodeList.add(nodeName);
-			final LabelParameterValue pValue = new LabelParameterValue(parmaName, singleNodeList, parameterDefinition.isIgnoreOfflineNodes());
+			final LabelParameterValue pValue = new LabelParameterValue(parmaName, singleNodeList, parameterDefinition.getNodeEligibility());
 			List<ParameterValue> copies = new ArrayList<ParameterValue>(newPrams);
 			copies.add(pValue); // where to do the next build
 			listener.getLogger().print("schedule build on node " + nodeName);
@@ -125,7 +125,7 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 					LabelParameterValue origNodePram = (LabelParameterValue) parameterValue;
 					final List<String> nextNodes = origNodePram.getNextLabels();
 					if (nextNodes != null && !nextNodes.isEmpty() && shouldScheduleNextJob(build.getResult(), parameterDefinition.getTriggerIfResult())) {
-					    LabelParameterValue newNodeParam = new LabelParameterValue(origNodePram.getName(), nextNodes, parameterDefinition.isIgnoreOfflineNodes());
+					    LabelParameterValue newNodeParam = new LabelParameterValue(origNodePram.getName(), nextNodes, parameterDefinition.getNodeEligibility());
 						newPrams.add(newNodeParam);
 						final String nextLabel = newNodeParam.getLabel();
 						if (nextLabel != null) {

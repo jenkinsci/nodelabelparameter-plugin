@@ -1,7 +1,7 @@
 <!--
 The MIT License
 
-Copyright (c) 2011, Dominik Bartholdi
+Copyright (c) 2011-2014, Dominik Bartholdi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -66,9 +66,8 @@ THE SOFTWARE.
             <label class="attach-previous">${%allowMultiSelectionForConcurrentBuilds} <div style="display: none" id="allowmultinodeselection_label" class="error">${%allowMultiSelectionForConcurrentBuildsIsMandatory}</div></label>
         </f:entry>
     
-        <f:entry field="ignoreOfflineNodes">
-            <f:checkbox title="${%ignoreOfflineNodes}" checked="${instance.isIgnoreOfflineNodes()}" />
-        </f:entry>
+        <f:dropdownDescriptorSelector field="nodeEligibility" title="${%nodeEligibility}" default="${desciptor.defaultNodeEligibility}" />
+        
     </f:optionalBlock>
     <f:entry title="${%Description}" >
         <f:textarea name="parameter.description" value="${instance.description}" />
