@@ -11,7 +11,7 @@ import hudson.model.ParameterValue;
 import hudson.model.AbstractBuild;
 import hudson.model.Label;
 import hudson.model.Node;
-import hudson.model.ParameterDefinition;
+import hudson.model.SimpleParameterDefinition;
 import hudson.model.labels.LabelExpression;
 import hudson.util.FormValidation;
 
@@ -46,7 +46,7 @@ import com.google.common.collect.Collections2;
  * @author Dominik Bartholdi (imod)
  *
  */
-public class LabelParameterDefinition extends ParameterDefinition implements MultipleNodeDescribingParameterDefinition {
+public class LabelParameterDefinition extends SimpleParameterDefinition implements MultipleNodeDescribingParameterDefinition {
 
 	public final String defaultValue;
 	private boolean allNodesMatchingLabel;
@@ -84,7 +84,7 @@ public class LabelParameterDefinition extends ParameterDefinition implements Mul
     }
 	
 	@Override
-	public ParameterDefinition copyWithDefaultValue(ParameterValue defaultValueObj) {
+	public SimpleParameterDefinition copyWithDefaultValue(ParameterValue defaultValueObj) {
 		if (defaultValueObj instanceof LabelParameterValue) {
 			LabelParameterValue value = (LabelParameterValue) defaultValueObj;
 			return new LabelParameterDefinition(getName(), getDescription(), value.getLabel(), allNodesMatchingLabel, ignoreOfflineNodes, triggerIfResult);
@@ -210,16 +210,11 @@ public class LabelParameterDefinition extends ParameterDefinition implements Mul
 		return value;
 	}
 
-    @Override
-    public final ParameterValue createValue(StaplerRequest req) {
-        String[] value = req.getParameterValues(getName());
-        if (value == null) {
-            return getDefaultParameterValue();
-        } else if (value.length != 1) {
-            throw new IllegalArgumentException("Illegal number of parameter values for " + getName() + ": " + value.length);
-        } 
-        return new LabelParameterValue(getName(), value[0], allNodesMatchingLabel, nodeEligibility);
-    }
+        @Override
+        public ParameterValue createValue(String str) {
+            return new LabelParameterValue(getName(), str, allNodesMatchingLabel, nodeEligibility);
+        }
+
 
     public String getTriggerIfResult() {
         return triggerIfResult;
