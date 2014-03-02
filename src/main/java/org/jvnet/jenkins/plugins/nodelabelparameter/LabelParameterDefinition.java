@@ -47,6 +47,8 @@ import com.google.common.collect.Collections2;
  *
  */
 public class LabelParameterDefinition extends SimpleParameterDefinition implements MultipleNodeDescribingParameterDefinition {
+    
+    private static final long serialVersionUID = 1L;
 
 	public final String defaultValue;
 	private boolean allNodesMatchingLabel;
@@ -210,11 +212,10 @@ public class LabelParameterDefinition extends SimpleParameterDefinition implemen
 		return value;
 	}
 
-        @Override
-        public ParameterValue createValue(String str) {
-            return new LabelParameterValue(getName(), str, allNodesMatchingLabel, nodeEligibility);
-        }
-
+    @Override
+    public ParameterValue createValue(String str) {
+        return new LabelParameterValue(getName(), str, allNodesMatchingLabel, nodeEligibility);
+    }
 
     public String getTriggerIfResult() {
         return triggerIfResult;
