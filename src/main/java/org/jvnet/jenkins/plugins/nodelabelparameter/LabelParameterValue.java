@@ -181,6 +181,7 @@ public class LabelParameterValue extends ParameterValue {
     /**
      * @return the label
      */
+    @Exported(name = "value")
     public String getLabel() {
         return label;
     }
