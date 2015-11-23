@@ -230,6 +230,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
         // as JSONArray: {"name":"HOSTN","value":["master","host2"]}
         // as String from script: {"name":"HOSTN","value":"master"}
         final String name = jo.getString("name");
+        // JENKINS-28374 also respect 'labels' to allow rebuilds via rebuild plugin
         final Object joValue = jo.get("value") == null ? (jo.get("labels") == null ? jo.get("label") : jo.get("labels")) : jo.get("value");
 
         List<String> nodes = new ArrayList<String>();
