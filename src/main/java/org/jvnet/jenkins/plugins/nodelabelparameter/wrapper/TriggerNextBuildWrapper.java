@@ -84,7 +84,7 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 				parmaName = origNodeParam.getName();
 				List<String> nextNodes = origNodeParam.getNextLabels();
 				if (nextNodes != null) {
-					listener.getLogger().print("next nodes: " + nextNodes);
+					listener.getLogger().println("Next nodes: " + nextNodes);
 					newBuildNodes.addAll(nextNodes);
 				}
 			} else {
@@ -97,7 +97,7 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 			final LabelParameterValue pValue = new LabelParameterValue(parmaName, singleNodeList, parameterDefinition.getNodeEligibility());
 			List<ParameterValue> copies = new ArrayList<ParameterValue>(newPrams);
 			copies.add(pValue); // where to do the next build
-			listener.getLogger().print("schedule build on node " + nodeName);
+			listener.getLogger().println("Schedule build on node " + nodeName);
 			build.getProject().scheduleBuild(0, new NextLabelCause(nodeName, build), new ParametersAction(copies));
 		}
 	}
