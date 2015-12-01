@@ -47,6 +47,8 @@ public class LabelParameterValue extends ParameterValue {
 
     protected List<String>      nextLabels;
 
+    private boolean allNodesMatchingLabel;
+
     public LabelParameterValue(String name) {
         super(nameOrDefault(name));
     }
@@ -81,7 +83,7 @@ public class LabelParameterValue extends ParameterValue {
         }
     }
 
-    private void setNextLabels(List<String> labels, NodeEligibility nodeEligibility) {
+    /* package */ void setNextLabels(List<String> labels, NodeEligibility nodeEligibility) {
         if (labels != null && !labels.isEmpty()) {
 
             List<String> tmpLabels = new ArrayList<String>(labels);

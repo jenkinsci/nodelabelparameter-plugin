@@ -202,8 +202,10 @@ public class LabelParameterDefinition extends SimpleParameterDefinition implemen
 
 	@Override
 	public ParameterValue createValue(StaplerRequest req, JSONObject jo) {
-		LabelParameterValue value = req.bindJSON(LabelParameterValue.class, jo);
+	    LabelParameterValue value = new LabelParameterValue(getName(), null, allNodesMatchingLabel, nodeEligibility);
+		req.bindJSON(value, jo);
 		value.setDescription(getDescription());
+		
 		// JENKINS-17660 for convenience, many users use 'value' instead of label - so we make a small hack to allow this too 
 		if(StringUtils.isBlank(value.getLabel())) {
 		    final String label = jo.optString("value");
