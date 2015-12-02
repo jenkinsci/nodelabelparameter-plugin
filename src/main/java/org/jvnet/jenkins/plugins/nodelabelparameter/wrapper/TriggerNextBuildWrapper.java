@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.apache.commons.lang.StringUtils;
 import org.jvnet.jenkins.plugins.nodelabelparameter.Constants;
 import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterValue;
 import org.jvnet.jenkins.plugins.nodelabelparameter.MultipleNodeDescribingParameterDefinition;
@@ -75,6 +76,8 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 		final List<String> newBuildNodes = new ArrayList<String>();
 		String parmaName = null;
 
+		String initialBuildNode = build.getBuiltOnStr();
+
 		final ParametersAction origParamsAction = build.getAction(ParametersAction.class);
 		final List<ParameterValue> origParams = origParamsAction.getParameters();
 		final List<ParameterValue> newPrams = new ArrayList<ParameterValue>();
@@ -84,8 +87,13 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 				parmaName = origNodeParam.getName();
 				List<String> nextNodes = origNodeParam.getNextLabels();
 				if (nextNodes != null) {
-					listener.getLogger().println("Next nodes: " + nextNodes);
-					newBuildNodes.addAll(nextNodes);
+					for (String nextNode : nextNodes) {
+						// Avoid to add the current node again
+						if (!StringUtils.isBlank(initialBuildNode) && !initialBuildNode.equals(nextNode)) {
+							newBuildNodes.add(nextNode);
+						}
+					}
+					listener.getLogger().println("Next nodes: " + newBuildNodes);
 				}
 			} else {
 				newPrams.add(parameterValue);
