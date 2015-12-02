@@ -47,8 +47,6 @@ public class LabelParameterValue extends ParameterValue {
 
     protected List<String>      nextLabels;
 
-    private boolean allNodesMatchingLabel;
-
     public LabelParameterValue(String name) {
         super(nameOrDefault(name));
     }
