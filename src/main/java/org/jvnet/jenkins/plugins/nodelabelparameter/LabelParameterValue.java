@@ -71,7 +71,11 @@ public class LabelParameterValue extends ParameterValue {
             this.label = label.trim();
         }
 
-        if (allNodesMatchingLabel) {
+        computeNextLabels(allNodesMatchingLabel, nodeEligibility);
+    }
+
+    /* package */ void computeNextLabels(boolean allNodesMatchingLabel, NodeEligibility nodeEligibility) {
+        if (allNodesMatchingLabel && label != null) {
             List<String> labels = getNodeNamesForLabelExpression(label);
             if (labels.isEmpty()) {
                 // we are not able to determine a node for the given label - let Jenkins inform the user about it, by placing the job into the queue
