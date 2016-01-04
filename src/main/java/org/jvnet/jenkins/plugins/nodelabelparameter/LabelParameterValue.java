@@ -12,6 +12,7 @@ import hudson.model.Label;
 import hudson.model.Node;
 import hudson.model.ParameterDefinition;
 import hudson.model.ParametersDefinitionProperty;
+import hudson.model.Run;
 import hudson.model.labels.LabelExpression;
 import hudson.model.queue.SubTask;
 import hudson.tasks.BuildWrapper;
@@ -159,7 +160,7 @@ public class LabelParameterValue extends ParameterValue {
      * Exposes the name/value as an environment variable.
      */
     @Override
-    public void buildEnvVars(AbstractBuild<?, ?> build, EnvVars env) {
+    public void buildEnvironment(Run<?,?> build, EnvVars env) {
         env.put(name, label);
     }
 
