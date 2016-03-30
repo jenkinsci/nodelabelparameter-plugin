@@ -97,7 +97,7 @@ public class LabelParameterDefinition extends SimpleParameterDefinition implemen
 
 	@Override
 	public LabelParameterValue getDefaultParameterValue() {
-		return new LabelParameterValue(getName(), getDescription(), defaultValue);
+	    return new LabelParameterValue(getName(), defaultValue, allNodesMatchingLabel, nodeEligibility);
 	}
 	
 	public boolean isAllNodesMatchingLabel() {
