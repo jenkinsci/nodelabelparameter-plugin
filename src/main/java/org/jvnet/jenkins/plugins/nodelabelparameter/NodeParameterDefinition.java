@@ -272,10 +272,12 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
             }
             defaultSlaves.add(defaultValue);
         }
-        if (ignoreOfflineNodes) {
-            nodeEligibility = new IgnoreOfflineNodeEligibility();
-        } else {
-            nodeEligibility = new AllNodeEligibility();
+        if(nodeEligibility == null) {
+            if (ignoreOfflineNodes) {
+                nodeEligibility = new IgnoreOfflineNodeEligibility();
+            } else {
+                nodeEligibility = new AllNodeEligibility();
+            }
         }
         return this;
     }
