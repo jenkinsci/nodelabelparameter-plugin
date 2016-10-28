@@ -31,7 +31,7 @@ THE SOFTWARE.
 		<!-- this div is required because of ParametersDefinitionProperty.java#117 -->
 		<div name="parameter" description="${it.description}">
 			<input type="hidden" name="name" value="${it.name}" />
-			<f:textbox name="label" value="${it.defaultValue}" />
+			<f:textbox name="value" value="${it.defaultValue}" />
 		</div>
 	</f:entry>	
     <j:set var="descriptor" value="${it.descriptor}"/>

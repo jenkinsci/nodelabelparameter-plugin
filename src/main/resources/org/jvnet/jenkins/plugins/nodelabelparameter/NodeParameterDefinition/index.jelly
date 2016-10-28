@@ -34,7 +34,7 @@ THE SOFTWARE.
 			
 			<j:choose>
 				<j:when test="${it.allowMultiNodeSelection == true}">
-					<select name="labels" multiple="multiple" size="${it.allowedNodesOrAll.size()}">
+					<select name="value" multiple="multiple" size="${it.allowedNodesOrAll.size()}">
 						<j:forEach var="aNode" items="${it.allowedNodesOrAll}"
 							varStatus="loop">
 							<j:choose>
@@ -49,7 +49,7 @@ THE SOFTWARE.
 					</select>
 				</j:when>
 				<j:otherwise>
-					<select name="labels">
+					<select name="value">
 						<j:forEach var="aNode" items="${it.allowedNodesOrAll}" varStatus="loop">
 							<j:choose>
 								<j:when test="${it.defaultSlaves.contains(aNode)}">
