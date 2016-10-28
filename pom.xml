@@ -10,7 +10,7 @@
 	</parent>
 
 	<artifactId>nodelabelparameter</artifactId>
-	<version>1.7.3</version>
+	<version>1.7.4-SNAPSHOT</version>
 
 	<packaging>hpi</packaging>
 
@@ -22,7 +22,7 @@
 		<connection>scm:git:git://github.com/jenkinsci/nodelabelparameter-plugin.git</connection>
 		<developerConnection>scm:git:ssh://git@github.com/jenkinsci/nodelabelparameter-plugin.git</developerConnection>
 		<url>https://github.com/jenkinsci/nodelabelparameter-plugin</url>
-	  <tag>nodelabelparameter-1.7.3</tag>
+	  <tag>nodelabelparameter-1.7.1</tag>
   </scm>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
