@@ -3,6 +3,7 @@ package org.jvnet.jenkins.plugins.nodelabelparameter;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
 import hudson.model.Result;
 import hudson.model.Cause;
 import hudson.model.FreeStyleProject;
@@ -10,15 +11,26 @@ import hudson.model.ParametersDefinitionProperty;
 import hudson.model.labels.LabelAtom;
 import hudson.slaves.DumbSlave;
 
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.commons.httpclient.NameValuePair;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility;
 
+import com.gargoylesoftware.htmlunit.HttpMethod;
+import com.gargoylesoftware.htmlunit.Page;
+import com.gargoylesoftware.htmlunit.WebRequestSettings;
 import com.google.common.collect.Lists;
+
+import hudson.model.Job;
+import hudson.model.Run;
+import jenkins.model.ParameterizedJobMixIn;
 
 /**
  * 
@@ -133,4 +145,107 @@ public class TriggerJobsTest {
         assertEquals("expected number of items in the queue", expectedNumberOfItemsInTheQueue, j.jenkins.getQueue().getBuildableItems().size());
 
     }
+
+    /**
+     * Test that we are able to trigger a job via curl, passing 'value' as value key.
+     *
+     * @see https://github.com/jenkinsci/nodelabelparameter-plugin/pull/12
+     * @see https://issues.jenkins-ci.org/browse/JENKINS-28374
+     */
+    @Test
+    public void testTriggerViaCurlWithValue() throws Exception {
+        FreeStyleProject projectA = j.createFreeStyleProject("projectA");
+        NodeParameterDefinition parameterDefinition = new NodeParameterDefinition(
+                "NODE", "desc", Lists.newArrayList("master"), Lists.newArrayList(onlineNode1.getNodeName()), (String) null, new AllNodeEligibility());
+        String json = "{\"parameter\":[{\"name\":\"NODE\",\"value\":[\"master\"]}]}";
+        runTestViaCurl(projectA, parameterDefinition, json, 1, Result.SUCCESS);
+    }
+
+    /**
+     * Test that we are able to trigger a job via curl, passing 'label' as value key.
+     *
+     * @see https://github.com/jenkinsci/nodelabelparameter-plugin/pull/12
+     * @see https://issues.jenkins-ci.org/browse/JENKINS-28374
+     */
+    @Test
+    public void testTriggerViaCurlWithLabel() throws Exception {
+        FreeStyleProject projectA = j.createFreeStyleProject("projectA");
+        NodeParameterDefinition parameterDefinition = new NodeParameterDefinition(
+                "NODE", "desc", Lists.newArrayList("master"), Lists.newArrayList(onlineNode1.getNodeName()), (String) null, new AllNodeEligibility());
+        String json = "{\"parameter\":[{\"name\":\"NODE\",\"label\":[\"master\"]}]}";
+        runTestViaCurl(projectA, parameterDefinition, json, 1, Result.SUCCESS);
+    }
+
+    /**
+     * Test that we are able to trigger a job via curl, passing 'labels' as value key.
+     *
+     * @see https://github.com/jenkinsci/nodelabelparameter-plugin/pull/12
+     * @see https://issues.jenkins-ci.org/browse/JENKINS-28374
+     */
+    @Test
+    public void testTriggerViaCurlWithLabels() throws Exception {
+        FreeStyleProject projectA = j.createFreeStyleProject("projectA");
+        NodeParameterDefinition parameterDefinition = new NodeParameterDefinition(
+                "NODE", "desc", Lists.newArrayList("master"), Lists.newArrayList(onlineNode1.getNodeName()), (String) null, new AllNodeEligibility());
+        String json = "{\"parameter\":[{\"name\":\"NODE\",\"labels\":[\"master\"]}]}";
+        runTestViaCurl(projectA, parameterDefinition, json, 1, Result.SUCCESS);
+    }
+
+    /**
+     * Test that we are able to trigger a job via curl, passing an incorrect value key.
+     *
+     * @see https://github.com/jenkinsci/nodelabelparameter-plugin/pull/12
+     * @see https://issues.jenkins-ci.org/browse/JENKINS-28374
+     */
+    @Test(expected=AssertionError.class)
+    public void testTriggerViaCurlWithInvalidValueKey() throws Exception {
+        FreeStyleProject projectA = j.createFreeStyleProject("projectA");
+        NodeParameterDefinition parameterDefinition = new NodeParameterDefinition(
+                "NODE", "desc", Lists.newArrayList("master"), Lists.newArrayList(onlineNode1.getNodeName()), (String) null, new AllNodeEligibility());
+        String json = "{\"parameter\":[{\"name\":\"NODE\",\"chorinho\":[\"master\"]}]}";
+        // will fail with AssertionError while waiting for the results, in {@link JenkinsRule#waitUntilNoActivity}.
+        runTestViaCurl(projectA, parameterDefinition, json, 0, null);
+    }
+
+    /**
+     * <p>Run a test via pseudo-curl. Instead of forking a process and calling the curl utility, we emulate what curl
+     * would do, but using a HTTP library in Java, adding security crumb parameter, and the form parameters
+     * normally submitted in Jenkins.</p>
+     *
+     * <p>Assertions are made according to the expected values passed as parameter by the user.</p>
+     *
+     * @param project a Jenkins project
+     * @param parameterDefinition our parameter definition
+     * @param json JSON String
+     * @param expectedBuildNumber expected build number in Jenkins (starts from 1)
+     * @param expectedResult expected build result after the job is triggered
+     * @throws Exception when executing requests and also while using the JenkinsRule and WebClient methods
+     */
+    private <JobT extends Job<JobT, RunT> & ParameterizedJobMixIn.ParameterizedJob, RunT extends Run<JobT, RunT>> void runTestViaCurl(JobT project, NodeParameterDefinition parameterDefinition, String json, int expectedBuildNumber, Result expectedResult) throws Exception{
+        ParametersDefinitionProperty pdp = new ParametersDefinitionProperty(parameterDefinition);
+        project.addProperty(pdp);
+        // URL triggered, see the plug-in Wiki for more information
+        String triggerUrl = String.format("%s%sbuild", j.getURL(), project.getUrl());
+
+        JenkinsRule.WebClient wc = j.createWebClient();
+        URL url = new URL(triggerUrl);
+        WebRequestSettings requestSettings = new WebRequestSettings(url, HttpMethod.POST);
+        // add security crumb (cannot modify the list after that, so we recreate the parameters right away)
+        wc.addCrumb(requestSettings);
+        List<NameValuePair> requestParameters = new ArrayList<NameValuePair>();
+        requestParameters.add(new NameValuePair("json", json));
+        requestParameters.add(new NameValuePair("Submit", "Build"));
+        requestParameters.addAll(requestSettings.getRequestParameters());
+        requestSettings.setRequestParameters(requestParameters);
+
+        Page page = wc.getPage(requestSettings);
+        // wait page to have been fully loaded
+        j.waitUntilNoActivity();
+        // get the last build
+        RunT b = project.getLastBuild();
+        // assert we got it right
+        assertEquals(expectedBuildNumber, b.number);
+        assertEquals(expectedResult, b.getResult());
+    }
+
 }
