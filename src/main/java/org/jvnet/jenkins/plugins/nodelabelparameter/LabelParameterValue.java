@@ -144,7 +144,7 @@ public class LabelParameterValue extends ParameterValue {
     }
 
     private static String nameOrDefault(String name) {
-        return Util.fixEmptyAndTrim(name) == null ? DEFAULT_NAME : name;
+        return Util.fixEmptyAndTrim(Util.fixEmpty(name)) == null ? DEFAULT_NAME : name;
     }
 
     /**
