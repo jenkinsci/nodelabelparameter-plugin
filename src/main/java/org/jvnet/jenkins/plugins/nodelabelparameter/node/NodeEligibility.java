@@ -20,7 +20,8 @@ public abstract class NodeEligibility implements Describable<NodeEligibility>, E
 
         Node node = Jenkins.getActiveInstance().getNode(nodeName);
         if (node == null && (Constants.MASTER.equals(nodeName) || "".equals(nodeName))) {
-            node = Jenkins.getActiveInstance().getComputer("").getNode();
+            Computer c = Jenkins.getActiveInstance().getComputer("");
+            node = c != null ? c.getNode() : null;
         }
 
         return isEligible(node);

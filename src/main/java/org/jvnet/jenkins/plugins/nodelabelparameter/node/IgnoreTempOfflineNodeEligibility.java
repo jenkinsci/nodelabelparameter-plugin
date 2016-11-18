@@ -21,10 +21,12 @@ public class IgnoreTempOfflineNodeEligibility extends NodeEligibility {
     @Override
     @SuppressWarnings("deprecation")
     public boolean isEligible(Node node) {
-        final Computer c = getComputer(node);
-        if (c != null) {
-            boolean isonline = !c.isTemporarilyOffline();
-            return isonline && c.getNumExecutors() > 0;
+        if(node != null){
+            final Computer c = getComputer(node);
+            if (c != null) {
+                boolean isonline = !c.isTemporarilyOffline();
+                return isonline && c.getNumExecutors() > 0;
+            }
         }
         return false;
     }
