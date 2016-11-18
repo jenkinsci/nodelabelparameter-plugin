@@ -19,4 +19,23 @@ public class NextLabelCause extends UpstreamCause {
     public String getShortDescription() {
         return org.jvnet.jenkins.plugins.nodelabelparameter.Messages.NextLabelCause_description(label);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        NextLabelCause that = (NextLabelCause) o;
+
+        return label.equals(that.label);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + label.hashCode();
+        return result;
+    }
 }

@@ -21,7 +21,7 @@ public final class NodeUtil {
             return true;
         }
 
-        final Computer c = Jenkins.getInstance().getComputer(nodeName);
+        final Computer c = Jenkins.getActiveInstance().getComputer(nodeName);
         if (c != null) {
             Node n = c.getNode();
             // really check if the node is available for execution

@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
 import org.jenkinsci.plugins.tokenmacro.TokenMacro;
 import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterValue;
@@ -36,7 +37,7 @@ public class AllNodesForLabelBuildParameterFactory extends AbstractBuildParamete
 
     private static final Function<Node, String> SELF_LABEL_FUNCTION = new Function<Node, String>() {
         public String apply(Node node) {
-            return node.getSelfLabel().getName();
+            return node != null && node.getSelfLabel() != null ? node.getSelfLabel().getName() : null;
         }
     };
 
@@ -58,13 +59,16 @@ public class AllNodesForLabelBuildParameterFactory extends AbstractBuildParamete
         }
         
         listener.getLogger().println("Getting all nodes with label: " + labelExpanded);
-        Set<Node> nodes = Hudson.getInstance().getLabel(labelExpanded).getNodes();
-        List<String> selfLabels = Lists.transform(new ArrayList<Node>(nodes), SELF_LABEL_FUNCTION);
-        listener.getLogger().println("Found nodes: " + String.valueOf(selfLabels));
+        Set<Node> nodes = Jenkins.getActiveInstance().getLabel(labelExpanded).getNodes();
+
         List<AbstractBuildParameters> params = Lists.newArrayList();
+
         if (nodes == null || nodes.isEmpty()) {
+            listener.getLogger().println("Found no nodes");
             params.add(new NodeLabelBuildParameter(name, labelExpanded));
         } else {
+            List<String> selfLabels = Lists.transform(new ArrayList<Node>(nodes), SELF_LABEL_FUNCTION);
+            listener.getLogger().println("Found nodes: " + String.valueOf(selfLabels));
             for (Node node : nodes) {
                 final String nodeSelfLabel = node.getSelfLabel().getName();
                 if (ignoreOfflineNodes) {

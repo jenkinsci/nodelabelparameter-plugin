@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import com.gargoylesoftware.htmlunit.WebRequest;
 import hudson.model.Result;
 import hudson.model.Cause;
 import hudson.model.FreeStyleProject;
@@ -25,7 +26,6 @@ import org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility;
 
 import com.gargoylesoftware.htmlunit.HttpMethod;
 import com.gargoylesoftware.htmlunit.Page;
-import com.gargoylesoftware.htmlunit.WebRequestSettings;
 import com.google.common.collect.Lists;
 
 import hudson.model.Job;
@@ -229,12 +229,12 @@ public class TriggerJobsTest {
 
         JenkinsRule.WebClient wc = j.createWebClient();
         URL url = new URL(triggerUrl);
-        WebRequestSettings requestSettings = new WebRequestSettings(url, HttpMethod.POST);
+        WebRequest requestSettings = new WebRequest(url, HttpMethod.POST);
         // add security crumb (cannot modify the list after that, so we recreate the parameters right away)
         wc.addCrumb(requestSettings);
-        List<NameValuePair> requestParameters = new ArrayList<NameValuePair>();
-        requestParameters.add(new NameValuePair("json", json));
-        requestParameters.add(new NameValuePair("Submit", "Build"));
+        List<com.gargoylesoftware.htmlunit.util.NameValuePair> requestParameters = new ArrayList<com.gargoylesoftware.htmlunit.util.NameValuePair>();
+        requestParameters.add(new com.gargoylesoftware.htmlunit.util.NameValuePair("json", json));
+        requestParameters.add(new com.gargoylesoftware.htmlunit.util.NameValuePair("Submit", "Build"));
         requestParameters.addAll(requestSettings.getRequestParameters());
         requestSettings.setRequestParameters(requestParameters);
 

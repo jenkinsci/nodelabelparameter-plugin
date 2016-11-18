@@ -91,7 +91,7 @@ public class NodeListBuildParameterFactory extends AbstractBuildParameterFactory
         public AutoCompletionCandidates doAutoCompleteNodeListString(@QueryParameter String value) {
             final AutoCompletionCandidates candidates = new AutoCompletionCandidates();
 
-            for (Node n : Jenkins.getInstance().getNodes()) {
+            for (Node n : Jenkins.getActiveInstance().getNodes()) {
                 candidates.add(n.getSelfLabel().getExpression());
             }
 
@@ -111,7 +111,7 @@ public class NodeListBuildParameterFactory extends AbstractBuildParameterFactory
             while (tokens.hasMoreTokens()) {
                 String nodeName = tokens.nextToken().trim();
                 if (StringUtils.isNotBlank(nodeName)) {
-                    final Node node = Jenkins.getInstance().getNode(nodeName);
+                    final Node node = Jenkins.getActiveInstance().getNode(nodeName);
                     if (node == null) {
                         return FormValidation.error(Messages.NodeListBuildParameterFactory_nodeNotFound(nodeName));
                     }

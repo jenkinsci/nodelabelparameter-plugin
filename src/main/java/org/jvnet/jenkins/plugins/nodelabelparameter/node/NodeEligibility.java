@@ -10,15 +10,17 @@ import jenkins.model.Jenkins;
 
 import org.jvnet.jenkins.plugins.nodelabelparameter.Constants;
 
-public abstract class NodeEligibility implements Describable<NodeEligibility>, ExtensionPoint {
+import java.io.Serializable;
+
+public abstract class NodeEligibility implements Describable<NodeEligibility>, ExtensionPoint, Serializable {
 
     public abstract boolean isEligible(Node node);
 
     public boolean isEligible(String nodeName) {
 
-        Node node = Jenkins.getInstance().getNode(nodeName);
+        Node node = Jenkins.getActiveInstance().getNode(nodeName);
         if (node == null && (Constants.MASTER.equals(nodeName) || "".equals(nodeName))) {
-            node = Jenkins.getInstance().getComputer("").getNode();
+            node = Jenkins.getActiveInstance().getComputer("").getNode();
         }
 
         return isEligible(node);
@@ -26,7 +28,7 @@ public abstract class NodeEligibility implements Describable<NodeEligibility>, E
 
     protected Computer getComputer(Node node) {
         String name = Constants.MASTER.equals(node.getNodeName()) ? "" : node.getNodeName();
-        return Jenkins.getInstance().getComputer(name);
+        return Jenkins.getActiveInstance().getComputer(name);
     }
 
     protected boolean hasOnlineExecutors(Node node) {
@@ -35,11 +37,11 @@ public abstract class NodeEligibility implements Describable<NodeEligibility>, E
     }
 
     public NodeEligibilityDescriptor getDescriptor() {
-        return (NodeEligibilityDescriptor) Jenkins.getInstance().getDescriptor(getClass());
+        return (NodeEligibilityDescriptor) Jenkins.getActiveInstance().getDescriptor(getClass());
     }
 
     public static DescriptorExtensionList<NodeEligibility, NodeEligibilityDescriptor> all() {
-        return Jenkins.getInstance().<NodeEligibility, NodeEligibilityDescriptor> getDescriptorList(NodeEligibility.class);
+        return Jenkins.getActiveInstance().<NodeEligibility, NodeEligibilityDescriptor> getDescriptorList(NodeEligibility.class);
     }
 
     public static abstract class NodeEligibilityDescriptor extends Descriptor<NodeEligibility> {

@@ -164,7 +164,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
      */
     private static List<String> getNodeNames() {
         List<String> names = new ArrayList<String>();
-        final List<Node> nodes = Jenkins.getInstance().getNodes();
+        final List<Node> nodes = Jenkins.getActiveInstance().getNodes();
         for (Node node : nodes) {
             final String nodeName = node.getNodeName();
             if (StringUtils.isNotBlank(nodeName)) {

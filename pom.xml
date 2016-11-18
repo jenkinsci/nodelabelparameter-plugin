@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.jenkins-ci.plugins</groupId>
 		<artifactId>plugin</artifactId>
-		<version>1.580</version>
+		<version>2.10</version>
 	</parent>
 
 	<artifactId>nodelabelparameter</artifactId>
@@ -27,6 +27,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.javadoc.skip>true</maven.javadoc.skip>
+		<jenkins.version>1.590</jenkins.version>
 	</properties>
 	<developers>
 		<developer>
@@ -99,20 +100,6 @@
 						</lifecycleMappingMetadata>
 					</configuration>
 				</plugin>
-                <plugin>
-                    <groupId>org.jenkins-ci.tools</groupId>
-                    <artifactId>maven-hpi-plugin</artifactId>
-                    <version>1.115</version>
-                    <extensions>true</extensions>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-release-plugin</artifactId>
-                    <version>2.5.3</version>
-                    <configuration>
-                        <goals>deploy</goals>
-                    </configuration>
-                </plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
@@ -133,6 +120,12 @@
 		    <groupId>org.jenkins-ci.plugins</groupId>
 		    <artifactId>jquery</artifactId>
 		    <version>1.7.2-1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jenkins-ci.main</groupId>
+			<artifactId>jenkins-test-harness-tools</artifactId>
+			<version>2.0</version>
+			<scope>test</scope>
 		</dependency>
         <dependency>
             <groupId>org.assertj</groupId>
