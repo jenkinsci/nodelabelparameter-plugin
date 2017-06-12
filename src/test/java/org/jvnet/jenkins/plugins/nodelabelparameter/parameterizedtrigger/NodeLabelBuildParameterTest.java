@@ -23,21 +23,29 @@
  */
 package org.jvnet.jenkins.plugins.nodelabelparameter.parameterizedtrigger;
 
+import hudson.model.Cause;
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
+import hudson.model.ParametersAction;
 import hudson.model.ParametersDefinitionProperty;
 import hudson.model.Project;
 import hudson.model.labels.LabelAtom;
+import hudson.model.queue.QueueTaskFuture;
 import hudson.plugins.parameterizedtrigger.BuildTrigger;
 import hudson.plugins.parameterizedtrigger.BuildTriggerConfig;
 import hudson.plugins.parameterizedtrigger.ResultCondition;
 import hudson.slaves.DumbSlave;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
+import org.jvnet.hudson.test.Bug;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.jenkins.plugins.nodelabelparameter.Constants;
 import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterDefinition;
+import org.jvnet.jenkins.plugins.nodelabelparameter.node.IgnoreOfflineNodeEligibility;
 
 public class NodeLabelBuildParameterTest {
 
@@ -83,5 +91,39 @@ public class NodeLabelBuildParameterTest {
 
         j.jenkins.removeNode(slave);
 
+    }
+    
+    @Test
+    @Bug(22226)
+    public void testLabelsOnTheDisabledExecutor() throws Exception {
+        final String paramName = "node";
+        final String nodeName = "someNode" + System.currentTimeMillis();
+
+        // Create a slave with a given label to execute projectB on
+        DumbSlave slave = j.createSlave(new LabelAtom(nodeName));
+        slave.toComputer().doToggleOffline("Just4test");
+        
+        // Create and submit the project    
+        LabelParameterDefinition param = new LabelParameterDefinition(
+                paramName, "some desc", nodeName, true, 
+                new IgnoreOfflineNodeEligibility(), Constants.ALL_CASES);
+        Project<?, ?> project = j.createFreeStyleProject();
+        ParametersDefinitionProperty pdp = new ParametersDefinitionProperty(param);
+        project.addProperty(pdp);
+        
+        // Schedule the job with the explicitly-defined parameter
+        QueueTaskFuture task = project.scheduleBuild2(0, new Cause.UserIdCause(), 
+                new ParametersAction(param.createValue(nodeName)));
+        Thread.sleep(5000);
+        Assert.assertFalse("Task has been finished, but it should hang in queue", task.isDone());
+        
+        // Enable slave and check the task status
+        slave.toComputer().setTemporarilyOffline(false);
+        try {
+            task.get(5000, TimeUnit.MILLISECONDS);
+        } catch (TimeoutException timeout) {
+            timeout.printStackTrace();
+            Assert.fail("Jobs have not been executed within the timeout");
+        }        
     }
 }
