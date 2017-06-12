@@ -89,7 +89,7 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 				if (nextNodes != null) {
 					for (String nextNode : nextNodes) {
 						// Avoid to add the current node again
-						if (!StringUtils.isBlank(initialBuildNode) && !initialBuildNode.equals(nextNode)) {
+						if (initialBuildNode != null && !initialBuildNode.equals(nextNode)) {
 							newBuildNodes.add(nextNode);
 						}
 					}
