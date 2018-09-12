@@ -75,6 +75,11 @@ public class LabelParameterValue extends ParameterValue {
         computeNextLabels(allNodesMatchingLabel, nodeEligibility);
     }
 
+    @Override
+    public String getValue() {
+        return label;
+    }
+
     /* package */ void computeNextLabels(boolean allNodesMatchingLabel, NodeEligibility nodeEligibility) {
         if (allNodesMatchingLabel && label != null) {
             List<String> labels = getNodeNamesForLabelExpression(label);
