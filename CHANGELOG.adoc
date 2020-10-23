@@ -1,0 +1,212 @@
+[[nodelabelparameter-plugin-changelog]]
+= Changelog
+
+[discrete]
+=== 1.7 (7. Dec. 2015)
+
+[discrete]
+==== Fixed
+* fix https://issues.jenkins-ci.org/browse/JENKINS-22185[JENKINS-22185]
+Trigger a build in all nodes matching a label (thanks to Antonio)
+
+[discrete]
+=== 1.6 (23. Nov. 2015)
+
+[discrete]
+==== Added
+* add MIT license https://github.com/jenkinsci/nodelabelparameter-plugin/pull/8[PR
+#8]
+(thanks vaneyckt)
+
+[discrete]
+==== Fixed
+* fix https://issues.jenkins-ci.org/browse/JENKINS-28374[JENKINS-28374]
+enable triggering via rebuild plugin (thanks lrobertson39)
+* fix https://issues.jenkins-ci.org/browse/JENKINS-27880[JENKINS-27880]
+expose value in API (thanks Charles Stephens)
+* fix typo https://github.com/jenkinsci/nodelabelparameter-plugin/pull/4[PR
+#4]
+(thanks guysoft)
+
+[discrete]
+=== 1.5.1 (2. March 2014)
+
+[discrete]
+==== Added
+* integrate https://github.com/jenkinsci/nodelabelparameter-plugin/pull/3[PR
+#3] 
+LabelParameterDefinition extends SimpleParameterDefinition to
+support better integration with other plugins
+
+[discrete]
+==== Fixed
+* fix
+https://issues.jenkins-ci.org/browse/JENKINS-21828[JENKINS-21828]
+encoding issues with german "umlaute"
+
+[discrete]
+=== 1.5.0 (10. Feb 2014)
+
+[discrete]
+==== Added
+* new feature: "_build on all nodes matching label_" for Label
+parameter
+
+[discrete]
+==== Changed
+* implement https://issues.jenkins-ci.org/browse/JENKINS-17660[JENKINS-17660]
+for convenience, allow usage of 'value' for calls of label
+parameters via script
+* implement https://issues.jenkins-ci.org/browse/JENKINS-21194[JENKINS-21194]
+add notion of NodeEligibility to differentiate between different
+offline modes of nodes
+* lift dependency to core 1.509.4
+
+[discrete]
+==== Fixed
+* fix https://issues.jenkins-ci.org/browse/JENKINS-20885[JENKINS-20885]
+default node not selected in dropdown
+* fix https://issues.jenkins-ci.org/browse/JENKINS-20823[JENKINS-20823]
+Stack Trace when Configuring a task with "Label Factory"
+
+[discrete]
+=== 1.4 (28. March 2013)
+
+[discrete]
+==== Changed
+* implement
+https://issues.jenkins-ci.org/browse/JENKINS-17305[JENKINS-17305]
+don't wait for offline nodes (new option added for node parameter
+and parameter factory)
+* implement
+https://issues.jenkins-ci.org/browse/JENKINS-14407[JENKINS-14407]
+allow multi-value default for scheduled builds
+
+[discrete]
+=== 1.3 (9. Dec 2012)
+
+[discrete]
+==== Added
+Add new build parameter factory for Parameterized Trigger Plugin:
+List of nodes - factory takes a list of nodes to trigger the job
+on
+
+[discrete]
+==== Fixed
+* fix
+https://issues.jenkins-ci.org/browse/JENKINS-15339[JENKINS-15339]
+breaks Windows batch file build steps if Name field not filled in
+* fix
+https://issues.jenkins-ci.org/browse/JENKINS-15370[JENKINS-15370]
+Value of Node param variable does not contain all values when
+selecting multiple nodes
+
+[discrete]
+=== 1.2.1 (2. July 2012)
+
+[discrete]
+==== Fixed
+* fixed
+https://issues.jenkins-ci.org/browse/JENKINS-14230[JENKINS-14230]
+Node parameter value can't be passed by HTTP GET
+
+[discrete]
+=== 1.2 (25. June 2012)
+
+[discrete]
+==== Fixed
+* fix
+https://issues.jenkins-ci.org/browse/JENKINS-14120[JENKINS-14120]
+confusing output
+* fix
+https://issues.jenkins-ci.org/browse/JENKINS-13902[JENKINS-13902]
+move 'master' up in selection list
+* fix
+https://issues.jenkins-ci.org/browse/JENKINS-14109[JENKINS-14109]
+Passing $\{NODE_NAME} as Node Parameter to downstream job not
+possible on master
+
+[discrete]
+=== 1.1.4 (21. May 2012)
+
+[discrete]
+==== Added
+* supported a build parameter factory that lets you run a specified
+job on all the slaves.
+
+[discrete]
+=== 1.1.3 (11. May 2012)
+
+[discrete]
+==== Fixed
+* fix https://issues.jenkins-ci.org/browse/JENKINS-13704[JENKINS-13704]
+Unable to start a concurrent build when there are
+nodeParameterValues
+
+[discrete]
+=== 1.1.2 (25. Feb. 2011)
+
+[discrete]
+==== Fixed
+* fix
+https://issues.jenkins-ci.org/browse/JENKINS-12226[JENKINS-12226]
+Triggering a build with "Current build parameters" fails when the
+current build parameters includes a node name
+* fix issue if a a job has many parameters
+
+[discrete]
+=== 1.1.1 (27. Nov. 2011)
+
+[discrete]
+==== Fixed
+* Fix issue if a label was using expressions
+
+[discrete]
+=== 1.1.0 (15. Nov. 2011)
+
+[discrete]
+==== Added
+* Added a BuildParameterFactory to get all Nodes for a Label when
+triggered via buildstep from "parameterized-trigger-plugin" (https://github.com/jenkinsci/nodelabelparameter-plugin/pull/1[pull
+#1],
+thanks to wolfs)
+
+[discrete]
+=== 1.0.0 (18. Sep. 2011)
+
+[discrete]
+==== Changed
+* enhance node parameter to support concurrent job execution
+* ...in case you have an issue after updating to this version, try to
+just open the job configuration and save it again.
+
+[discrete]
+==== Fixed
+* fix
+https://issues.jenkins-ci.org/browse/JENKINS-10982[JENKINS-10982]
+trim labels / nodes
+* fix
+https://issues.jenkins-ci.org/browse/JENKINS-11006[JENKINS-11006]
+fix remote triggering (e.g. via script)
+
+[discrete]
+=== 0.2.0
+
+[discrete]
+==== Added
+* add badge icon to show on which node/label the build was done
+* add support to execute the job on multiple nodes automatically  (one
+after the other)
+
+[discrete]
+=== 0.1.2
+
+[discrete]
+==== Added
+* add additional parameter to parameterized-trigger plugin
+(https://issues.jenkins-ci.org/browse/JENKINS-10088[JENKINS-10088])
+
+[discrete]
+=== 0.1.0
+
+* Inital
