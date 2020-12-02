@@ -78,13 +78,11 @@ curl --silent -u USER:PASSWORD --show-error --data 'json={"parameter":[{"name":"
 
 It is also possible to pass the parameter via GET (example: NODENAME is a 'Node' parameter defined on the job):
 
-
 ```sh
 http://localhost:8080/jenkins/job/MyJob/buildWithParameters?NODENAME=node1
 ```
 
 ## Parameterized Trigger plugin
-
 
 #### Post Build Action
 
