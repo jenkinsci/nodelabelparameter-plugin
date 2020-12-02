@@ -2,14 +2,14 @@
 
 ## [Unreleased]
 
-## [1.7] (7. Dec. 2015)
+## [1.7] - 2015-12-07
 
 ### Fixed
 
 * fix [JENKINS-22185](https://issues.jenkins-ci.org/browse/JENKINS-22185): Trigger a build in all
 nodes matching a label (thanks to Antonio).
 
-## [1.6] (23. Nov. 2015)
+## [1.6] - 2015-11-23
 
 ### Added
 
@@ -23,7 +23,7 @@ nodes matching a label (thanks to Antonio).
 * fix [JENKINS-27880](https://issues.jenkins-ci.org/browse/JENKINS-27880): expose value in API (thanks Charles Stephens)
 * fix typo [PR #4](https://github.com/jenkinsci/nodelabelparameter-plugin/pull/4) (thanks guysoft)
 
-## [1.5.1] (2. March 2014)
+## [1.5.1] - 2014-03-02
 
 ### Added
 
@@ -34,7 +34,7 @@ extends SimpleParameterDefinition to support better integration with other plugi
 
 * fix [JENKINS-21828](https://issues.jenkins-ci.org/browse/JENKINS-21828): encoding issues with german "umlaute".
 
-## [1.5.0] (10. Feb 2014)
+## [1.5.0] - 2014-02-10
 
 ### Added
 
@@ -55,7 +55,7 @@ in dropdown
 * fix [JENKINS-20823](https://issues.jenkins-ci.org/browse/JENKINS-20823): Stack Trace when configuring
 a task with "Label Factory"
 
-## [1.4] (28. March 2013)
+## [1.4] - 2013-03-28
 
 ### Changed
 
@@ -64,7 +64,7 @@ offline nodes (new option added for node parameter and parameter factory)
 * implement [JENKINS-14407](https://issues.jenkins-ci.org/browse/JENKINS-14407): allow multi-value
 default for scheduled builds
 
-## [1.3] (9. Dec 2012)
+## [1.3] - 2012-12-09
 
 ### Added
 
@@ -78,14 +78,14 @@ build steps if Name field not filled in.
 * fix [JENKINS-15370](https://issues.jenkins-ci.org/browse/JENKINS-15370): Value of Node param variable
 does not contain all values when selecting multiple nodes.
 
-## [1.2.1] (2. July 2012)
+## [1.2.1] - 2012-07-02
 
 ### Fixed
 
 * fixed [JENKINS-14230](https://issues.jenkins-ci.org/browse/JENKINS-14230): Node parameter value
 can't be passed by HTTP GET
 
-## [1.2] (25. June 2012)
+## [1.2] - 2012-06-25
 
 ### Fixed
 
@@ -94,20 +94,20 @@ can't be passed by HTTP GET
 * fix [JENKINS-14109](https://issues.jenkins-ci.org/browse/JENKINS-14109): Passing $\{NODE_NAME} as Node Parameter to downstream job not
 possible on master
 
-## [1.1.4] (21. May 2012)
+## [1.1.4] - 2012-05-21
 
 ### Added
 
 * supported a build parameter factory that lets you run a specified job on all the slaves.
 
-## [1.1.3] (11. May 2012)
+## [1.1.3] - 2012-05-11
 
 ### Fixed
 
 * fix [JENKINS-13704](https://issues.jenkins-ci.org/browse/JENKINS-13704): Unable to start a concurrent build when there are
 nodeParameterValues
 
-## [1.1.2] (25. Feb. 2011)
+## [1.1.2] - 2011-02-25
 
 ### Fixed
 
@@ -115,20 +115,20 @@ nodeParameterValues
 "Current build parameters" fails when the current build parameters includes a node name
 * fix issue if a a job has many parameters
 
-## [1.1.1 ](27. Nov. 2011)
+## [1.1.1 ] - 2011-11-27
 
 ### Fixed
 
 * Fix issue if a label was using expressions
 
-## [1.1.0] (15. Nov. 2011)
+## [1.1.0] - 2011-11-15
 
 ### Added
 
 * Added a BuildParameterFactory to get all Nodes for a Label when triggered via buildstep from
 "parameterized-trigger-plugin" [pull #1,thanks to wolfs](https://github.com/jenkinsci/nodelabelparameter-plugin/pull/1)
 
-## [1.0.0] (18. Sep. 2011)
+## [1.0.0] - 2011-09-18
 
 ### Changed
 
@@ -141,20 +141,20 @@ and save it again.
 * fix [JENKINS-10982](https://issues.jenkins-ci.org/browse/JENKINS-10982) trim labels / nodes
 * fix [JENKINS-11006](https://issues.jenkins-ci.org/browse/JENKINS-11006) fix remote triggering (e.g. via script)
 
-## [0.2.0]
+## [0.2.0] - 2011-07-10
 
 ### Added
 
 * add badge icon to show on which node/label the build was done
 * add support to execute the job on multiple nodes automatically (one after the other)
 
-## [0.1.2]
+## [0.1.2] - 2011-07-10
 
 ### Added
 
 * add additional parameter to parameterized-trigger plugin [JENKINS-10088](https://issues.jenkins-ci.org/browse/JENKINS-10088)
 
-## [0.1.0]
+## [0.1.0] - 2011-06-22
 
 * Inital
 
