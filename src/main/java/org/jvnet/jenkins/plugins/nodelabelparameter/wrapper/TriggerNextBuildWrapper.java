@@ -86,15 +86,13 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 		        LabelParameterValue origNodeParam = (LabelParameterValue) parameterValue;
 				parmaName = origNodeParam.getName();
 				List<String> nextNodes = origNodeParam.getNextLabels();
-				if (nextNodes != null) {
-					for (String nextNode : nextNodes) {
-						// Avoid to add the current node again
-						if (initialBuildNode != null && !initialBuildNode.equals(nextNode)) {
-							newBuildNodes.add(nextNode);
-						}
-					}
-					listener.getLogger().println("Next nodes: " + newBuildNodes);
+				if (nextNodes == null) {
+					continue;
 				}
+				newBuildNodes.addAll(nextNodes);
+				// Avoid to add the current node again
+				newBuildNodes.remove(initialBuildNode);
+				listener.getLogger().println("Next nodes: " + newBuildNodes);
 			} else {
 				newPrams.add(parameterValue);
 			}
@@ -123,6 +121,7 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 		}
 
 		private void triggerBuilds(AbstractBuild<?, ?> build, BuildListener listener) {
+			final String initialBuildNode = build.getBuiltOnStr();
 			final ParametersAction origParamsAction = build.getAction(ParametersAction.class);
 			final List<ParameterValue> origParams = origParamsAction.getParameters();
 			final List<ParameterValue> newPrams = new ArrayList<ParameterValue>();
@@ -132,7 +131,11 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 				if (parameterValue instanceof LabelParameterValue) {
 					LabelParameterValue origNodePram = (LabelParameterValue) parameterValue;
 					final List<String> nextNodes = origNodePram.getNextLabels();
-					if (nextNodes != null && !nextNodes.isEmpty() && shouldScheduleNextJob(build.getResult(), parameterDefinition.getTriggerIfResult())) {
+					if (nextNodes == null) {
+						continue;
+					}
+					nextNodes.remove(initialBuildNode);
+					if (!nextNodes.isEmpty() && shouldScheduleNextJob(build.getResult(), parameterDefinition.getTriggerIfResult())) {
 					    LabelParameterValue newNodeParam = new LabelParameterValue(origNodePram.getName(), nextNodes, parameterDefinition.getNodeEligibility());
 						newPrams.add(newNodeParam);
 						final String nextLabel = newNodeParam.getLabel();
