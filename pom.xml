@@ -6,7 +6,8 @@
 	<parent>
 		<groupId>org.jenkins-ci.plugins</groupId>
 		<artifactId>plugin</artifactId>
-		<version>2.10</version>
+                <version>4.16</version>
+                <relativePath />
 	</parent>
 
 	<artifactId>nodelabelparameter</artifactId>
