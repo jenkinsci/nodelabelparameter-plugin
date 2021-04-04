@@ -37,6 +37,11 @@
 			<name>Dominik Bartholdi</name>
 			<email />
 		</developer>
+                <developer>
+                        <id>MarkEWaite</id>
+                        <name>Mark Waite</name>
+                        <email>mark.earl.waite@gmail.com</email>
+                </developer>
 	</developers>
 	<licenses>
     		<license>
