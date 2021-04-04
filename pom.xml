@@ -11,25 +11,28 @@
 	</parent>
 
 	<artifactId>nodelabelparameter</artifactId>
-	<version>1.8.1-SNAPSHOT</version>
+	<version>${revision}${changelist}</version>
 
 	<packaging>hpi</packaging>
 
 	<name>Node and Label parameter plugin</name>
 	<description>The node and label parameter plugin allows to dynamically select the node on which a job should be executed.</description>
 
-	<url>https://github.com/jenkinsci/nodelabelparameter-plugin</url>
+	<url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
 	<scm>
-		<connection>scm:git:git://github.com/jenkinsci/nodelabelparameter-plugin.git</connection>
-		<developerConnection>scm:git:ssh://git@github.com/jenkinsci/nodelabelparameter-plugin.git</developerConnection>
-		<url>https://github.com/jenkinsci/nodelabelparameter-plugin</url>
-	  <tag>nodelabelparameter-1.7.1</tag>
+		<connection>scm:git:git://github.com/${gitHubRepo}.git</connection>
+		<developerConnection>scm:git:git@github.com:${gitHubRepo}.git</developerConnection>
+		<url>https://github.com/${gitHubRepo}</url>
+	  <tag>${scmTag}</tag>
   </scm>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.javadoc.skip>true</maven.javadoc.skip>
+                <revision>1.8.1</revision>
+                <changelist>-SNAPSHOT</changelist>
                 <jenkins.version>2.263.1</jenkins.version>
                 <java.level>8</java.level>
+                <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
 	</properties>
 	<developers>
 		<developer>
