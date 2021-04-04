@@ -109,7 +109,7 @@ Similarly, you can also add "Build on every online node" as a parameter factory.
 This will cause the specified projects to run on all nodes (controller and all agents) that are online and have non-zero executor
 configured.
 
-## Version History - [Changelog](CHANGELOG.md)
+## Version History - [GitHub Releases](https://github.com/jenkinsci/nodelabelparameter-plugin/releases)
 
-The [changelog](CHANGELOG.md) lists the release history through 1.7.3.
 Recent releases are described in [GitHub Releases](https://github.com/jenkinsci/nodelabelparameter-plugin/releases).
+The [changelog](CHANGELOG.md) lists the release history through 1.7.3.
