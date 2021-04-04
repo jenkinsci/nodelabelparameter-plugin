@@ -18,7 +18,7 @@
 	<name>Node and Label parameter plugin</name>
 	<description>The node and label parameter plugin allows to dynamically select the node on which a job should be executed.</description>
 
-	<url>https://wiki.jenkins-ci.org/display/JENKINS/NodeLabel+Parameter+Plugin</url>
+	<url>https://github.com/jenkinsci/nodelabelparameter-plugin</url>
 	<scm>
 		<connection>scm:git:git://github.com/jenkinsci/nodelabelparameter-plugin.git</connection>
 		<developerConnection>scm:git:ssh://git@github.com/jenkinsci/nodelabelparameter-plugin.git</developerConnection>

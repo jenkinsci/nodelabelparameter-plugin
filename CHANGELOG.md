@@ -1,5 +1,7 @@
 # Version History
 
+Recent releases are described in [GitHub Releases](https://github.com/jenkinsci/nodelabelparameter-plugin/releases).
+
 ## 1.7.3 (28. Oct. 2016)
 
 -   fix [JENKINS-15339](https://issues.jenkins.io/browse/JENKINS-15339)
