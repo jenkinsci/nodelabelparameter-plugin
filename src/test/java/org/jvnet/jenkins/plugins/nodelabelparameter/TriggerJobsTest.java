@@ -192,22 +192,6 @@ public class TriggerJobsTest {
     }
 
     /**
-     * Test that we are able to trigger a job via curl, passing an incorrect value key.
-     *
-     * @see https://github.com/jenkinsci/nodelabelparameter-plugin/pull/12
-     * @see https://issues.jenkins-ci.org/browse/JENKINS-28374
-     */
-    @Test(expected=AssertionError.class)
-    public void testTriggerViaCurlWithInvalidValueKey() throws Exception {
-        FreeStyleProject projectA = j.createFreeStyleProject("projectA");
-        NodeParameterDefinition parameterDefinition = new NodeParameterDefinition(
-                "NODE", "desc", Lists.newArrayList("master"), Lists.newArrayList(onlineNode1.getNodeName()), (String) null, new AllNodeEligibility());
-        String json = "{\"parameter\":[{\"name\":\"NODE\",\"chorinho\":[\"master\"]}]}";
-        // will fail with AssertionError while waiting for the results, in {@link JenkinsRule#waitUntilNoActivity}.
-        runTestViaCurl(projectA, parameterDefinition, json, 0, null);
-    }
-
-    /**
      * <p>Run a test via pseudo-curl. Instead of forking a process and calling the curl utility, we emulate what curl
      * would do, but using a HTTP library in Java, adding security crumb parameter, and the form parameters
      * normally submitted in Jenkins.</p>
