@@ -14,6 +14,8 @@ import hudson.slaves.DumbSlave;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.httpclient.NameValuePair;
@@ -26,7 +28,6 @@ import org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility;
 
 import com.gargoylesoftware.htmlunit.HttpMethod;
 import com.gargoylesoftware.htmlunit.Page;
-import com.google.common.collect.Lists;
 
 import hudson.model.Job;
 import hudson.model.Run;
@@ -69,8 +70,8 @@ public class TriggerJobsTest {
     @Test
     public void jobMustRunOnAllRequestedSlaves_IgnoreOfflineNodes() throws Exception {
 
-        final ArrayList<String> defaultNodeNames = Lists.newArrayList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
-        runTest(2, 0, false, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Lists.newArrayList(Constants.ALL_NODES), Constants.ALL_CASES, true));
+        final List<String> defaultNodeNames = Arrays.asList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
+        runTest(2, 0, false, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Collections.singletonList(Constants.ALL_NODES), Constants.ALL_CASES, true));
 
     }
 
@@ -82,8 +83,8 @@ public class TriggerJobsTest {
     @Test
     public void jobMustRunOnAllRequestedSlaves_NotIgnoringOfflineNodes() throws Exception {
 
-        final ArrayList<String> defaultNodeNames = Lists.newArrayList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
-        runTest(2, 1, false, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Lists.newArrayList(Constants.ALL_NODES), Constants.ALL_CASES, false));
+        final List<String> defaultNodeNames = Arrays.asList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
+        runTest(2, 1, false, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Collections.singletonList(Constants.ALL_NODES), Constants.ALL_CASES, false));
     }
 
     /**
@@ -94,8 +95,8 @@ public class TriggerJobsTest {
     @Test
     public void jobMustRunOnAllRequestedSlaves_Concurrent_NotIgnoringOfflineNodes() throws Exception {
 
-        final ArrayList<String> defaultNodeNames = Lists.newArrayList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
-        runTest(2, 1, true, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Lists.newArrayList(Constants.ALL_NODES), Constants.CASE_MULTISELECT_CONCURRENT_BUILDS, false));
+        final List<String> defaultNodeNames = Arrays.asList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
+        runTest(2, 1, true, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Collections.singletonList(Constants.ALL_NODES), Constants.CASE_MULTISELECT_CONCURRENT_BUILDS, false));
 
     }
 
@@ -107,8 +108,8 @@ public class TriggerJobsTest {
     @Test
     public void jobMustRunOnAllRequestedSlaves_Concurrent_IgnoreOfflineNodes() throws Exception {
 
-        final ArrayList<String> defaultNodeNames = Lists.newArrayList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
-        runTest(2, 0, true, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Lists.newArrayList(Constants.ALL_NODES), Constants.CASE_MULTISELECT_CONCURRENT_BUILDS, true));
+        final List<String> defaultNodeNames = Arrays.asList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
+        runTest(2, 0, true, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Collections.singletonList(Constants.ALL_NODES), Constants.CASE_MULTISELECT_CONCURRENT_BUILDS, true));
 
     }
 
@@ -120,8 +121,8 @@ public class TriggerJobsTest {
     @Test
     public void jobMustRunOnAllRequestedSlaves_including_Master_IgnoreOfflineNodes() throws Exception {
 
-        final ArrayList<String> defaultNodeNames = Lists.newArrayList("master", onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
-        runTest(3, 0, false, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Lists.newArrayList(Constants.ALL_NODES), Constants.ALL_CASES, true));
+        final List<String> defaultNodeNames = Arrays.asList("master", onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
+        runTest(3, 0, false, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Collections.singletonList(Constants.ALL_NODES), Constants.ALL_CASES, true));
 
     }
 
@@ -156,7 +157,7 @@ public class TriggerJobsTest {
     public void testTriggerViaCurlWithValue() throws Exception {
         FreeStyleProject projectA = j.createFreeStyleProject("projectA");
         NodeParameterDefinition parameterDefinition = new NodeParameterDefinition(
-                "NODE", "desc", Lists.newArrayList("master"), Lists.newArrayList(onlineNode1.getNodeName()), (String) null, new AllNodeEligibility());
+                "NODE", "desc", Collections.singletonList("master"), Collections.singletonList(onlineNode1.getNodeName()), (String) null, new AllNodeEligibility());
         String json = "{\"parameter\":[{\"name\":\"NODE\",\"value\":[\"master\"]}]}";
         runTestViaCurl(projectA, parameterDefinition, json, 1, Result.SUCCESS);
     }
@@ -171,7 +172,7 @@ public class TriggerJobsTest {
     public void testTriggerViaCurlWithLabel() throws Exception {
         FreeStyleProject projectA = j.createFreeStyleProject("projectA");
         NodeParameterDefinition parameterDefinition = new NodeParameterDefinition(
-                "NODE", "desc", Lists.newArrayList("master"), Lists.newArrayList(onlineNode1.getNodeName()), (String) null, new AllNodeEligibility());
+                "NODE", "desc", Collections.singletonList("master"), Collections.singletonList(onlineNode1.getNodeName()), (String) null, new AllNodeEligibility());
         String json = "{\"parameter\":[{\"name\":\"NODE\",\"label\":[\"master\"]}]}";
         runTestViaCurl(projectA, parameterDefinition, json, 1, Result.SUCCESS);
     }
@@ -186,7 +187,7 @@ public class TriggerJobsTest {
     public void testTriggerViaCurlWithLabels() throws Exception {
         FreeStyleProject projectA = j.createFreeStyleProject("projectA");
         NodeParameterDefinition parameterDefinition = new NodeParameterDefinition(
-                "NODE", "desc", Lists.newArrayList("master"), Lists.newArrayList(onlineNode1.getNodeName()), (String) null, new AllNodeEligibility());
+                "NODE", "desc", Collections.singletonList("master"), Collections.singletonList(onlineNode1.getNodeName()), (String) null, new AllNodeEligibility());
         String json = "{\"parameter\":[{\"name\":\"NODE\",\"labels\":[\"master\"]}]}";
         runTestViaCurl(projectA, parameterDefinition, json, 1, Result.SUCCESS);
     }

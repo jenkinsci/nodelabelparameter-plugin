@@ -10,7 +10,9 @@ import hudson.model.ParametersDefinitionProperty;
 import hudson.model.labels.LabelAtom;
 import hudson.slaves.DumbSlave;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
@@ -19,8 +21,6 @@ import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.IgnoreOfflineNodeEligibility;
-
-import com.google.common.collect.Lists;
 
 /**
  * 
@@ -63,8 +63,8 @@ public class NodelLabelNodePropertyTest {
         assertTrue(NodeUtil.isNodeOnline(onlineNode2.getNodeName()));
         assertFalse(NodeUtil.isNodeOnline(offlineNode.getNodeName()));
 
-        final ArrayList<String> defaultNodeNames = Lists.newArrayList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
-        runTest(2, 0, true, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Lists.newArrayList(Constants.ALL_NODES), Constants.CASE_MULTISELECT_CONCURRENT_BUILDS, new IgnoreOfflineNodeEligibility()));
+        final List<String> defaultNodeNames = Arrays.asList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
+        runTest(2, 0, true, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Collections.singletonList(Constants.ALL_NODES), Constants.CASE_MULTISELECT_CONCURRENT_BUILDS, new IgnoreOfflineNodeEligibility()));
 
     }
 
@@ -80,8 +80,8 @@ public class NodelLabelNodePropertyTest {
         assertTrue(NodeUtil.isNodeOnline(onlineNode2.getNodeName()));
         assertFalse(NodeUtil.isNodeOnline(offlineNode.getNodeName()));
 
-        final ArrayList<String> defaultNodeNames = Lists.newArrayList(offlineNode.getNodeName(), onlineNode2.getNodeName(), onlineNode1.getNodeName(), "master");
-        runTest(3, 1, true, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Lists.newArrayList(Constants.ALL_NODES), Constants.CASE_MULTISELECT_CONCURRENT_BUILDS, new AllNodeEligibility()));
+        final List<String> defaultNodeNames = Arrays.asList(offlineNode.getNodeName(), onlineNode2.getNodeName(), onlineNode1.getNodeName(), "master");
+        runTest(3, 1, true, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Collections.singletonList(Constants.ALL_NODES), Constants.CASE_MULTISELECT_CONCURRENT_BUILDS, new AllNodeEligibility()));
 
     }
 

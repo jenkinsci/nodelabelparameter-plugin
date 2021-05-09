@@ -10,14 +10,13 @@ import hudson.plugins.parameterizedtrigger.AbstractBuildParameterFactoryDescript
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameters;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import jenkins.model.Jenkins;
 
 import org.jvnet.jenkins.plugins.nodelabelparameter.Messages;
 import org.kohsuke.stapler.DataBoundConstructor;
-
-import com.google.common.collect.Lists;
 
 /**
  * Triggers builds on all slaves.
@@ -34,7 +33,7 @@ public class AllNodesBuildParameterFactory extends AbstractBuildParameterFactory
         Computer[] nodes = Jenkins.getActiveInstance().getComputers();
 
         final PrintStream logger = listener.getLogger();
-        List<AbstractBuildParameters> params = Lists.newArrayList();
+        List<AbstractBuildParameters> params = new ArrayList<>();
         for(Computer c : nodes) {
             Node n = c.getNode();
             if (n!=null && c.isOnline() && c.getNumExecutors()>0) {
