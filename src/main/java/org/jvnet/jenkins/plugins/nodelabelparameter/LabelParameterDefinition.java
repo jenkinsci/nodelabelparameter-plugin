@@ -15,8 +15,10 @@ import hudson.model.SimpleParameterDefinition;
 import hudson.model.labels.LabelExpression;
 import hudson.util.FormValidation;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 
@@ -33,10 +35,6 @@ import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
 import antlr.ANTLRException;
-
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Collections2;
 
 /**
  * Defines a build parameter used to restrict the node a job will be executed
@@ -170,8 +168,8 @@ public class LabelParameterDefinition extends SimpleParameterDefinition implemen
                 if(nodes.isEmpty()) {
                     return FormValidation.warning(Messages.NodeLabelParameterDefinition_noNodeMatched(label));
                 }
-                final Collection<String> nodeNames = Collections2.transform(nodes, new NodeDescFunction());
-                final String html = Joiner.on("</li><li>").join(nodeNames);
+                final List<String> nodeNames = nodes.stream().map(new NodeDescFunction()).collect(Collectors.toList());
+                final String html = String.join("</li><li>", nodeNames);
                 return FormValidation.okWithMarkup("<b>"+Messages.LabelParameterDefinition_matchingNodes()+"</b><ul><li>" + html +"</li></ul>");
             } catch (ANTLRException e) {
                 return FormValidation.error(Messages.NodeLabelParameterDefinition_labelExpressionNotValid(label, e.getMessage()));

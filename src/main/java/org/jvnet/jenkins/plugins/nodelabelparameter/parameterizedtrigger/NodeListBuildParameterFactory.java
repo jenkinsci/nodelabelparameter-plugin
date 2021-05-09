@@ -13,6 +13,7 @@ import hudson.plugins.parameterizedtrigger.AbstractBuildParameters;
 import hudson.util.FormValidation;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
@@ -26,8 +27,6 @@ import org.jvnet.jenkins.plugins.nodelabelparameter.Messages;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
-
-import com.google.common.collect.Lists;
 
 /**
  * A build parameter factory generating NodeLabelParameters for each node matching a label
@@ -55,7 +54,7 @@ public class NodeListBuildParameterFactory extends AbstractBuildParameterFactory
             e.printStackTrace(listener.getLogger());
         }
 
-        List<AbstractBuildParameters> params = Lists.newArrayList();
+        List<AbstractBuildParameters> params = new ArrayList<>();
 
         if (StringUtils.isBlank(nodeListStringExpanded)) {
             listener.getLogger().println("[WARN] no node name was given! [" + nodeListString + "], can't trigger other project");

@@ -24,8 +24,6 @@ import java.util.Set;
 
 import org.jvnet.hudson.test.HudsonTestCase;
 
-import com.google.common.collect.ImmutableList;
-
 /**
  * @author wolfs
  */
@@ -131,7 +129,7 @@ public class AllNodesForLabelBuildParameterFactoryTest extends HudsonTestCase {
         projectA.getBuildersList().add(
                 new TriggerBuilder(new BlockableBuildTriggerConfig(projectB.getName(),
                         blockingBehaviour,
-                        ImmutableList.<AbstractBuildParameterFactory>of(new AllNodesForLabelBuildParameterFactory(
+                        Collections.singletonList(new AllNodesForLabelBuildParameterFactory(
                                 "LABEL", label, false)),
                         Collections.<AbstractBuildParameters>emptyList())));
     }

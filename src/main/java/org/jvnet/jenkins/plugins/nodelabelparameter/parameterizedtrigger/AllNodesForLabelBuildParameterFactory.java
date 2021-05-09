@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
@@ -23,9 +25,6 @@ import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterValue;
 import org.jvnet.jenkins.plugins.nodelabelparameter.Messages;
 import org.jvnet.jenkins.plugins.nodelabelparameter.NodeUtil;
 import org.kohsuke.stapler.DataBoundConstructor;
-
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 
 /**
  * A build parameter factory generating NodeLabelParameters for each node matching a label
@@ -61,13 +60,13 @@ public class AllNodesForLabelBuildParameterFactory extends AbstractBuildParamete
         listener.getLogger().println("Getting all nodes with label: " + labelExpanded);
         Set<Node> nodes = Jenkins.getActiveInstance().getLabel(labelExpanded).getNodes();
 
-        List<AbstractBuildParameters> params = Lists.newArrayList();
+        List<AbstractBuildParameters> params = new ArrayList<>();
 
         if (nodes == null || nodes.isEmpty()) {
             listener.getLogger().println("Found no nodes");
             params.add(new NodeLabelBuildParameter(name, labelExpanded));
         } else {
-            List<String> selfLabels = Lists.transform(new ArrayList<Node>(nodes), SELF_LABEL_FUNCTION);
+            List<String> selfLabels = nodes.stream().map(SELF_LABEL_FUNCTION).collect(Collectors.toList());
             listener.getLogger().println("Found nodes: " + String.valueOf(selfLabels));
             for (Node node : nodes) {
                 final String nodeSelfLabel = node.getSelfLabel().getName();
