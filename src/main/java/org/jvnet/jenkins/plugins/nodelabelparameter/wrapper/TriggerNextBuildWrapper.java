@@ -130,10 +130,11 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 			for (ParameterValue parameterValue : origParams) {
 				if (parameterValue instanceof LabelParameterValue) {
 					LabelParameterValue origNodePram = (LabelParameterValue) parameterValue;
-					final List<String> nextNodes = origNodePram.getNextLabels();
+					List<String> nextNodes = origNodePram.getNextLabels();
 					if (nextNodes == null) {
 						continue;
 					}
+					nextNodes = new ArrayList<>(nextNodes);
 					nextNodes.remove(initialBuildNode);
 					if (!nextNodes.isEmpty() && shouldScheduleNextJob(build.getResult(), parameterDefinition.getTriggerIfResult())) {
 					    LabelParameterValue newNodeParam = new LabelParameterValue(origNodePram.getName(), nextNodes, parameterDefinition.getNodeEligibility());
