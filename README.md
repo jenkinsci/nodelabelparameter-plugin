@@ -13,7 +13,7 @@ Another usage scenario would be to configure a node maintenance job which you co
 
 ![](images/selectParameter.png)
 
-Restrict where this project can be run
+Restrict where this project can be run::
 
 If you are using a node or label parameter to run your job on a particular node, you should not use the option "Restrict where this project can be run" in the job configuration.
 It will not have any effect on agent selection!
@@ -24,7 +24,7 @@ Define a list of nodes on which the job should be run.
 A default node used for scheduled jobs can be defined.
 You are able to configure the job to run one after the other or even concurrent.
 
-![](images/config_plugin.jpg)
+![](images/config_plugin.png)
 
 In case multi node selection was disabled, you get a drop-down to select one node to execute the job.
 
