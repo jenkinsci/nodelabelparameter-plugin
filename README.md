@@ -73,7 +73,7 @@ curl --silent -u USER:PASSWORD --show-error \
      http://localhost:8080/job/remote/build?token=SECTOKEN
 ```
 
-## Parameterized Trigger Plugin
+## Using the Parameterized Trigger Plugin
 
 ### Post Build Action
 
