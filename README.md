@@ -11,7 +11,7 @@ This is specially useful if you want to execute the job on different nodes witho
 It also allows you to use Jenkins in a scenario where you would like to setup different nodes with the same script/jobs configured - e.g. SW provisioning.
 Another usage scenario would be to configure a node maintenance job which you could trigger on request on each node.
 
-![](images/selectParameter.jpg)
+![](images/selectParameter.png)
 
 Restrict where this project can be run
 
