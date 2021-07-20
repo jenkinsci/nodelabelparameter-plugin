@@ -13,12 +13,12 @@ Another usage scenario would be to configure a node maintenance job which you co
 
 ![](images/selectParameter.png)
 
-Restrict where this project can be run::
+Restrict where this project can be run
 
 If you are using a node or label parameter to run your job on a particular node, you should not use the option "Restrict where this project can be run" in the job configuration.
 It will not have any effect on agent selection!
 
-### Node
+## Node Parameter
 
 Define a list of nodes on which the job should be run.
 A default node used for scheduled jobs can be defined.
@@ -35,7 +35,7 @@ The job will then be executed on each of the nodes, one after the other or concu
 
 ![](images/multinode_selection.png)
 
-### Label
+## Label Parameter
 
 Define a parameter for the node(s) that will run the job.
 
@@ -45,7 +45,7 @@ Define a label of 'Restrict where this project can be run'.
 
 ![](images/triggerWithLabel.png)
 
-### Trigger via script
+## Trigger via script
 
 You can also trigger a job via remote call (e.g. script)
 
@@ -73,7 +73,7 @@ curl --silent -u USER:PASSWORD --show-error \
      http://localhost:8080/job/remote/build?token=SECTOKEN
 ```
 
-## Parameterized Trigger plugin
+## Parameterized Trigger Plugin
 
 ### Post Build Action
 
