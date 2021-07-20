@@ -43,7 +43,7 @@ Define a parameter for the node(s) that will run the job.
 
 Define a label of 'Restrict where this project can be run'.
 
-![](images/triggerWithLabel.jpg)
+![](images/triggerWithLabel.png)
 
 ### Trigger via script
 
