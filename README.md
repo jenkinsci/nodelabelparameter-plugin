@@ -39,7 +39,7 @@ The job will then be executed on each of the nodes, one after the other or concu
 
 Define a parameter for the node(s) that will run the job.
 
-![](images/labelParameter.jpg)
+![](images/labelParameter.png)
 
 Define a label of 'Restrict where this project can be run'.
 
