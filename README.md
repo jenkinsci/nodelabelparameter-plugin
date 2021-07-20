@@ -11,41 +11,41 @@ This is specially useful if you want to execute the job on different nodes witho
 It also allows you to use Jenkins in a scenario where you would like to setup different nodes with the same script/jobs configured - e.g. SW provisioning.
 Another usage scenario would be to configure a node maintenance job which you could trigger on request on each node.
 
-![](images/selectParameter.jpg)
+![](images/selectParameter.png)
 
 Restrict where this project can be run
 
 If you are using a node or label parameter to run your job on a particular node, you should not use the option "Restrict where this project can be run" in the job configuration.
 It will not have any effect on agent selection!
 
-### Node
+## Node Parameter
 
 Define a list of nodes on which the job should be run.
 A default node used for scheduled jobs can be defined.
 You are able to configure the job to run one after the other or even concurrent.
 
-![](images/config_plugin.jpg)
+![](images/config_plugin.png)
 
 In case multi node selection was disabled, you get a drop-down to select one node to execute the job.
 
-![](images/triggerWithNode.jpg)
+![](images/triggerWithNode.png)
 
 If multi node selection was enabled, you get the chance to select multiple nodes to run the job.
 The job will then be executed on each of the nodes, one after the other or concurrent - depending on the configuration.
 
-![](images/multinode_selection.jpg)
+![](images/multinode_selection.png)
 
-### Label
+## Label Parameter
 
 Define a parameter for the node(s) that will run the job.
 
-![](images/labelParameter.jpg)
+![](images/labelParameter.png)
 
 Define a label of 'Restrict where this project can be run'.
 
-![](images/triggerWithLabel.jpg)
+![](images/triggerWithLabel.png)
 
-### Trigger via script
+## Trigger via script
 
 You can also trigger a job via remote call (e.g. script)
 
@@ -73,7 +73,7 @@ curl --silent -u USER:PASSWORD --show-error \
      http://localhost:8080/job/remote/build?token=SECTOKEN
 ```
 
-## Parameterized Trigger plugin
+## Using the Parameterized Trigger Plugin
 
 ### Post Build Action
 
