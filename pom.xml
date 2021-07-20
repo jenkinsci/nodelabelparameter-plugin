@@ -66,10 +66,6 @@
 			<artifactId>token-macro</artifactId>
 		</dependency>
 		<dependency>
-		    <groupId>org.jenkins-ci.plugins</groupId>
-		    <artifactId>jquery</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.jenkins-ci.main</groupId>
 			<artifactId>jenkins-test-harness-tools</artifactId>
                         <version>2.2</version>
