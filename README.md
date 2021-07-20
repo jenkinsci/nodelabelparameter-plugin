@@ -28,7 +28,7 @@ You are able to configure the job to run one after the other or even concurrent.
 
 In case multi node selection was disabled, you get a drop-down to select one node to execute the job.
 
-![](images/images/triggerWithNode.png)
+![](images/triggerWithNode.png)
 
 If multi node selection was enabled, you get the chance to select multiple nodes to run the job.
 The job will then be executed on each of the nodes, one after the other or concurrent - depending on the configuration.
