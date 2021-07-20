@@ -33,7 +33,7 @@ In case multi node selection was disabled, you get a drop-down to select one nod
 If multi node selection was enabled, you get the chance to select multiple nodes to run the job.
 The job will then be executed on each of the nodes, one after the other or concurrent - depending on the configuration.
 
-![](images/multinode_selection.jpg)
+![](images/multinode_selection.png)
 
 ### Label
 
