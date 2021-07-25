@@ -11,7 +11,7 @@
 	</parent>
 
 	<artifactId>nodelabelparameter</artifactId>
-	<version>${revision}${changelist}</version>
+	<version>1.9.0</version>
 
 	<packaging>hpi</packaging>
 
@@ -23,7 +23,7 @@
 		<connection>scm:git:git://github.com/${gitHubRepo}.git</connection>
 		<developerConnection>scm:git:git@github.com:${gitHubRepo}.git</developerConnection>
 		<url>https://github.com/${gitHubRepo}</url>
-	  <tag>${scmTag}</tag>
+	  <tag>nodelabelparameter-1.9.0</tag>
   </scm>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
