@@ -30,7 +30,7 @@
         <maven.javadoc.skip>true</maven.javadoc.skip>
                 <revision>1.9.3</revision>
                 <changelist>-SNAPSHOT</changelist>
-                <jenkins.version>2.263.1</jenkins.version>
+                <jenkins.version>2.289.1</jenkins.version>
                 <java.level>8</java.level>
                 <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
 	</properties>
@@ -97,7 +97,7 @@
                 <dependencies>
                         <dependency>
                                 <groupId>io.jenkins.tools.bom</groupId>
-                                <artifactId>bom-2.263.x</artifactId>
+                                <artifactId>bom-2.289.x</artifactId>
                                 <version>950.v396cb834de1e</version>
                                 <type>pom</type>
                                 <scope>import</scope>
