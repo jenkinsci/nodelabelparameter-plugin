@@ -103,6 +103,10 @@ This factory enables you to trigger a build of a specific project on all nodes h
 Similarly, you can also add "Build on every online node" as a parameter factory.
 This will cause the specified projects to run on all nodes (controller and all agents) that are online and have an executor configured.
 
+## Report an Issue
+
+Please report issues and enhancements through the [Jenkins issue tracker](https://www.jenkins.io/participate/report-issue/redirect/#15873).
+
 ## Version History - [GitHub Releases](https://github.com/jenkinsci/nodelabelparameter-plugin/releases)
 
 Recent releases are described in [GitHub Releases](https://github.com/jenkinsci/nodelabelparameter-plugin/releases).
