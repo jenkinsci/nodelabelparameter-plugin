@@ -17,12 +17,12 @@ public final class NodeUtil {
      * @return <code>true</code> if the job is ok to be used
      */
     public static boolean isNodeOnline(String nodeName) {
-        String controllerLabel = Jenkins.getActiveInstance().getSelfLabel().getName();
+        String controllerLabel = Jenkins.get().getSelfLabel().getName();
         if (controllerLabel.equals(nodeName)) {
             return true;
         }
 
-        final Computer c = Jenkins.getActiveInstance().getComputer(nodeName);
+        final Computer c = Jenkins.get().getComputer(nodeName);
         if (c != null) {
             Node n = c.getNode();
             // really check if the node is available for execution

@@ -30,7 +30,7 @@ public class AllNodesBuildParameterFactory extends AbstractBuildParameterFactory
 
     @Override
     public List<AbstractBuildParameters> getParameters(AbstractBuild<?, ?> build, TaskListener listener) {
-        Computer[] nodes = Jenkins.getActiveInstance().getComputers();
+        Computer[] nodes = Jenkins.get().getComputers();
 
         final PrintStream logger = listener.getLogger();
         List<AbstractBuildParameters> params = new ArrayList<>();

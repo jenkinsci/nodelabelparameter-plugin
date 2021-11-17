@@ -256,7 +256,7 @@ public class LabelParameterValue extends ParameterValue {
      */
     protected void addBadgeToBuild(AbstractBuild<?, ?> build) {
         final Computer c = Computer.currentComputer();
-        String controllerLabel = Jenkins.getActiveInstance().getSelfLabel().getName();
+        String controllerLabel = Jenkins.get().getSelfLabel().getName();
         if (c != null) {
             String cName = StringUtils.isBlank(c.getName()) ? controllerLabel : c.getName();
             build.addAction(new LabelBadgeAction(getLabel(), Messages.LabelBadgeAction_label_tooltip_node(getLabel(), cName)));

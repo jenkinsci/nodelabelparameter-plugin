@@ -123,7 +123,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
         final List<String> slaves = allowedSlaves == null || allowedSlaves.isEmpty() || allowedSlaves.contains(Constants.ALL_NODES) ? getNodeNames() : allowedSlaves;
 
         Collections.sort(slaves, NodeNameComparator.INSTANCE);
-        String controllerLabel = Jenkins.getActiveInstance().getSelfLabel().getName();
+        String controllerLabel = Jenkins.get().getSelfLabel().getName();
         if (slaves.contains(controllerLabel)) {
             moveMasterToFirstPosition(slaves);
         }
@@ -169,7 +169,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
      */
     private static List<String> getNodeNames() {
         List<String> names = new ArrayList<String>();
-        final List<Node> nodes = Jenkins.getActiveInstance().getNodes();
+        final List<Node> nodes = Jenkins.get().getNodes();
         for (Node node : nodes) {
             final String nodeName = node.getNodeName();
             if (StringUtils.isNotBlank(nodeName)) {
@@ -184,7 +184,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
     }
 
     private static void moveMasterToFirstPosition(List<String> nodeList) {
-        String controllerLabel = Jenkins.getActiveInstance().getSelfLabel().getName();
+        String controllerLabel = Jenkins.get().getSelfLabel().getName();
         if (controllerLabel.equals(Constants.MASTER)) {
             nodeList.remove(Constants.MASTER);
             nodeList.add(0, Constants.MASTER);
