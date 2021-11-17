@@ -32,6 +32,9 @@ import hudson.model.Job;
 import hudson.model.Run;
 import jenkins.model.ParameterizedJobMixIn;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+
 /**
  * 
  * @author Dominik Bartholdi (imod)
@@ -64,7 +67,7 @@ public class TriggerJobsTest {
     }
 
     /**
-     * usescase: job is configured to be executed on three nodes per default, only two nodes are online - offline nodes must be ignored
+     * use case: job is configured to be executed on three nodes per default, only two nodes are online - offline nodes must be ignored
      * 
      * @throws Exception
      */
@@ -77,19 +80,23 @@ public class TriggerJobsTest {
     }
 
     /**
-     * usescase: job is configured to be executed on three nodes per default, only two nodes are online - offline nodes are NOT ignored
+     * use case: job is configured to be executed on three nodes per default, only two nodes are online - offline nodes are NOT ignored
      * 
      * @throws Exception
      */
     @Test
     public void jobMustRunOnAllRequestedSlaves_NotIgnoringOfflineNodes() throws Exception {
 
+        /* Test is unreliable on Windows since inclusive naming support was added */
+        // if (isWindows()) {
+        //     return;
+        // }
         final List<String> defaultNodeNames = Arrays.asList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
         runTest(2, 1, false, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Collections.singletonList(Constants.ALL_NODES), Constants.ALL_CASES, false));
     }
 
     /**
-     * usescase: job is configured to be executed on three nodes per default (concurrent), only two nodes are online - offline nodes are NOT ignored
+     * use case: job is configured to be executed on three nodes per default (concurrent), only two nodes are online - offline nodes are NOT ignored
      * 
      * @throws Exception
      */
@@ -102,7 +109,7 @@ public class TriggerJobsTest {
     }
 
     /**
-     * usescase: job is configured to be executed on three nodes per default (concurrent), only two nodes are online - offline nodes are NOT ignored
+     * use case: job is configured to be executed on three nodes per default (concurrent), only two nodes are online - offline nodes are NOT ignored
      * 
      * @throws Exception
      */
@@ -115,12 +122,12 @@ public class TriggerJobsTest {
     }
 
     /**
-     * usescase: job is configured to be executed on four nodes per default (concurrent), only two nodes and controller are online
+     * use case: job is configured to be executed on four nodes per default (concurrent), only two nodes and controller are online
      * 
      * @throws Exception
      */
     @Test
-    public void jobMustRunOnAllRequestedSlaves_including_Controller_IgnoreOfflineNodes() throws Exception {
+    public void jobMustRunOnAllRequestedSlaves_including_Node_on_Controller_IgnoreOfflineNodes() throws Exception {
 
         final List<String> defaultNodeNames = Arrays.asList(controllerLabel, onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
         runTest(3, 0, false, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Collections.singletonList(Constants.ALL_NODES), Constants.ALL_CASES, true));
@@ -148,7 +155,9 @@ public class TriggerJobsTest {
             Thread.sleep(1003); // give async triggered jobs some time to finish (1 second)
         } while (++counter < 10 && projectA.getLastBuild().number < expectedNumberOfExecutedRuns);
         assertEquals("Number of builds", expectedNumberOfExecutedRuns, projectA.getLastBuild().number);
-        assertEquals("Number of queued items", expectedNumberOfItemsInTheQueue, j.jenkins.getQueue().getBuildableItems().size());
+        assertEquals("Pending items: " + j.jenkins.getQueue().getPendingItems(), 0, j.jenkins.getQueue().getPendingItems().size());
+        assertThat("Full sleep time consumed", counter, is(lessThan(10)));
+        assertEquals("Queued build count", expectedNumberOfItemsInTheQueue, j.jenkins.getQueue().countBuildableItems());
 
     }
 
