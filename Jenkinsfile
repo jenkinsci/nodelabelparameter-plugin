@@ -1,3 +1,3 @@
 #!/usr/bin/env groovy
 
-buildPlugin()
+buildPlugin(failFast: false)
