@@ -148,8 +148,8 @@ public class TriggerJobsTest {
         do {
             Thread.sleep(1003); // give async triggered jobs some time to finish (1 second)
         } while (++counter < 10 && projectA.getLastBuild().number < expectedNumberOfExecutedRuns);
-        assertEquals("expected number of items in the queue", expectedNumberOfItemsInTheQueue, j.jenkins.getQueue().getBuildableItems().size());
-        assertEquals("expected number of runs", expectedNumberOfExecutedRuns, projectA.getLastBuild().number);
+        assertEquals("Number of builds", expectedNumberOfExecutedRuns, projectA.getLastBuild().number);
+        assertEquals("Number of queued items", expectedNumberOfItemsInTheQueue, j.jenkins.getQueue().getBuildableItems().size());
 
     }
 
