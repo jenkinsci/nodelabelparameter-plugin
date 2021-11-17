@@ -293,6 +293,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
         return this;
     }
 
+    @Override
     public TriggerNextBuildWrapper createBuildWrapper() {
         if (this.getAllowMultiNodeSelection()) {
             // we expect only one node parameter definition per job
