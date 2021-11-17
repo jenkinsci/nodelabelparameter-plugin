@@ -17,7 +17,8 @@ public final class NodeUtil {
      * @return <code>true</code> if the job is ok to be used
      */
     public static boolean isNodeOnline(String nodeName) {
-        if (Constants.MASTER.equals(nodeName)) {
+        String controllerLabel = Jenkins.getActiveInstance().getSelfLabel().getName();
+        if (controllerLabel.equals(nodeName)) {
             return true;
         }
 

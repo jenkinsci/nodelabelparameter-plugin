@@ -193,7 +193,8 @@ public class LabelParameterDefinition extends SimpleParameterDefinition implemen
          */
         private static final class NodeDescFunction implements Function<Node, String> {
             public String apply(Node n) {
-                return n != null && StringUtils.isNotBlank(n.getNodeName()) ? n.getNodeName() : Constants.MASTER;
+                String controllerLabel = Jenkins.getActiveInstance().getSelfLabel().getName();
+                return n != null && StringUtils.isNotBlank(n.getNodeName()) ? n.getNodeName() : controllerLabel;
             }
         }
 	}

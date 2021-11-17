@@ -18,8 +18,9 @@ public abstract class NodeEligibility implements Describable<NodeEligibility>, E
 
     public boolean isEligible(String nodeName) {
 
+        String controllerLabel = Jenkins.getActiveInstance().getSelfLabel().getName();
         Node node = Jenkins.getActiveInstance().getNode(nodeName);
-        if (node == null && (Constants.MASTER.equals(nodeName) || "".equals(nodeName))) {
+        if (node == null && (controllerLabel.equals(nodeName) || "".equals(nodeName))) {
             Computer c = Jenkins.getActiveInstance().getComputer("");
             node = c != null ? c.getNode() : null;
         }
@@ -28,7 +29,8 @@ public abstract class NodeEligibility implements Describable<NodeEligibility>, E
     }
 
     protected Computer getComputer(Node node) {
-        String name = Constants.MASTER.equals(node.getNodeName()) ? "" : node.getNodeName();
+        String controllerLabel = Jenkins.getActiveInstance().getSelfLabel().getName();
+        String name = controllerLabel.equals(node.getNodeName()) ? "" : node.getNodeName();
         return Jenkins.getActiveInstance().getComputer(name);
     }
 

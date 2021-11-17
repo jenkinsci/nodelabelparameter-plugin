@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import jenkins.model.Jenkins;
+
 import org.apache.commons.lang.StringUtils;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.NodeEligibility;
@@ -254,8 +256,9 @@ public class LabelParameterValue extends ParameterValue {
      */
     protected void addBadgeToBuild(AbstractBuild<?, ?> build) {
         final Computer c = Computer.currentComputer();
+        String controllerLabel = Jenkins.getActiveInstance().getSelfLabel().getName();
         if (c != null) {
-            String cName = StringUtils.isBlank(c.getName()) ? Constants.MASTER : c.getName();
+            String cName = StringUtils.isBlank(c.getName()) ? controllerLabel : c.getName();
             build.addAction(new LabelBadgeAction(getLabel(), Messages.LabelBadgeAction_label_tooltip_node(getLabel(), cName)));
         } else {
             build.addAction(new LabelBadgeAction(getLabel(), Messages.LabelBadgeAction_label_tooltip(getLabel())));

@@ -123,7 +123,8 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
         final List<String> slaves = allowedSlaves == null || allowedSlaves.isEmpty() || allowedSlaves.contains(Constants.ALL_NODES) ? getNodeNames() : allowedSlaves;
 
         Collections.sort(slaves, NodeNameComparator.INSTANCE);
-        if (slaves.contains(Constants.MASTER)) {
+        String controllerLabel = Jenkins.getActiveInstance().getSelfLabel().getName();
+        if (slaves.contains(controllerLabel)) {
             moveMasterToFirstPosition(slaves);
         }
 
@@ -162,7 +163,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
     }
 
     /**
-     * Gets all node names - sorted and 'master' at first position.
+     * Gets all node names - sorted and controller label at first position.
      * 
      * @return a list of all node names.
      */
@@ -177,7 +178,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
         }
         Collections.sort(names, NodeNameComparator.INSTANCE);
 
-        // add 'magic' name for master, so all nodes can be handled the same way
+        // add 'magic' name for controller, so all nodes can be handled the same way
         moveMasterToFirstPosition(names);
         return names;
     }
@@ -194,7 +195,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
     }
 
     /**
-     * Comparator preferring the master name
+     * Comparator preferring the label of the controller
      */
     private static final class NodeNameComparator implements Comparator<String> {
         public static final NodeNameComparator INSTANCE = new NodeNameComparator();
@@ -236,9 +237,9 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
 
     @Override
     public ParameterValue createValue(StaplerRequest req, JSONObject jo) {
-        // as String from UI: {"labels":"master","name":"HOSTN"}
-        // as JSONArray: {"name":"HOSTN","value":["master","host2"]}
-        // as String from script: {"name":"HOSTN","value":"master"}
+        // as String from UI: {"labels":"built-in","name":"HOSTN"}
+        // as JSONArray: {"name":"HOSTN","value":["built-in","host2"]}
+        // as String from script: {"name":"HOSTN","value":"built-in"}
         final String name = jo.getString("name");
         // JENKINS-28374 also respect 'labels' to allow rebuilds via rebuild plugin
         final Object joValue = jo.get("value") == null ? (jo.get("labels") == null ? jo.get("label") : jo.get("labels")) : jo.get("value");
