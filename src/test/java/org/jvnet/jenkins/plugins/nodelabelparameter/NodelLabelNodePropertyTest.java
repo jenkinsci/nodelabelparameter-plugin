@@ -31,6 +31,7 @@ public class NodelLabelNodePropertyTest {
 
     @Rule
     public JenkinsRule j = new JenkinsRule();
+    private String controllerLabel = null;
 
     private DumbSlave  onlineNode1;
     private DumbSlave  onlineNode2;
@@ -42,6 +43,7 @@ public class NodelLabelNodePropertyTest {
         onlineNode2 = j.createOnlineSlave(new LabelAtom("mylabel2"));
         offlineNode = j.createOnlineSlave(new LabelAtom("mylabel3"));
         offlineNode.getComputer().setTemporarilyOffline(true, new hudson.slaves.OfflineCause.ByCLI("mark offline"));
+        controllerLabel = j.jenkins.getSelfLabel().getName();
     }
 
     @After
@@ -80,7 +82,7 @@ public class NodelLabelNodePropertyTest {
         assertTrue(NodeUtil.isNodeOnline(onlineNode2.getNodeName()));
         assertFalse(NodeUtil.isNodeOnline(offlineNode.getNodeName()));
 
-        final List<String> defaultNodeNames = Arrays.asList(offlineNode.getNodeName(), onlineNode2.getNodeName(), onlineNode1.getNodeName(), "master");
+        final List<String> defaultNodeNames = Arrays.asList(offlineNode.getNodeName(), onlineNode2.getNodeName(), onlineNode1.getNodeName(), controllerLabel);
         runTest(3, 1, true, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Collections.singletonList(Constants.ALL_NODES), Constants.CASE_MULTISELECT_CONCURRENT_BUILDS, new AllNodeEligibility()));
 
     }
