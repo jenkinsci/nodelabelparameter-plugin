@@ -84,7 +84,7 @@
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <forkCount>0.8C</forkCount>
+          <forkCount>1C</forkCount>
           <reuseForks>true</reuseForks>
         </configuration>
       </plugin>
