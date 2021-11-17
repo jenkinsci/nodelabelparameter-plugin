@@ -124,7 +124,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
 
         Collections.sort(slaves, NodeNameComparator.INSTANCE);
         if (slaves.contains(Constants.MASTER)) {
-            moveMasterToFirstPossition(slaves);
+            moveMasterToFirstPosition(slaves);
         }
 
         return slaves;
@@ -178,13 +178,19 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
         Collections.sort(names, NodeNameComparator.INSTANCE);
 
         // add 'magic' name for master, so all nodes can be handled the same way
-        moveMasterToFirstPossition(names);
+        moveMasterToFirstPosition(names);
         return names;
     }
 
-    private static void moveMasterToFirstPossition(List<String> nodeList) {
-        nodeList.remove(Constants.MASTER);
-        nodeList.add(0, Constants.MASTER);
+    private static void moveMasterToFirstPosition(List<String> nodeList) {
+        String controllerLabel = Jenkins.getActiveInstance().getSelfLabel().getName();
+        if (controllerLabel.equals(Constants.MASTER)) {
+            nodeList.remove(Constants.MASTER);
+            nodeList.add(0, Constants.MASTER);
+        } else {
+            nodeList.remove(controllerLabel);
+            nodeList.add(0, controllerLabel);
+        }
     }
 
     /**
