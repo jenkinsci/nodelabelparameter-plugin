@@ -42,6 +42,7 @@ public class TriggerJobsTest {
 
     @Rule
     public JenkinsRule j = new JenkinsRule();
+    private String controllerLabel = null;
 
     private DumbSlave  onlineNode1;
     private DumbSlave  onlineNode2;
@@ -53,6 +54,7 @@ public class TriggerJobsTest {
         onlineNode2 = j.createOnlineSlave(new LabelAtom("mylabel2"));
         offlineNode = j.createOnlineSlave(new LabelAtom("mylabel3"));
         offlineNode.getComputer().setTemporarilyOffline(true, new hudson.slaves.OfflineCause.ByCLI("mark offline"));
+        controllerLabel = j.jenkins.getSelfLabel().getName();
     }
 
     @After
@@ -114,14 +116,14 @@ public class TriggerJobsTest {
     }
 
     /**
-     * usescase: job is configured to be executed on four nodes per default (concurrent), only two nodes and master are online
+     * usescase: job is configured to be executed on four nodes per default (concurrent), only two nodes and controller are online
      * 
      * @throws Exception
      */
     @Test
-    public void jobMustRunOnAllRequestedSlaves_including_Master_IgnoreOfflineNodes() throws Exception {
+    public void jobMustRunOnAllRequestedSlaves_including_Controller_IgnoreOfflineNodes() throws Exception {
 
-        final List<String> defaultNodeNames = Arrays.asList("master", onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
+        final List<String> defaultNodeNames = Arrays.asList(controllerLabel, onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
         runTest(3, 0, false, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Collections.singletonList(Constants.ALL_NODES), Constants.ALL_CASES, true));
 
     }
@@ -157,8 +159,8 @@ public class TriggerJobsTest {
     public void testTriggerViaCurlWithValue() throws Exception {
         FreeStyleProject projectA = j.createFreeStyleProject("projectA");
         NodeParameterDefinition parameterDefinition = new NodeParameterDefinition(
-                "NODE", "desc", Collections.singletonList("master"), Collections.singletonList(onlineNode1.getNodeName()), (String) null, new AllNodeEligibility());
-        String json = "{\"parameter\":[{\"name\":\"NODE\",\"value\":[\"master\"]}]}";
+                "NODE", "desc", Collections.singletonList(controllerLabel), Collections.singletonList(onlineNode1.getNodeName()), (String) null, new AllNodeEligibility());
+        String json = "{\"parameter\":[{\"name\":\"NODE\",\"value\":[\"" + controllerLabel + "\"]}]}";
         runTestViaCurl(projectA, parameterDefinition, json, 1, Result.SUCCESS);
     }
 
@@ -172,8 +174,8 @@ public class TriggerJobsTest {
     public void testTriggerViaCurlWithLabel() throws Exception {
         FreeStyleProject projectA = j.createFreeStyleProject("projectA");
         NodeParameterDefinition parameterDefinition = new NodeParameterDefinition(
-                "NODE", "desc", Collections.singletonList("master"), Collections.singletonList(onlineNode1.getNodeName()), (String) null, new AllNodeEligibility());
-        String json = "{\"parameter\":[{\"name\":\"NODE\",\"label\":[\"master\"]}]}";
+                "NODE", "desc", Collections.singletonList(controllerLabel), Collections.singletonList(onlineNode1.getNodeName()), (String) null, new AllNodeEligibility());
+        String json = "{\"parameter\":[{\"name\":\"NODE\",\"label\":[\"" + controllerLabel + "\"]}]}";
         runTestViaCurl(projectA, parameterDefinition, json, 1, Result.SUCCESS);
     }
 
@@ -187,8 +189,8 @@ public class TriggerJobsTest {
     public void testTriggerViaCurlWithLabels() throws Exception {
         FreeStyleProject projectA = j.createFreeStyleProject("projectA");
         NodeParameterDefinition parameterDefinition = new NodeParameterDefinition(
-                "NODE", "desc", Collections.singletonList("master"), Collections.singletonList(onlineNode1.getNodeName()), (String) null, new AllNodeEligibility());
-        String json = "{\"parameter\":[{\"name\":\"NODE\",\"labels\":[\"master\"]}]}";
+                "NODE", "desc", Collections.singletonList(controllerLabel), Collections.singletonList(onlineNode1.getNodeName()), (String) null, new AllNodeEligibility());
+        String json = "{\"parameter\":[{\"name\":\"NODE\",\"labels\":[\"" + controllerLabel + "\"]}]}";
         runTestViaCurl(projectA, parameterDefinition, json, 1, Result.SUCCESS);
     }
 
