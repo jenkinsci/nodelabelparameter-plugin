@@ -82,7 +82,11 @@ public class AllNodesForLabelBuildParameterFactoryTest extends HudsonTestCase {
         projectA.scheduleBuild2(0);
 
         // Wait for Project to be in Queue
-        Thread.sleep(1000);
+        // Sleep up to 1 second
+        int counter = 0;
+        do {
+            Thread.sleep(103); // give time to finish (0.1 second)
+        } while (++counter < 10 && hudson.getQueue().getItem(projectB) == null);
 
         Queue.Item projectBInQueue = hudson.getQueue().getItem(projectB);
 

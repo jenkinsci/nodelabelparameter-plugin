@@ -143,7 +143,11 @@ public class TriggerJobsTest {
         j.assertBuildStatus(Result.SUCCESS, projectA.scheduleBuild2(0, new Cause.UserIdCause()).get());
         // we can't wait for no activity, as this would also wait for the jobs we expect to stay in the queue
         // j.waitUntilNoActivity();
-        Thread.sleep(5000); // give async triggered jobs some time to finish (5 Seconds)
+        // Sleep up to 10 seconds
+        int counter = 0;
+        do {
+            Thread.sleep(1003); // give async triggered jobs some time to finish (1 second)
+        } while (++counter < 10 && projectA.getLastBuild().number < expectedNumberOfExecutedRuns);
         assertEquals("expected number of items in the queue", expectedNumberOfItemsInTheQueue, j.jenkins.getQueue().getBuildableItems().size());
         assertEquals("expected number of runs", expectedNumberOfExecutedRuns, projectA.getLastBuild().number);
 
