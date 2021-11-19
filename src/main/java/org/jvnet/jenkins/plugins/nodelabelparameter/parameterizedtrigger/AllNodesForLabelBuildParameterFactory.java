@@ -58,7 +58,7 @@ public class AllNodesForLabelBuildParameterFactory extends AbstractBuildParamete
         }
         
         listener.getLogger().println("Getting all nodes with label: " + labelExpanded);
-        Set<Node> nodes = Jenkins.getActiveInstance().getLabel(labelExpanded).getNodes();
+        Set<Node> nodes = Jenkins.get().getLabel(labelExpanded).getNodes();
 
         List<AbstractBuildParameters> params = new ArrayList<>();
 

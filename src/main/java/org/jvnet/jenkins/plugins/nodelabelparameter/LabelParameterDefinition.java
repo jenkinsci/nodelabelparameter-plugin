@@ -126,7 +126,7 @@ public class LabelParameterDefinition extends SimpleParameterDefinition implemen
          */
         public AutoCompletionCandidates doAutoCompleteDefaultValue(@QueryParameter String value) {
             final AutoCompletionCandidates candidates = new AutoCompletionCandidates();
-            for (Label l : Jenkins.getActiveInstance().getLabels()) {
+            for (Label l : Jenkins.get().getLabels()) {
                 String label = l.getExpression();
                 if (StringUtils.containsIgnoreCase(label, value)) {
                     candidates.add(label);
@@ -193,7 +193,8 @@ public class LabelParameterDefinition extends SimpleParameterDefinition implemen
          */
         private static final class NodeDescFunction implements Function<Node, String> {
             public String apply(Node n) {
-                return n != null && StringUtils.isNotBlank(n.getNodeName()) ? n.getNodeName() : Constants.MASTER;
+                String controllerLabel = Jenkins.get().getSelfLabel().getName();
+                return n != null && StringUtils.isNotBlank(n.getNodeName()) ? n.getNodeName() : controllerLabel;
             }
         }
 	}

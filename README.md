@@ -61,7 +61,7 @@ Although the first format also supports passing just one node name as parameter 
 
 ``` bash
 curl --silent -u USER:PASSWORD --show-error \
-     --data 'json={"parameter":[{"name":"PARAMNAME","value":"master"}]}&Submit=Build' \
+     --data 'json={"parameter":[{"name":"PARAMNAME","value":"agent-name"}]}&Submit=Build' \
      http://localhost:8080/job/remote/build?token=SECTOKEN
 ```
 

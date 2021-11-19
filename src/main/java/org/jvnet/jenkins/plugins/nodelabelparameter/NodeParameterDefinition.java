@@ -123,8 +123,9 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
         final List<String> slaves = allowedSlaves == null || allowedSlaves.isEmpty() || allowedSlaves.contains(Constants.ALL_NODES) ? getNodeNames() : allowedSlaves;
 
         Collections.sort(slaves, NodeNameComparator.INSTANCE);
-        if (slaves.contains(Constants.MASTER)) {
-            moveMasterToFirstPossition(slaves);
+        String controllerLabel = Jenkins.get().getSelfLabel().getName();
+        if (slaves.contains(controllerLabel)) {
+            moveMasterToFirstPosition(slaves);
         }
 
         return slaves;
@@ -162,13 +163,13 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
     }
 
     /**
-     * Gets all node names - sorted and 'master' at first position.
+     * Gets all node names - sorted and controller label at first position.
      * 
      * @return a list of all node names.
      */
     private static List<String> getNodeNames() {
         List<String> names = new ArrayList<String>();
-        final List<Node> nodes = Jenkins.getActiveInstance().getNodes();
+        final List<Node> nodes = Jenkins.get().getNodes();
         for (Node node : nodes) {
             final String nodeName = node.getNodeName();
             if (StringUtils.isNotBlank(nodeName)) {
@@ -177,18 +178,24 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
         }
         Collections.sort(names, NodeNameComparator.INSTANCE);
 
-        // add 'magic' name for master, so all nodes can be handled the same way
-        moveMasterToFirstPossition(names);
+        // add 'magic' name for controller, so all nodes can be handled the same way
+        moveMasterToFirstPosition(names);
         return names;
     }
 
-    private static void moveMasterToFirstPossition(List<String> nodeList) {
-        nodeList.remove(Constants.MASTER);
-        nodeList.add(0, Constants.MASTER);
+    private static void moveMasterToFirstPosition(List<String> nodeList) {
+        String controllerLabel = Jenkins.get().getSelfLabel().getName();
+        if (controllerLabel.equals(Constants.MASTER)) {
+            nodeList.remove(Constants.MASTER);
+            nodeList.add(0, Constants.MASTER);
+        } else {
+            nodeList.remove(controllerLabel);
+            nodeList.add(0, controllerLabel);
+        }
     }
 
     /**
-     * Comparator preferring the master name
+     * Comparator preferring the label of the controller
      */
     private static final class NodeNameComparator implements Comparator<String> {
         public static final NodeNameComparator INSTANCE = new NodeNameComparator();
@@ -230,9 +237,9 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
 
     @Override
     public ParameterValue createValue(StaplerRequest req, JSONObject jo) {
-        // as String from UI: {"labels":"master","name":"HOSTN"}
-        // as JSONArray: {"name":"HOSTN","value":["master","host2"]}
-        // as String from script: {"name":"HOSTN","value":"master"}
+        // as String from UI: {"labels":"built-in","name":"HOSTN"}
+        // as JSONArray: {"name":"HOSTN","value":["built-in","host2"]}
+        // as String from script: {"name":"HOSTN","value":"built-in"}
         final String name = jo.getString("name");
         // JENKINS-28374 also respect 'labels' to allow rebuilds via rebuild plugin
         final Object joValue = jo.get("value") == null ? (jo.get("labels") == null ? jo.get("label") : jo.get("labels")) : jo.get("value");
@@ -286,6 +293,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
         return this;
     }
 
+    @Override
     public TriggerNextBuildWrapper createBuildWrapper() {
         if (this.getAllowMultiNodeSelection()) {
             // we expect only one node parameter definition per job
