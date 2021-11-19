@@ -24,6 +24,9 @@ import java.util.Set;
 
 import org.jvnet.hudson.test.HudsonTestCase;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+
 /**
  * @author wolfs
  */
@@ -92,7 +95,7 @@ public class AllNodesForLabelBuildParameterFactoryTest extends HudsonTestCase {
 
         assertNotNull(projectBInQueue);
         assertEquals(label, projectBInQueue.getAssignedLabel().getName());
-
+        assertThat("Full sleep time consumed", counter, is(lessThan(10)));
 
     }
 

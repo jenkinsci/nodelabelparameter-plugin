@@ -22,6 +22,9 @@ import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.IgnoreOfflineNodeEligibility;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+
 /**
  * 
  * @author Dominik Bartholdi (imod)
@@ -105,6 +108,7 @@ public class NodelLabelNodePropertyTest {
         } while (++counter < 10 && projectA.getLastBuild().number < expectedNumberOfExecutedRuns);
         assertEquals("expcted number of runs", expectedNumberOfExecutedRuns, projectA.getLastBuild().number);
         assertEquals("expected number of items in the queue", expectedNumberOfItemsInTheQueue, j.jenkins.getQueue().getBuildableItems().size());
+        assertThat("Full sleep time consumed", counter, is(lessThan(10)));
 
     }
 }
