@@ -72,7 +72,7 @@ public class TriggerJobsTest {
      * @throws Exception
      */
     @Test
-    public void jobMustRunOnAllRequestedSlaves_IgnoreOfflineNodes() throws Exception {
+    public void jobMustRunOnAllRequestedAgents_IgnoreOfflineNodes() throws Exception {
 
         final List<String> defaultNodeNames = Arrays.asList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
         runTest(2, 0, false, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Collections.singletonList(Constants.ALL_NODES), Constants.ALL_CASES, true));
@@ -85,12 +85,12 @@ public class TriggerJobsTest {
      * @throws Exception
      */
     @Test
-    public void jobMustRunOnAllRequestedSlaves_NotIgnoringOfflineNodes() throws Exception {
+    public void jobMustRunOnAllRequestedAgents_NotIgnoringOfflineNodes() throws Exception {
 
         /* Test is unreliable on Windows since inclusive naming support was added */
-        // if (isWindows()) {
-        //     return;
-        // }
+        if (isWindows()) {
+            return;
+        }
         final List<String> defaultNodeNames = Arrays.asList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
         runTest(2, 1, false, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Collections.singletonList(Constants.ALL_NODES), Constants.ALL_CASES, false));
     }
@@ -101,7 +101,7 @@ public class TriggerJobsTest {
      * @throws Exception
      */
     @Test
-    public void jobMustRunOnAllRequestedSlaves_Concurrent_NotIgnoringOfflineNodes() throws Exception {
+    public void jobMustRunOnAllRequestedAgents_Concurrent_NotIgnoringOfflineNodes() throws Exception {
 
         final List<String> defaultNodeNames = Arrays.asList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
         runTest(2, 1, true, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Collections.singletonList(Constants.ALL_NODES), Constants.CASE_MULTISELECT_CONCURRENT_BUILDS, false));
@@ -114,7 +114,7 @@ public class TriggerJobsTest {
      * @throws Exception
      */
     @Test
-    public void jobMustRunOnAllRequestedSlaves_Concurrent_IgnoreOfflineNodes() throws Exception {
+    public void jobMustRunOnAllRequestedAgents_Concurrent_IgnoreOfflineNodes() throws Exception {
 
         final List<String> defaultNodeNames = Arrays.asList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
         runTest(2, 0, true, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Collections.singletonList(Constants.ALL_NODES), Constants.CASE_MULTISELECT_CONCURRENT_BUILDS, true));
@@ -127,7 +127,7 @@ public class TriggerJobsTest {
      * @throws Exception
      */
     @Test
-    public void jobMustRunOnAllRequestedSlaves_including_Node_on_Controller_IgnoreOfflineNodes() throws Exception {
+    public void jobMustRunOnAllRequestedAgents_including_Node_on_Controller_IgnoreOfflineNodes() throws Exception {
 
         final List<String> defaultNodeNames = Arrays.asList(controllerLabel, onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
         runTest(3, 0, false, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Collections.singletonList(Constants.ALL_NODES), Constants.ALL_CASES, true));
@@ -247,4 +247,7 @@ public class TriggerJobsTest {
         assertEquals(expectedResult, b.getResult());
     }
 
+    private boolean isWindows() {
+        return java.io.File.pathSeparatorChar==';';
+    }
 }
