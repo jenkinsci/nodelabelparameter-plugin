@@ -84,7 +84,7 @@ But it is not possible to use the 'Predefined parameters' to overwrite such a pa
 This parameter type defines where the target job should be executed.
 The value must match either a label or a node name - otherwise the job will just stay in the queue.
 The NodeLabel parameter passed to the target job does not have to exist on the target job (but if the target has one defined, it should match the name).
-This way it is possible to trigger jobs on different nodes then they are actually configured.
+This way it is possible to trigger jobs on different nodes than are actually configured.
 
 ![](images/parameterized-trigger-param.jpg)
 
