@@ -40,7 +40,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
     private static final long serialVersionUID = 1L;
 
     public final List<String> allowedSlaves;
-    private List<String>      defaultAgents;
+    private List<String>      defaultSlaves;
     @Deprecated
     public transient String   defaultValue;
     private String            triggerIfResult;
@@ -56,7 +56,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
     public NodeParameterDefinition(String name, String description, List<String> defaultAgents, List<String> allowedAgents, String triggerIfResult, NodeEligibility nodeEligibility) {
         super(name, description);
         this.allowedSlaves = allowedAgents;
-        this.defaultAgents = defaultAgents;
+        this.defaultSlaves = defaultAgents;
 
         if (Constants.CASE_MULTISELECT_DISALLOWED.equals(triggerIfResult)) {
             this.allowMultiNodeSelection = false;
@@ -90,7 +90,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
 
     @SuppressFBWarnings(value="EI_EXPOSE_REP", justification="Low risk")
     public List<String> getDefaultSlaves() {
-        return defaultAgents;
+        return defaultSlaves;
     }
 
     /**
@@ -275,10 +275,10 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
      */
     public Object readResolve() {
         if (defaultValue != null) {
-            if (defaultAgents == null) {
-                defaultAgents = new ArrayList<String>();
+            if (defaultSlaves == null) {
+                defaultSlaves = new ArrayList<String>();
             }
-            defaultAgents.add(defaultValue);
+            defaultSlaves.add(defaultValue);
         }
         if(nodeEligibility == null) {
             if (ignoreOfflineNodes) {
