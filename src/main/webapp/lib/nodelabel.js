@@ -43,13 +43,10 @@
 		});
 
 		function checkConcurrentExecutionValuesNode() {
-			if (matches(concurrentBuild, ":checked") &&
-                            (document.querySelector('input[type="radio"][name$=triggerIfResult]:checked') != null &&
-                             document.querySelector('input[type="radio"][name$=triggerIfResult]:checked').value != "allowMultiSelectionForConcurrentBuilds")) {
+			var radioButton = document.querySelector('input[type="radio"][name$=triggerIfResult]:checked');
+			if (matches(concurrentBuild, ":checked") && radioButton && radioButton.value != "allowMultiSelectionForConcurrentBuilds") {
 				show(document.querySelector("#allowmultinodeselection"));
-			} else if (!matches(concurrentBuild, ":checked") &&
-                                   (document.querySelector('input[type="radio"][name$=triggerIfResult]:checked') != null &&
-                                    document.querySelector('input[type="radio"][name$=triggerIfResult]:checked').value == "allowMultiSelectionForConcurrentBuilds")) {
+			} else if (!matches(concurrentBuild, ":checked") && radioButton && radioButton.value == "allowMultiSelectionForConcurrentBuilds") {
 				show(document.querySelector("#allowmultinodeselection"));
 			} else {
 				hide(document.querySelector("#allowmultinodeselection"));
