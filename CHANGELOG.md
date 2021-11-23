@@ -97,7 +97,7 @@ Recent releases are described in [GitHub Releases](https://github.com/jenkinsci/
 ## 1.1.4 (21. May 2012)
 
 -   supported a build parameter factory that lets you run a specified
-    job on all the slaves.
+    job on all the agents.
 
 ## 1.1.3 (11. May 2012)
 
