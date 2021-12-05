@@ -44,7 +44,7 @@ public abstract class NodeEligibility implements Describable<NodeEligibility>, E
     }
 
     public static DescriptorExtensionList<NodeEligibility, NodeEligibilityDescriptor> all() {
-        return Jenkins.get().<NodeEligibility, NodeEligibilityDescriptor> getDescriptorList(NodeEligibility.class);
+        return Jenkins.get().getDescriptorList(NodeEligibility.class);
     }
 
     public static abstract class NodeEligibilityDescriptor extends Descriptor<NodeEligibility> {

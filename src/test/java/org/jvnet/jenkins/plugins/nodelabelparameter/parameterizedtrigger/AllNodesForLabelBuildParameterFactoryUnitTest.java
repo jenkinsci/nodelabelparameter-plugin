@@ -107,7 +107,7 @@ public class AllNodesForLabelBuildParameterFactoryUnitTest {
 
     private TriggerBuilder createTriggerBuilder(AbstractProject<?, ?> project, AbstractBuildParameterFactory factory) {
         TriggerBuilder tBuilder = new TriggerBuilder(new BlockableBuildTriggerConfig(project.getName(), new BlockingBehaviour(Result.FAILURE, Result.UNSTABLE, Result.FAILURE), Collections.singletonList(factory),
-                Collections.<AbstractBuildParameters> emptyList()));
+                Collections.emptyList()));
         return tBuilder;
     }
 }

@@ -140,7 +140,7 @@ public class AllNodesForLabelBuildParameterFactoryTest {
                         blockingBehaviour,
                         Collections.singletonList(new AllNodesForLabelBuildParameterFactory(
                                 "LABEL", label, false)),
-                        Collections.<AbstractBuildParameters>emptyList())));
+                        Collections.emptyList())));
     }
 
     private List<DumbSlave> createSlaves(String label, int num) throws Exception {
