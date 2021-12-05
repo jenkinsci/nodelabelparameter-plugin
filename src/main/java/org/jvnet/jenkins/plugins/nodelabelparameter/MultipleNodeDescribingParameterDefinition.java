@@ -18,21 +18,21 @@ public interface MultipleNodeDescribingParameterDefinition {
      * 
      * @return
      */
-    public String getTriggerIfResult();
+    String getTriggerIfResult();
 
     /**
      * The name of the parameter
      * 
      * @return the name of the parameter
      */
-    public String getName();
+    String getName();
 
     /**
      * gets the strategy which decides whether a node should be ignored or not 
      * 
      * @return the eligibility definition
      */
-    public NodeEligibility getNodeEligibility();
+    NodeEligibility getNodeEligibility();
 
     /**
      * Callback to allow the parameter definition to do a final validation if everything is OK to proceed. Implementations are asked to throw a runtime exception if something is not OK and the build
@@ -45,13 +45,13 @@ public interface MultipleNodeDescribingParameterDefinition {
      * @param listener
      *            provides access to the log stream
      */
-    public void validateBuild(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener);
+    void validateBuild(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener);
 
     /**
      * Returns the wrapper to trigger the next build
      * 
      * @return <code>null</code> if there is no new build to be triggered.
      */
-    public TriggerNextBuildWrapper createBuildWrapper();
+    TriggerNextBuildWrapper createBuildWrapper();
 
 }

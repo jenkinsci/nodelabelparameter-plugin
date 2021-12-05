@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.apache.commons.lang.StringUtils;
 import org.jvnet.jenkins.plugins.nodelabelparameter.Constants;
 import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterValue;
 import org.jvnet.jenkins.plugins.nodelabelparameter.MultipleNodeDescribingParameterDefinition;
@@ -73,14 +72,14 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 
 	private void triggerAllBuildsConcurrent(AbstractBuild<?, ?> build, BuildListener listener) {
 
-		final List<String> newBuildNodes = new ArrayList<String>();
+		final List<String> newBuildNodes = new ArrayList<>();
 		String parmaName = null;
 
 		String initialBuildNode = build.getBuiltOnStr();
 
 		final ParametersAction origParamsAction = build.getAction(ParametersAction.class);
 		final List<ParameterValue> origParams = origParamsAction.getParameters();
-		final List<ParameterValue> newPrams = new ArrayList<ParameterValue>();
+		final List<ParameterValue> newPrams = new ArrayList<>();
 		for (ParameterValue parameterValue : origParams) {
 			if (parameterValue instanceof LabelParameterValue) {
 		        LabelParameterValue origNodeParam = (LabelParameterValue) parameterValue;
@@ -100,10 +99,10 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 			}
 		}
 		for (String nodeName : newBuildNodes) {
-			final List<String> singleNodeList = new ArrayList<String>();
+			final List<String> singleNodeList = new ArrayList<>();
 			singleNodeList.add(nodeName);
 			final LabelParameterValue pValue = new LabelParameterValue(parmaName, singleNodeList, parameterDefinition.getNodeEligibility());
-			List<ParameterValue> copies = new ArrayList<ParameterValue>(newPrams);
+			List<ParameterValue> copies = new ArrayList<>(newPrams);
 			copies.add(pValue); // where to do the next build
 			listener.getLogger().println("Schedule build on node " + nodeName);
 			build.getProject().scheduleBuild(0, new NextLabelCause(nodeName, build), new ParametersAction(copies));
@@ -125,7 +124,7 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
 		private void triggerBuilds(AbstractBuild<?, ?> build, BuildListener listener) {
 			final ParametersAction origParamsAction = build.getAction(ParametersAction.class);
 			final List<ParameterValue> origParams = origParamsAction.getParameters();
-			final List<ParameterValue> newPrams = new ArrayList<ParameterValue>();
+			final List<ParameterValue> newPrams = new ArrayList<>();
 			boolean triggerNewBuild = false;
 			NextLabelCause nextLabelCause = null;
 			for (ParameterValue parameterValue : origParams) {

@@ -8,8 +8,6 @@ import hudson.model.Descriptor;
 import hudson.model.Node;
 import jenkins.model.Jenkins;
 
-import org.jvnet.jenkins.plugins.nodelabelparameter.Constants;
-
 import java.io.Serializable;
 
 public abstract class NodeEligibility implements Describable<NodeEligibility>, ExtensionPoint, Serializable {
@@ -44,7 +42,7 @@ public abstract class NodeEligibility implements Describable<NodeEligibility>, E
     }
 
     public static DescriptorExtensionList<NodeEligibility, NodeEligibilityDescriptor> all() {
-        return Jenkins.get().<NodeEligibility, NodeEligibilityDescriptor> getDescriptorList(NodeEligibility.class);
+        return Jenkins.get().getDescriptorList(NodeEligibility.class);
     }
 
     public static abstract class NodeEligibilityDescriptor extends Descriptor<NodeEligibility> {

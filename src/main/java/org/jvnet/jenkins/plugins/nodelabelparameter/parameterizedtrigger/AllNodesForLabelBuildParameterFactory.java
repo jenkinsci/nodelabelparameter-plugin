@@ -1,11 +1,8 @@
 package org.jvnet.jenkins.plugins.nodelabelparameter.parameterizedtrigger;
 
 import hudson.Extension;
-import hudson.model.ParameterValue;
-import hudson.model.ParametersAction;
 import hudson.model.TaskListener;
 import hudson.model.AbstractBuild;
-import hudson.model.Hudson;
 import hudson.model.Node;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameterFactory;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameterFactoryDescriptor;
@@ -21,7 +18,6 @@ import java.util.stream.Collectors;
 import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
 import org.jenkinsci.plugins.tokenmacro.TokenMacro;
-import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterValue;
 import org.jvnet.jenkins.plugins.nodelabelparameter.Messages;
 import org.jvnet.jenkins.plugins.nodelabelparameter.NodeUtil;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -67,7 +63,7 @@ public class AllNodesForLabelBuildParameterFactory extends AbstractBuildParamete
             params.add(new NodeLabelBuildParameter(name, labelExpanded));
         } else {
             List<String> selfLabels = nodes.stream().map(SELF_LABEL_FUNCTION).collect(Collectors.toList());
-            listener.getLogger().println("Found nodes: " + String.valueOf(selfLabels));
+            listener.getLogger().println("Found nodes: " + selfLabels);
             for (Node node : nodes) {
                 final String nodeSelfLabel = node.getSelfLabel().getName();
                 if (ignoreOfflineNodes) {

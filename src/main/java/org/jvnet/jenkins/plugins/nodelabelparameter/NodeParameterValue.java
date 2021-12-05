@@ -4,6 +4,7 @@
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.lang.StringUtils;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.NodeEligibility;
@@ -54,7 +55,7 @@ public class NodeParameterValue extends LabelParameterValue {
 
         NodeParameterValue that = (NodeParameterValue) o;
 
-        if (nextLabels != null ? !nextLabels.equals(that.nextLabels) : that.nextLabels != null) return false;
+        if (!Objects.equals(nextLabels, that.nextLabels)) return false;
 
         return true;
     }
