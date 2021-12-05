@@ -1,11 +1,8 @@
 package org.jvnet.jenkins.plugins.nodelabelparameter.parameterizedtrigger;
 
 import hudson.Extension;
-import hudson.model.ParameterValue;
-import hudson.model.ParametersAction;
 import hudson.model.TaskListener;
 import hudson.model.AbstractBuild;
-import hudson.model.Hudson;
 import hudson.model.Node;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameterFactory;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameterFactoryDescriptor;
@@ -21,7 +18,6 @@ import java.util.stream.Collectors;
 import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
 import org.jenkinsci.plugins.tokenmacro.TokenMacro;
-import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterValue;
 import org.jvnet.jenkins.plugins.nodelabelparameter.Messages;
 import org.jvnet.jenkins.plugins.nodelabelparameter.NodeUtil;
 import org.kohsuke.stapler.DataBoundConstructor;
