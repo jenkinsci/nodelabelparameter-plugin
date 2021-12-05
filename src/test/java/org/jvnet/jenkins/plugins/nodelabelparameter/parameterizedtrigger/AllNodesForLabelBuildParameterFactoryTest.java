@@ -122,11 +122,11 @@ public class AllNodesForLabelBuildParameterFactoryTest {
         }
     }
 
-    private void addLabelParameterFactory(Project<?, ?> projectA, FreeStyleProject projectB, String label) throws IOException {
+    private void addLabelParameterFactory(Project<?, ?> projectA, FreeStyleProject projectB, String label) {
         addLabelParameterFactory(projectA, projectB, null, label);
     }
 
-    private void addBlockingLabelParameterFactory(Project<?, ?> projectA, FreeStyleProject projectB, String label) throws IOException {
+    private void addBlockingLabelParameterFactory(Project<?, ?> projectA, FreeStyleProject projectB, String label) {
         addLabelParameterFactory(projectA, projectB, new BlockingBehaviour(Result.FAILURE, Result.UNSTABLE, Result.FAILURE), label);
     }
 
@@ -134,7 +134,7 @@ public class AllNodesForLabelBuildParameterFactoryTest {
             Project<?, ?> projectA,
             FreeStyleProject projectB,
             BlockingBehaviour blockingBehaviour,
-            String label) throws IOException {
+            String label) {
         projectA.getBuildersList().add(
                 new TriggerBuilder(new BlockableBuildTriggerConfig(projectB.getName(),
                         blockingBehaviour,
