@@ -67,7 +67,7 @@ public class AllNodesForLabelBuildParameterFactory extends AbstractBuildParamete
             params.add(new NodeLabelBuildParameter(name, labelExpanded));
         } else {
             List<String> selfLabels = nodes.stream().map(SELF_LABEL_FUNCTION).collect(Collectors.toList());
-            listener.getLogger().println("Found nodes: " + String.valueOf(selfLabels));
+            listener.getLogger().println("Found nodes: " + selfLabels);
             for (Node node : nodes) {
                 final String nodeSelfLabel = node.getSelfLabel().getName();
                 if (ignoreOfflineNodes) {
