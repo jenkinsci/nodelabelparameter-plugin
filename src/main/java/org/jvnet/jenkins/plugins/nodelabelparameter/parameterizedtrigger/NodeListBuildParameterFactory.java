@@ -60,7 +60,7 @@ public class NodeListBuildParameterFactory extends AbstractBuildParameterFactory
             listener.getLogger().println("[WARN] no node name was given! [" + nodeListString + "], can't trigger other project");
         } else {
 
-            String nodes[] = nodeListStringExpanded.trim().split(",");
+            String[] nodes = nodeListStringExpanded.trim().split(",");
             if (nodes == null || nodes.length == 0) {
                 params.add(new NodeLabelBuildParameter(name, nodeListStringExpanded));
             } else {
