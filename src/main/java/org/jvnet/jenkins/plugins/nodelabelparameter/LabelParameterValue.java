@@ -21,6 +21,7 @@ import hudson.util.VariableResolver;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -235,7 +236,7 @@ public class LabelParameterValue extends ParameterValue {
 
         LabelParameterValue that = (LabelParameterValue) o;
 
-        if (label != null ? !label.equals(that.label) : that.label != null)
+        if (!Objects.equals(label, that.label))
             return false;
 
         return true;
