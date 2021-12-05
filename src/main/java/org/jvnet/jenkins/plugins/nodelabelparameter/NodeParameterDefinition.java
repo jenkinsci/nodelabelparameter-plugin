@@ -119,7 +119,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
     public List<String> getAllowedNodesOrAll() {
         final List<String> agents = allowedSlaves == null || allowedSlaves.isEmpty() || allowedSlaves.contains(Constants.ALL_NODES) ? getNodeNames() : allowedSlaves;
 
-        Collections.sort(agents, NodeNameComparator.INSTANCE);
+        agents.sort(NodeNameComparator.INSTANCE);
         String controllerLabel = Jenkins.get().getSelfLabel().getName();
         if (agents.contains(controllerLabel)) {
             moveBuiltInNodeToFirstPosition(agents);
@@ -173,7 +173,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
                 names.add(nodeName);
             }
         }
-        Collections.sort(names, NodeNameComparator.INSTANCE);
+        names.sort(NodeNameComparator.INSTANCE);
 
         // add 'magic' name for controller, so all nodes can be handled the same way
         moveBuiltInNodeToFirstPosition(names);
