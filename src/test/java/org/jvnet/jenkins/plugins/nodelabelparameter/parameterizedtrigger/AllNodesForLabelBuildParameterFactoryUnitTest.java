@@ -58,7 +58,7 @@ public class AllNodesForLabelBuildParameterFactoryUnitTest {
         FreeStyleProject projectA = j.createFreeStyleProject("projectA");
         FreeStyleProject projectB = j.createFreeStyleProject("projectB");
 
-        final List<Boolean> executed = new ArrayList<Boolean>();
+        final List<Boolean> executed = new ArrayList<>();
 
         projectA.getBuildersList().add(new TestBuilder() {
             public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
@@ -88,7 +88,7 @@ public class AllNodesForLabelBuildParameterFactoryUnitTest {
 
     public static void noMatchingNodeShouldYieldSameLabel(final AllNodesForLabelBuildParameterFactory dummyNodesFactory, AbstractBuild<?, ?> build, BuildListener listener) throws IOException, InterruptedException, DontTriggerException {
         List<AbstractBuildParameters> parameters = dummyNodesFactory.getParameters(build, listener);
-        Set<String> nodeNames = new HashSet<String>();
+        Set<String> nodeNames = new HashSet<>();
         for (AbstractBuildParameters parameter : parameters) {
             nodeNames.add(((NodeLabelBuildParameter) parameter).nodeLabel);
         }
@@ -98,7 +98,7 @@ public class AllNodesForLabelBuildParameterFactoryUnitTest {
     public static void shouldGetParameterForEachMatchingNode(final AllNodesForLabelBuildParameterFactory twoNodesFactory, AbstractBuild<?, ?> build, BuildListener listener) throws IOException, InterruptedException, DontTriggerException {
         // test: shouldGetParameterForEachMatchingNode
         List<AbstractBuildParameters> parameters = twoNodesFactory.getParameters(build, listener);
-        Set<String> nodeNames = new HashSet<String>();
+        Set<String> nodeNames = new HashSet<>();
         for (AbstractBuildParameters parameter : parameters) {
             nodeNames.add(((NodeLabelBuildParameter) parameter).nodeLabel);
         }

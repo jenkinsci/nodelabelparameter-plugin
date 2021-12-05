@@ -231,7 +231,7 @@ public class TriggerJobsTest {
         WebRequest requestSettings = new WebRequest(url, HttpMethod.POST);
         // add security crumb (cannot modify the list after that, so we recreate the parameters right away)
         wc.addCrumb(requestSettings);
-        List<com.gargoylesoftware.htmlunit.util.NameValuePair> requestParameters = new ArrayList<com.gargoylesoftware.htmlunit.util.NameValuePair>();
+        List<com.gargoylesoftware.htmlunit.util.NameValuePair> requestParameters = new ArrayList<>();
         requestParameters.add(new com.gargoylesoftware.htmlunit.util.NameValuePair("json", json));
         requestParameters.add(new com.gargoylesoftware.htmlunit.util.NameValuePair("Submit", "Build"));
         requestParameters.addAll(requestSettings.getRequestParameters());

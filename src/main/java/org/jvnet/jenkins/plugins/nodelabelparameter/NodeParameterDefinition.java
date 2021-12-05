@@ -79,7 +79,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
 
     @Deprecated
     public NodeParameterDefinition(String name, String description, String defaultValue, List<String> allowedAgents, String triggerIfResult) {
-        this(name, description, new ArrayList<String>(), allowedAgents, triggerIfResult, false);
+        this(name, description, new ArrayList<>(), allowedAgents, triggerIfResult, false);
 
         if (this.allowedSlaves != null && this.allowedSlaves.contains(defaultValue)) {
             this.allowedSlaves.remove(defaultValue);
@@ -165,7 +165,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
      * @return a list of all node names.
      */
     private static List<String> getNodeNames() {
-        List<String> names = new ArrayList<String>();
+        List<String> names = new ArrayList<>();
         final List<Node> nodes = Jenkins.get().getNodes();
         for (Node node : nodes) {
             final String nodeName = node.getNodeName();
@@ -241,7 +241,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
         // JENKINS-28374 also respect 'labels' to allow rebuilds via rebuild plugin
         final Object joValue = jo.get("value") == null ? (jo.get("labels") == null ? jo.get("label") : jo.get("labels")) : jo.get("value");
 
-        List<String> nodes = new ArrayList<String>();
+        List<String> nodes = new ArrayList<>();
         if (joValue instanceof String) {
             nodes.add((String) joValue);
         } else if (joValue instanceof JSONArray) {
@@ -276,7 +276,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
     public Object readResolve() {
         if (defaultValue != null) {
             if (defaultSlaves == null) {
-                defaultSlaves = new ArrayList<String>();
+                defaultSlaves = new ArrayList<>();
             }
             defaultSlaves.add(defaultValue);
         }

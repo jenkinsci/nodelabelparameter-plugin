@@ -111,7 +111,7 @@ public class AllNodesForLabelBuildParameterFactoryTest {
         RunList<FreeStyleBuild> builds = projectB.getBuilds();
         assertEquals(slaves.size(), builds.size());
 
-        Set<Node> nodes = new HashSet<Node>();
+        Set<Node> nodes = new HashSet<>();
         for (FreeStyleBuild build : builds) {
             nodes.add(build.getBuiltOn());
         }
@@ -144,7 +144,7 @@ public class AllNodesForLabelBuildParameterFactoryTest {
     }
 
     private List<DumbSlave> createSlaves(String label, int num) throws Exception {
-        List<DumbSlave> slaves = new ArrayList<DumbSlave>(num);
+        List<DumbSlave> slaves = new ArrayList<>(num);
         for (int i = 0; i < num; i++) {
             DumbSlave slave = j.createSlave(new LabelAtom(label));
             slave.setMode(Node.Mode.EXCLUSIVE);
