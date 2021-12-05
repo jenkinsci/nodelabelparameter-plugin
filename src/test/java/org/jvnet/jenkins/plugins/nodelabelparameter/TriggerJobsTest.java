@@ -171,7 +171,7 @@ public class TriggerJobsTest {
     public void testTriggerViaCurlWithValue() throws Exception {
         FreeStyleProject projectA = j.createFreeStyleProject("projectA");
         NodeParameterDefinition parameterDefinition = new NodeParameterDefinition(
-                "NODE", "desc", Collections.singletonList(controllerLabel), Collections.singletonList(onlineNode1.getNodeName()), (String) null, new AllNodeEligibility());
+                "NODE", "desc", Collections.singletonList(controllerLabel), Collections.singletonList(onlineNode1.getNodeName()), null, new AllNodeEligibility());
         String json = "{\"parameter\":[{\"name\":\"NODE\",\"value\":[\"" + controllerLabel + "\"]}]}";
         runTestViaCurl(projectA, parameterDefinition, json, 1, Result.SUCCESS);
     }
@@ -186,7 +186,7 @@ public class TriggerJobsTest {
     public void testTriggerViaCurlWithLabel() throws Exception {
         FreeStyleProject projectA = j.createFreeStyleProject("projectA");
         NodeParameterDefinition parameterDefinition = new NodeParameterDefinition(
-                "NODE", "desc", Collections.singletonList(controllerLabel), Collections.singletonList(onlineNode1.getNodeName()), (String) null, new AllNodeEligibility());
+                "NODE", "desc", Collections.singletonList(controllerLabel), Collections.singletonList(onlineNode1.getNodeName()), null, new AllNodeEligibility());
         String json = "{\"parameter\":[{\"name\":\"NODE\",\"label\":[\"" + controllerLabel + "\"]}]}";
         runTestViaCurl(projectA, parameterDefinition, json, 1, Result.SUCCESS);
     }
@@ -201,7 +201,7 @@ public class TriggerJobsTest {
     public void testTriggerViaCurlWithLabels() throws Exception {
         FreeStyleProject projectA = j.createFreeStyleProject("projectA");
         NodeParameterDefinition parameterDefinition = new NodeParameterDefinition(
-                "NODE", "desc", Collections.singletonList(controllerLabel), Collections.singletonList(onlineNode1.getNodeName()), (String) null, new AllNodeEligibility());
+                "NODE", "desc", Collections.singletonList(controllerLabel), Collections.singletonList(onlineNode1.getNodeName()), null, new AllNodeEligibility());
         String json = "{\"parameter\":[{\"name\":\"NODE\",\"labels\":[\"" + controllerLabel + "\"]}]}";
         runTestViaCurl(projectA, parameterDefinition, json, 1, Result.SUCCESS);
     }
