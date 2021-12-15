@@ -110,4 +110,4 @@ Please report issues and enhancements through the [Jenkins issue tracker](https:
 ## Version History - [GitHub Releases](https://github.com/jenkinsci/nodelabelparameter-plugin/releases)
 
 Recent releases are described in [GitHub Releases](https://github.com/jenkinsci/nodelabelparameter-plugin/releases).
-The [changelog](CHANGELOG.md) lists the release history through 1.7.3.
+The [archive changelog](https://github.com/jenkinsci/nodelabelparameter-plugin/blob/82e092e2ef93ef2e76523eb567ac33d4b09a9c1d/CHANGELOG.md#version-history) lists the release history through 1.7.3.
