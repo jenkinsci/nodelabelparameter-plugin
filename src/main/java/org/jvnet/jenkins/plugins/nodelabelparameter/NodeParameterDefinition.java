@@ -52,10 +52,10 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
 
     @DataBoundConstructor
     @SuppressFBWarnings(value="EI_EXPOSE_REP2", justification="Low risk")
-    public NodeParameterDefinition(String name, String description, List<String> defaultAgents, List<String> allowedAgents, String triggerIfResult, NodeEligibility nodeEligibility) {
+    public NodeParameterDefinition(String name, String description, List<String> defaultSlaves, List<String> allowedSlaves, String triggerIfResult, NodeEligibility nodeEligibility) {
         super(name, description);
-        this.allowedSlaves = allowedAgents;
-        this.defaultSlaves = defaultAgents;
+        this.allowedSlaves = allowedSlaves;
+        this.defaultSlaves = defaultSlaves;
 
         if (Constants.CASE_MULTISELECT_DISALLOWED.equals(triggerIfResult)) {
             this.allowMultiNodeSelection = false;
