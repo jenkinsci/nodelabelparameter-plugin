@@ -84,8 +84,8 @@ public class NodeListBuildParameterFactory extends AbstractBuildParameterFactory
         /**
          * Autocompletion method, called by UI to support user filling the form
          * 
-         * @param value
-         * @return
+         * @param value user provided string
+         * @return auto-completion candidates
          */
         public AutoCompletionCandidates doAutoCompleteNodeListString(@QueryParameter String value) {
             final AutoCompletionCandidates candidates = new AutoCompletionCandidates();

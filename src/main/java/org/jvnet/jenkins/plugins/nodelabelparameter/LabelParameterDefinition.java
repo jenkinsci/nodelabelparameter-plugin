@@ -122,7 +122,7 @@ public class LabelParameterDefinition extends SimpleParameterDefinition implemen
          * Called by UI - Autocompletion for label values
          *
          * @param value the current value in the text field to base the automcompetion upon.
-         * @return
+         * @return autocompletion candidates for label values
          */
         public AutoCompletionCandidates doAutoCompleteDefaultValue(@QueryParameter String value) {
             final AutoCompletionCandidates candidates = new AutoCompletionCandidates();
@@ -138,7 +138,7 @@ public class LabelParameterDefinition extends SimpleParameterDefinition implemen
         /**
          * Called by UI - Checks whether the given label is valid
          * @param value the label to be checked
-         * @return 
+         * @return validation result for the form
          */
         public FormValidation doCheckDefaultValue(@QueryParameter String value) {
             if (value.isEmpty())
@@ -157,7 +157,7 @@ public class LabelParameterDefinition extends SimpleParameterDefinition implemen
          * Called by validation button in UI when triggering a job manually 
          * @param label the label to search the nodes for
          * @return if ok, a list of nodes matching the given label
-         * @throws ServletException
+         * @throws ServletException on error
          */
         public FormValidation doListNodesForLabel(@QueryParameter("label") final String label) throws ServletException {
 

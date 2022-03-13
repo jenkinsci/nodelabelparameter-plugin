@@ -66,7 +66,10 @@ public class LabelParameterValue extends ParameterValue {
     }
 
     /**
-     * @param name
+     * @param name parameter value
+     * @param label parameter label
+     * @param allNodesMatchingLabel if true, then all nodes matching the label are to be used
+     * @param nodeEligibility node eligibility definition
      */
     @DataBoundConstructor
     public LabelParameterValue(String name, String label, boolean allNodesMatchingLabel, NodeEligibility nodeEligibility) {
@@ -136,8 +139,9 @@ public class LabelParameterValue extends ParameterValue {
     }
 
     /**
-     * @param name
-     * @param description
+     * @param name parameter name
+     * @param description parameter description
+     * @param label parameter label
      */
     public LabelParameterValue(String name, String description, String label) {
         super(nameOrDefault(name), description);

@@ -16,7 +16,7 @@ public interface MultipleNodeDescribingParameterDefinition {
     /**
      * Get the requested build result definition
      * 
-     * @return
+     * @return build result string that will trigger the job
      */
     String getTriggerIfResult();
 

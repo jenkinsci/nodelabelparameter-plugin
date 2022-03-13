@@ -21,6 +21,7 @@ import org.jvnet.jenkins.plugins.nodelabelparameter.Constants;
 import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterValue;
 import org.jvnet.jenkins.plugins.nodelabelparameter.MultipleNodeDescribingParameterDefinition;
 import org.jvnet.jenkins.plugins.nodelabelparameter.NextLabelCause;
+import org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterValue;
 
 /**
  * This BuildWrapper is not marked as extension, it gets added dynamically to a
