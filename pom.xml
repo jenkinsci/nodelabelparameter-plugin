@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>4.38</version>
+    <version>4.39</version>
     <relativePath />
   </parent>
 
@@ -16,7 +16,6 @@
   <packaging>hpi</packaging>
 
   <name>Node and Label parameter plugin</name>
-  <description>The node and label parameter plugin allows to dynamically select the node on which a job should be executed.</description>
 
   <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
   <licenses>

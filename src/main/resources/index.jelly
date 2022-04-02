@@ -1,0 +1,4 @@
+<?jelly escape-by-default='true'?>
+<div>
+  The node and label parameter plugin allows the node for a job to be selected dynamically.
+</div>
