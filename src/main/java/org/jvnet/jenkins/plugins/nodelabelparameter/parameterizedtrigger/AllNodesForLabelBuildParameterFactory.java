@@ -3,6 +3,7 @@ package org.jvnet.jenkins.plugins.nodelabelparameter.parameterizedtrigger;
 import hudson.Extension;
 import hudson.model.TaskListener;
 import hudson.model.AbstractBuild;
+import hudson.model.Label;
 import hudson.model.Node;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameterFactory;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameterFactoryDescriptor;
@@ -54,7 +55,8 @@ public class AllNodesForLabelBuildParameterFactory extends AbstractBuildParamete
         }
         
         listener.getLogger().println("Getting all nodes with label: " + labelExpanded);
-        Set<Node> nodes = Jenkins.get().getLabel(labelExpanded).getNodes();
+        Label expanded = Jenkins.get().getLabel(labelExpanded);
+        Set<Node> nodes = expanded != null ? expanded.getNodes() : null;
 
         List<AbstractBuildParameters> params = new ArrayList<>();
 
