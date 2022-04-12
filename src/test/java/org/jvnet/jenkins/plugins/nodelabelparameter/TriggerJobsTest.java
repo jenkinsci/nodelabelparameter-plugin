@@ -223,7 +223,7 @@ public class TriggerJobsTest {
     private <JobT extends Job<JobT, RunT> & ParameterizedJobMixIn.ParameterizedJob, RunT extends Run<JobT, RunT>> void runTestViaCurl(JobT project, NodeParameterDefinition parameterDefinition, String json, int expectedBuildNumber, Result expectedResult) throws Exception{
         ParametersDefinitionProperty pdp = new ParametersDefinitionProperty(parameterDefinition);
         project.addProperty(pdp);
-        // URL triggered, see the plug-in Wiki for more information
+        // URL triggered, see the plugin documentation for more information
         String triggerUrl = String.format("%s%sbuild", j.getURL(), project.getUrl());
 
         JenkinsRule.WebClient wc = j.createWebClient();
