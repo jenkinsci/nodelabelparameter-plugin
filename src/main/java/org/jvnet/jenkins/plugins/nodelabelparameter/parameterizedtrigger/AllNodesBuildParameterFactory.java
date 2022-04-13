@@ -19,7 +19,7 @@ import org.jvnet.jenkins.plugins.nodelabelparameter.Messages;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
- * Triggers builds on all slaves.
+ * Triggers builds on all agents.
  *
  * @author Kohsuke Kawaguchi
  */
