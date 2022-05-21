@@ -1,110 +1,144 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-	<modelVersion>4.0.0</modelVersion>
+  <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.jenkins-ci.plugins</groupId>
-		<artifactId>plugin</artifactId>
-                <version>4.17</version>
-                <relativePath />
-	</parent>
+  <parent>
+    <groupId>org.jenkins-ci.plugins</groupId>
+    <artifactId>plugin</artifactId>
+    <version>4.40</version>
+    <relativePath />
+  </parent>
 
-	<artifactId>nodelabelparameter</artifactId>
-	<version>1.8.1-SNAPSHOT</version>
+  <artifactId>nodelabelparameter</artifactId>
+  <version>${revision}${changelist}</version>
 
-	<packaging>hpi</packaging>
+  <packaging>hpi</packaging>
 
-	<name>Node and Label parameter plugin</name>
-	<description>The node and label parameter plugin allows to dynamically select the node on which a job should be executed.</description>
+  <name>Node and Label parameter plugin</name>
 
-	<url>https://github.com/jenkinsci/nodelabelparameter-plugin</url>
-	<scm>
-		<connection>scm:git:git://github.com/jenkinsci/nodelabelparameter-plugin.git</connection>
-		<developerConnection>scm:git:ssh://git@github.com/jenkinsci/nodelabelparameter-plugin.git</developerConnection>
-		<url>https://github.com/jenkinsci/nodelabelparameter-plugin</url>
-	  <tag>nodelabelparameter-1.7.1</tag>
+  <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>https://opensource.org/licenses/MIT</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <id>imod</id>
+      <name>Dominik Bartholdi</name>
+      <email />
+    </developer>
+    <developer>
+      <id>MarkEWaite</id>
+      <name>Mark Waite</name>
+      <email>mark.earl.waite@gmail.com</email>
+    </developer>
+  </developers>
+  <scm>
+    <connection>scm:git:https://github.com/${gitHubRepo}.git</connection>
+    <developerConnection>scm:git:git@github.com:${gitHubRepo}.git</developerConnection>
+    <tag>${scmTag}</tag>
+    <url>https://github.com/${gitHubRepo}</url>
   </scm>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.javadoc.skip>true</maven.javadoc.skip>
-                <jenkins.version>2.263.1</jenkins.version>
-                <java.level>8</java.level>
-	</properties>
-	<developers>
-		<developer>
-			<id>imod</id>
-			<name>Dominik Bartholdi</name>
-			<email />
-		</developer>
-                <developer>
-                        <id>MarkEWaite</id>
-                        <name>Mark Waite</name>
-                        <email>mark.earl.waite@gmail.com</email>
-                </developer>
-	</developers>
-	<licenses>
-    		<license>
-                        <name>MIT License</name>
-                        <url>https://opensource.org/licenses/MIT</url>
-      			<distribution>repo</distribution>
-    		</license>
-  	</licenses>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <revision>1.10.4</revision>
+    <changelist>-SNAPSHOT</changelist>
+    <jenkins.version>2.319.3</jenkins.version>
+    <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
+  </properties>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.jenkins-ci.plugins</groupId>
-			<artifactId>parameterized-trigger</artifactId>
-                        <version>2.36</version>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>org.jenkins-ci.plugins</groupId>
-			<artifactId>token-macro</artifactId>
-		</dependency>
-		<dependency>
-		    <groupId>org.jenkins-ci.plugins</groupId>
-		    <artifactId>jquery</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.jenkins-ci.main</groupId>
-			<artifactId>jenkins-test-harness-tools</artifactId>
-                        <version>2.2</version>
-			<scope>test</scope>
-		</dependency>
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <version>3.19.0</version>
-            <scope>test</scope>
-        </dependency>
-	</dependencies>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.jenkins.tools.bom</groupId>
+        <artifactId>bom-2.319.x</artifactId>
+        <version>1382.v7d694476f340</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
-	<repositories>
-		<repository>
-			<id>repo.jenkins-ci.org</id>
-			<url>https://repo.jenkins-ci.org/public/</url>
-		</repository>
-	</repositories>
+  <dependencies>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins</groupId>
+      <artifactId>parameterized-trigger</artifactId>
+      <version>2.36</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins</groupId>
+      <artifactId>token-macro</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>3.22.0</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 
-	<pluginRepositories>
-		<pluginRepository>
-			<id>repo.jenkins-ci.org</id>
-			<url>https://repo.jenkins-ci.org/public/</url>
-		</pluginRepository>
-	</pluginRepositories>
+  <repositories>
+    <repository>
+      <id>repo.jenkins-ci.org</id>
+      <url>https://repo.jenkins-ci.org/public/</url>
+    </repository>
+  </repositories>
 
-        <dependencyManagement>
-                <dependencies>
-                        <dependency>
-                                <groupId>io.jenkins.tools.bom</groupId>
-                                <artifactId>bom-2.263.x</artifactId>
-                                <version>26</version>
-                                <type>pom</type>
-                                <scope>import</scope>
-                        </dependency>
-                </dependencies>
-        </dependencyManagement>
-</project>  
-  
+  <pluginRepositories>
+    <pluginRepository>
+      <id>repo.jenkins-ci.org</id>
+      <url>https://repo.jenkins-ci.org/public/</url>
+    </pluginRepository>
+  </pluginRepositories>
 
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>com.diffplug.spotless</groupId>
+          <artifactId>spotless-maven-plugin</artifactId>
+          <version>2.22.5</version>
+          <configuration>
+            <!-- define a language-specific format -->
+            <java>
+              <!-- no need to specify files, inferred automatically -->
+              <endWithNewline />
+              <removeUnusedImports />
+            </java>
+            <pom>
+              <sortPom>
+                <encoding>${project.build.sourceEncoding}</encoding>
+                <lineSeparator>\n</lineSeparator>
+                <expandEmptyElements>false</expandEmptyElements>
+                <spaceBeforeCloseEmptyElement>true</spaceBeforeCloseEmptyElement>
+              </sortPom>
+            </pom>
+          </configuration>
+          <executions>
+            <execution>
+              <!-- Runs in verify phase by default -->
+              <goals>
+                <!-- Can be disabled using -Dspotless.check.skip -->
+                <goal>check</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+    <plugins>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <forkCount>1C</forkCount>
+          <reuseForks>true</reuseForks>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

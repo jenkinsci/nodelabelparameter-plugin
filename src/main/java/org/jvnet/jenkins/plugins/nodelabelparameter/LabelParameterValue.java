@@ -21,8 +21,11 @@ import hudson.util.VariableResolver;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import jenkins.model.Jenkins;
 
 import org.apache.commons.lang.StringUtils;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility;
@@ -63,7 +66,10 @@ public class LabelParameterValue extends ParameterValue {
     }
 
     /**
-     * @param name
+     * @param name parameter value
+     * @param label parameter label
+     * @param allNodesMatchingLabel if true, then all nodes matching the label are to be used
+     * @param nodeEligibility node eligibility definition
      */
     @DataBoundConstructor
     public LabelParameterValue(String name, String label, boolean allNodesMatchingLabel, NodeEligibility nodeEligibility) {
@@ -89,8 +95,8 @@ public class LabelParameterValue extends ParameterValue {
     private void setNextLabels(List<String> labels, NodeEligibility nodeEligibility) {
         if (labels != null && !labels.isEmpty()) {
 
-            List<String> tmpLabels = new ArrayList<String>(labels);
-            nextLabels = new ArrayList<String>();
+            List<String> tmpLabels = new ArrayList<>(labels);
+            nextLabels = new ArrayList<>();
 
             for (String nodeName : tmpLabels) {
                 if (nodeEligibility.isEligible(nodeName)) {
@@ -120,7 +126,7 @@ public class LabelParameterValue extends ParameterValue {
     }
 
     private List<String> getNodeNamesForLabelExpression(String labelExp) {
-        List<String> nodeNames = new ArrayList<String>();
+        List<String> nodeNames = new ArrayList<>();
         try {
             Label label = LabelExpression.parseExpression(labelExp);
             for (Node node : label.getNodes()) {
@@ -133,8 +139,9 @@ public class LabelParameterValue extends ParameterValue {
     }
 
     /**
-     * @param name
-     * @param description
+     * @param name parameter name
+     * @param description parameter description
+     * @param label parameter label
      */
     public LabelParameterValue(String name, String description, String label) {
         super(nameOrDefault(name), description);
@@ -153,7 +160,7 @@ public class LabelParameterValue extends ParameterValue {
      * @return the labels
      */
     public List<String> getNextLabels() {
-        return Collections.unmodifiableList(nextLabels == null ? new ArrayList<String>() : nextLabels);
+        return Collections.unmodifiableList(nextLabels == null ? new ArrayList<>() : nextLabels);
     }
 
     /**
@@ -214,7 +221,7 @@ public class LabelParameterValue extends ParameterValue {
         if (property != null) {
             final List<ParameterDefinition> parameterDefinitions = property.getParameterDefinitions();
             for (ParameterDefinition paramDef : parameterDefinitions) {
-                if (MultipleNodeDescribingParameterDefinition.class.isInstance(paramDef)) {
+                if (paramDef instanceof MultipleNodeDescribingParameterDefinition) {
                     return ((MultipleNodeDescribingParameterDefinition) paramDef).createBuildWrapper();
                 }
             }
@@ -233,7 +240,7 @@ public class LabelParameterValue extends ParameterValue {
 
         LabelParameterValue that = (LabelParameterValue) o;
 
-        if (label != null ? !label.equals(that.label) : that.label != null)
+        if (!Objects.equals(label, that.label))
             return false;
 
         return true;
@@ -254,8 +261,9 @@ public class LabelParameterValue extends ParameterValue {
      */
     protected void addBadgeToBuild(AbstractBuild<?, ?> build) {
         final Computer c = Computer.currentComputer();
+        String controllerLabel = Jenkins.get().getSelfLabel().getName();
         if (c != null) {
-            String cName = StringUtils.isBlank(c.getName()) ? Constants.MASTER : c.getName();
+            String cName = StringUtils.isBlank(c.getName()) ? controllerLabel : c.getName();
             build.addAction(new LabelBadgeAction(getLabel(), Messages.LabelBadgeAction_label_tooltip_node(getLabel(), cName)));
         } else {
             build.addAction(new LabelBadgeAction(getLabel(), Messages.LabelBadgeAction_label_tooltip(getLabel())));

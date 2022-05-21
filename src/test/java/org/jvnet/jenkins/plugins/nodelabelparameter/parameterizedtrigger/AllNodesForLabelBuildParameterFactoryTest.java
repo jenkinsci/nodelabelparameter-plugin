@@ -7,75 +7,80 @@ import hudson.model.Node;
 import hudson.model.Project;
 import hudson.model.Queue;
 import hudson.model.labels.LabelAtom;
-import hudson.plugins.parameterizedtrigger.AbstractBuildParameterFactory;
-import hudson.plugins.parameterizedtrigger.AbstractBuildParameters;
 import hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig;
 import hudson.plugins.parameterizedtrigger.BlockingBehaviour;
 import hudson.plugins.parameterizedtrigger.TriggerBuilder;
 import hudson.slaves.DumbSlave;
 import hudson.util.RunList;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.jvnet.hudson.test.HudsonTestCase;
+import org.junit.Rule;
+import org.junit.Test;
+import org.jvnet.hudson.test.JenkinsRule;
 
-import com.google.common.collect.ImmutableList;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 /**
  * @author wolfs
  */
-public class AllNodesForLabelBuildParameterFactoryTest extends HudsonTestCase {
+public class AllNodesForLabelBuildParameterFactoryTest {
 
+    @Rule
+    public JenkinsRule j = new JenkinsRule();
+
+    @Test
     public void testLabelFactoryNonBlocking() throws Exception {
-		// create a slave with a given label to execute projectB on
+        // create a slave with a given label to execute projectB on
         String label = "label";
         List<DumbSlave> slaves = createSlaves(label,3);
 
-        FreeStyleProject projectB = createFreeStyleProject();
+        FreeStyleProject projectB = j.createFreeStyleProject();
         projectB.setQuietPeriod(1);
 
-		// create projectA, which triggers projectB with a given label parameter
-		Project<?, ?> projectA = createFreeStyleProject();
+        // create projectA, which triggers projectB with a given label parameter
+        Project<?, ?> projectA = j.createFreeStyleProject();
         addLabelParameterFactory(projectA, projectB, label);
 
         projectA.scheduleBuild2(0);
 
-        waitUntilNoActivity();
+        j.waitUntilNoActivity();
 
         assertBuiltOnEachSlave(projectB, slaves);
-
-        teardownSlaves(slaves);
     }
 
+    @Test
     public void testLabelFactoryBlocking() throws Exception {
-		// create a slave with a given label to execute projectB on
+        // create a slave with a given label to execute projectB on
         String label = "label";
         List<DumbSlave> slaves = createSlaves(label,2);
 
-        FreeStyleProject projectB = createFreeStyleProject();
+        FreeStyleProject projectB = j.createFreeStyleProject();
         projectB.setQuietPeriod(1);
 
-		// create projectA, which triggers projectB with a given label parameter
-		Project<?, ?> projectA = createFreeStyleProject();
+        // create projectA, which triggers projectB with a given label parameter
+        Project<?, ?> projectA = j.createFreeStyleProject();
         addBlockingLabelParameterFactory(projectA, projectB, label);
 
         projectA.scheduleBuild2(0);
 
-        waitUntilNoActivity();
+        j.waitUntilNoActivity();
 
         assertBuiltOnEachSlave(projectB, slaves);
-
-        teardownSlaves(slaves);
     }
 
+    @Test
     public void testNoSlavesWithLabel() throws Exception {
-        Project<?, ?> projectA = createFreeStyleProject();
-        FreeStyleProject projectB = createFreeStyleProject();
+        Project<?, ?> projectA = j.createFreeStyleProject();
+        FreeStyleProject projectB = j.createFreeStyleProject();
         projectB.setQuietPeriod(0);
 
         String label = "label";
@@ -84,27 +89,24 @@ public class AllNodesForLabelBuildParameterFactoryTest extends HudsonTestCase {
         projectA.scheduleBuild2(0);
 
         // Wait for Project to be in Queue
-        Thread.sleep(1000);
+        // Sleep up to 1 second
+        int counter = 0;
+        do {
+            Thread.sleep(103); // give time to finish (0.1 second)
+        } while (++counter < 10 && j.jenkins.getQueue().getItem(projectB) == null);
 
-        Queue.Item projectBInQueue = hudson.getQueue().getItem(projectB);
+        Queue.Item projectBInQueue = j.jenkins.getQueue().getItem(projectB);
 
         assertNotNull(projectBInQueue);
         assertEquals(label, projectBInQueue.getAssignedLabel().getName());
-
-
-    }
-
-    private void teardownSlaves(List<DumbSlave> slaves) throws IOException {
-        for (DumbSlave slave : slaves) {
-            hudson.removeNode(slave);
-        }
+        assertThat("Full sleep time consumed", counter, is(lessThan(10)));
     }
 
     private void assertBuiltOnEachSlave(FreeStyleProject projectB, List<DumbSlave> slaves) {
         RunList<FreeStyleBuild> builds = projectB.getBuilds();
         assertEquals(slaves.size(), builds.size());
 
-        Set<Node> nodes = new HashSet<Node>();
+        Set<Node> nodes = new HashSet<>();
         for (FreeStyleBuild build : builds) {
             nodes.add(build.getBuiltOn());
         }
@@ -115,11 +117,11 @@ public class AllNodesForLabelBuildParameterFactoryTest extends HudsonTestCase {
         }
     }
 
-    private void addLabelParameterFactory(Project<?, ?> projectA, FreeStyleProject projectB, String label) throws IOException {
+    private void addLabelParameterFactory(Project<?, ?> projectA, FreeStyleProject projectB, String label) {
         addLabelParameterFactory(projectA, projectB, null, label);
     }
 
-    private void addBlockingLabelParameterFactory(Project<?, ?> projectA, FreeStyleProject projectB, String label) throws IOException {
+    private void addBlockingLabelParameterFactory(Project<?, ?> projectA, FreeStyleProject projectB, String label) {
         addLabelParameterFactory(projectA, projectB, new BlockingBehaviour(Result.FAILURE, Result.UNSTABLE, Result.FAILURE), label);
     }
 
@@ -127,19 +129,19 @@ public class AllNodesForLabelBuildParameterFactoryTest extends HudsonTestCase {
             Project<?, ?> projectA,
             FreeStyleProject projectB,
             BlockingBehaviour blockingBehaviour,
-            String label) throws IOException {
+            String label) {
         projectA.getBuildersList().add(
                 new TriggerBuilder(new BlockableBuildTriggerConfig(projectB.getName(),
                         blockingBehaviour,
-                        ImmutableList.<AbstractBuildParameterFactory>of(new AllNodesForLabelBuildParameterFactory(
+                        Collections.singletonList(new AllNodesForLabelBuildParameterFactory(
                                 "LABEL", label, false)),
-                        Collections.<AbstractBuildParameters>emptyList())));
+                        Collections.emptyList())));
     }
 
     private List<DumbSlave> createSlaves(String label, int num) throws Exception {
-        List<DumbSlave> slaves = new ArrayList<DumbSlave>();
+        List<DumbSlave> slaves = new ArrayList<>(num);
         for (int i = 0; i < num; i++) {
-            DumbSlave slave = createOnlineSlave(new LabelAtom(label));
+            DumbSlave slave = j.createSlave(new LabelAtom(label));
             slave.setMode(Node.Mode.EXCLUSIVE);
             slaves.add(slave);
         }

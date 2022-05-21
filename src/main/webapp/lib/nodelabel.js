@@ -1,40 +1,64 @@
-Q(document)
-		.ready(
-				function() {
+// https://developer.mozilla.org/en-US/docs/Glossary/IIFE to make sure clean scope
+(function () {
+	function ready(fn) {
+		if (document.readyState != 'loading') {
+			fn();
+		} else {
+			document.addEventListener('DOMContentLoaded', fn);
+		}
+	};
 
-					var concurrentBuild = Q("input:checkbox[name='_.concurrentBuild']");
-					
-					checkConcurrentExecutionValuesNode();
-					checkConcurrentExecutionValuesLabel();
+	// https://caniuse.com/matchesselector
+	function matches(el, selector) {
+		return (el.matches || el.matchesSelector || el.msMatchesSelector || el.mozMatchesSelector || el.webkitMatchesSelector || el.oMatchesSelector).call(el, selector);
+	};
 
-					concurrentBuild.bind('change', function() {
-						checkConcurrentExecutionValuesNode();
-						checkConcurrentExecutionValuesLabel();
-					});
-					
-					
-					Q('input:radio[name$=triggerIfResult]').change( function() {
-						checkConcurrentExecutionValuesNode();
-						checkConcurrentExecutionValuesLabel();
-					});
-					
-					
-					function checkConcurrentExecutionValuesNode() {
-						if ( concurrentBuild.is(":checked") && (Q('input:radio[name$=triggerIfResult]:checked').val() != "allowMultiSelectionForConcurrentBuilds" ) ) {
-							Q("#allowmultinodeselection").show();
-						} else if ( !concurrentBuild.is(":checked") && (Q('input:radio[name$=triggerIfResult]:checked').val() == "allowMultiSelectionForConcurrentBuilds" ) ) {
-							Q("#allowmultinodeselection").show();
-						} else {
-							Q("#allowmultinodeselection").hide();
-						}
-					}
-					
-					function checkConcurrentExecutionValuesLabel() {
-						if ( concurrentBuild.is(":checked") && (Q('input:radio[name$=triggerIfResult]:checked').val() != "allCases" ) ) {
-							Q("#allowmultinodeselection_label").show();
-						} else {
-							Q("#allowmultinodeselection_label").hide();
-						}
-					}
+	function show(el) {
+		if (el == null) {
+			return;
+		}
+		el.style.display = '';
+	};
 
-				});
+	function hide(el) {
+		if (el == null) {
+			return;
+		}
+		el.style.display = 'none';
+	};
+
+	ready(function () {
+		var concurrentBuild = document.querySelector("input[type='checkbox'][name='_.concurrentBuild']");
+		checkConcurrentExecutionValuesNode();
+		checkConcurrentExecutionValuesLabel();
+
+		concurrentBuild.addEventListener('change', function () {
+			checkConcurrentExecutionValuesNode();
+			checkConcurrentExecutionValuesLabel();
+		});
+
+		document.querySelector('input[type="radio"][name$=triggerIfResult]').addEventListener('change', function () {
+			checkConcurrentExecutionValuesNode();
+			checkConcurrentExecutionValuesLabel();
+		});
+
+		function checkConcurrentExecutionValuesNode() {
+			var radioButton = document.querySelector('input[type="radio"][name$=triggerIfResult]:checked');
+			if (matches(concurrentBuild, ":checked") && radioButton && radioButton.value != "allowMultiSelectionForConcurrentBuilds") {
+				show(document.querySelector("#allowmultinodeselection"));
+			} else if (!matches(concurrentBuild, ":checked") && radioButton && radioButton.value == "allowMultiSelectionForConcurrentBuilds") {
+				show(document.querySelector("#allowmultinodeselection"));
+			} else {
+				hide(document.querySelector("#allowmultinodeselection"));
+			}
+		}
+
+		function checkConcurrentExecutionValuesLabel() {
+			if (matches(concurrentBuild, ":checked") && (document.querySelector('input[type="radio"][name$=triggerIfResult]:checked').value != "allCases")) {
+				show(document.querySelector("#allowmultinodeselection_label"));
+			} else {
+				hide(document.querySelector("#allowmultinodeselection_label"));
+			}
+		}
+	});
+})();

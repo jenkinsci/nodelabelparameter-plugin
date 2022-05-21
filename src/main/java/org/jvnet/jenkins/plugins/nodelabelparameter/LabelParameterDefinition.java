@@ -15,8 +15,10 @@ import hudson.model.SimpleParameterDefinition;
 import hudson.model.labels.LabelExpression;
 import hudson.util.FormValidation;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 
@@ -33,10 +35,6 @@ import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
 import antlr.ANTLRException;
-
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Collections2;
 
 /**
  * Defines a build parameter used to restrict the node a job will be executed
@@ -124,11 +122,11 @@ public class LabelParameterDefinition extends SimpleParameterDefinition implemen
          * Called by UI - Autocompletion for label values
          *
          * @param value the current value in the text field to base the automcompetion upon.
-         * @return
+         * @return autocompletion candidates for label values
          */
         public AutoCompletionCandidates doAutoCompleteDefaultValue(@QueryParameter String value) {
             final AutoCompletionCandidates candidates = new AutoCompletionCandidates();
-            for (Label l : Jenkins.getActiveInstance().getLabels()) {
+            for (Label l : Jenkins.get().getLabels()) {
                 String label = l.getExpression();
                 if (StringUtils.containsIgnoreCase(label, value)) {
                     candidates.add(label);
@@ -140,7 +138,7 @@ public class LabelParameterDefinition extends SimpleParameterDefinition implemen
         /**
          * Called by UI - Checks whether the given label is valid
          * @param value the label to be checked
-         * @return 
+         * @return validation result for the form
          */
         public FormValidation doCheckDefaultValue(@QueryParameter String value) {
             if (value.isEmpty())
@@ -159,7 +157,7 @@ public class LabelParameterDefinition extends SimpleParameterDefinition implemen
          * Called by validation button in UI when triggering a job manually 
          * @param label the label to search the nodes for
          * @return if ok, a list of nodes matching the given label
-         * @throws ServletException
+         * @throws ServletException on error
          */
         public FormValidation doListNodesForLabel(@QueryParameter("label") final String label) throws ServletException {
 
@@ -170,8 +168,8 @@ public class LabelParameterDefinition extends SimpleParameterDefinition implemen
                 if(nodes.isEmpty()) {
                     return FormValidation.warning(Messages.NodeLabelParameterDefinition_noNodeMatched(label));
                 }
-                final Collection<String> nodeNames = Collections2.transform(nodes, new NodeDescFunction());
-                final String html = Joiner.on("</li><li>").join(nodeNames);
+                final List<String> nodeNames = nodes.stream().map(new NodeDescFunction()).collect(Collectors.toList());
+                final String html = String.join("</li><li>", nodeNames);
                 return FormValidation.okWithMarkup("<b>"+Messages.LabelParameterDefinition_matchingNodes()+"</b><ul><li>" + html +"</li></ul>");
             } catch (ANTLRException e) {
                 return FormValidation.error(Messages.NodeLabelParameterDefinition_labelExpressionNotValid(label, e.getMessage()));
@@ -195,7 +193,8 @@ public class LabelParameterDefinition extends SimpleParameterDefinition implemen
          */
         private static final class NodeDescFunction implements Function<Node, String> {
             public String apply(Node n) {
-                return n != null && StringUtils.isNotBlank(n.getNodeName()) ? n.getNodeName() : Constants.MASTER;
+                String controllerLabel = Jenkins.get().getSelfLabel().getName();
+                return n != null && StringUtils.isNotBlank(n.getNodeName()) ? n.getNodeName() : controllerLabel;
             }
         }
 	}

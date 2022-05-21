@@ -1,7 +1,6 @@
-/**
- *
- */
 package org.jvnet.jenkins.plugins.nodelabelparameter;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import hudson.Extension;
 import hudson.Launcher;
@@ -13,7 +12,6 @@ import hudson.model.Node;
 import hudson.model.ParameterDefinition;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -30,8 +28,8 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
 /**
- * Defines a build parameter used to select the node where a job should be executed on. Although it is possible to define the node name in the UI at "restrict where this job should run", but that
- * would tide a job to a fix node. This parameter actually allows to define a list of possible nodes and ask the user before execution.
+ * Defines a build parameter used to select the node where a job should be executed. Although it is possible to define the node name in the UI at "restrict where this job should run", but that
+ * would tie a job to a specific node. This parameter actually allows a list of possible nodes and asks the user before execution.
  * 
  * @author Dominik Bartholdi (imod)
  * 
@@ -53,6 +51,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
     private NodeEligibility   nodeEligibility;
 
     @DataBoundConstructor
+    @SuppressFBWarnings(value="EI_EXPOSE_REP2", justification="Low risk")
     public NodeParameterDefinition(String name, String description, List<String> defaultSlaves, List<String> allowedSlaves, String triggerIfResult, NodeEligibility nodeEligibility) {
         super(name, description);
         this.allowedSlaves = allowedSlaves;
@@ -73,13 +72,13 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
     }
 
     @Deprecated
-    public NodeParameterDefinition(String name, String description, List<String> defaultSlaves, List<String> allowedSlaves, String triggerIfResult, boolean ignoreOfflineNodes) {
-        this(name, description, defaultSlaves, allowedSlaves, triggerIfResult, ignoreOfflineNodes ? new IgnoreOfflineNodeEligibility() : new AllNodeEligibility());
+    public NodeParameterDefinition(String name, String description, List<String> defaultAgents, List<String> allowedAgents, String triggerIfResult, boolean ignoreOfflineNodes) {
+        this(name, description, defaultAgents, allowedAgents, triggerIfResult, ignoreOfflineNodes ? new IgnoreOfflineNodeEligibility() : new AllNodeEligibility());
     }
 
     @Deprecated
-    public NodeParameterDefinition(String name, String description, String defaultValue, List<String> allowedSlaves, String triggerIfResult) {
-        this(name, description, new ArrayList<String>(), allowedSlaves, triggerIfResult, false);
+    public NodeParameterDefinition(String name, String description, String defaultValue, List<String> allowedAgents, String triggerIfResult) {
+        this(name, description, new ArrayList<>(), allowedAgents, triggerIfResult, false);
 
         if (this.allowedSlaves != null && this.allowedSlaves.contains(defaultValue)) {
             this.allowedSlaves.remove(defaultValue);
@@ -88,6 +87,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
 
     }
 
+    @SuppressFBWarnings(value="EI_EXPOSE_REP", justification="Low risk")
     public List<String> getDefaultSlaves() {
         return defaultSlaves;
     }
@@ -116,14 +116,15 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
      * @return list of nodenames.
      */
     public List<String> getAllowedNodesOrAll() {
-        final List<String> slaves = allowedSlaves == null || allowedSlaves.isEmpty() || allowedSlaves.contains(Constants.ALL_NODES) ? getNodeNames() : allowedSlaves;
+        final List<String> agents = allowedSlaves == null || allowedSlaves.isEmpty() || allowedSlaves.contains(Constants.ALL_NODES) ? getNodeNames() : allowedSlaves;
 
-        Collections.sort(slaves, NodeNameComparator.INSTANCE);
-        if (slaves.contains(Constants.MASTER)) {
-            moveMasterToFirstPossition(slaves);
+        agents.sort(NodeNameComparator.INSTANCE);
+        String controllerLabel = Jenkins.get().getSelfLabel().getName();
+        if (agents.contains(controllerLabel)) {
+            moveBuiltInNodeToFirstPosition(agents);
         }
 
-        return slaves;
+        return agents;
     }
 
     /**
@@ -138,53 +139,59 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
     }
 
     /**
-     * returns all available nodes plus an identifier to identify all slaves at position one.
+     * returns all available nodes plus an identifier to identify all agents at position one.
      * 
      * @return list of node names
      */
     public static List<String> getSlaveNamesForSelection() {
-        List<String> slaveNames = getNodeNames();
-        slaveNames.add(0, Constants.ALL_NODES);
-        return slaveNames;
+        List<String> agentNames = getNodeNames();
+        agentNames.add(0, Constants.ALL_NODES);
+        return agentNames;
     }
 
     /**
-     * Gets the names of all configured slaves, regardless whether they are online.
+     * Gets the names of all configured agents, regardless whether they are online.
      * 
-     * @return list with all slave names
+     * @return list with all agent names
      */
     public static List<String> getSlaveNames() {
         return getNodeNames();
     }
 
     /**
-     * Gets all node names - sorted and 'master' at first position.
+     * Gets all node names - sorted and controller label at first position.
      * 
      * @return a list of all node names.
      */
     private static List<String> getNodeNames() {
-        List<String> names = new ArrayList<String>();
-        final List<Node> nodes = Jenkins.getActiveInstance().getNodes();
+        List<String> names = new ArrayList<>();
+        final List<Node> nodes = Jenkins.get().getNodes();
         for (Node node : nodes) {
             final String nodeName = node.getNodeName();
             if (StringUtils.isNotBlank(nodeName)) {
                 names.add(nodeName);
             }
         }
-        Collections.sort(names, NodeNameComparator.INSTANCE);
+        names.sort(NodeNameComparator.INSTANCE);
 
-        // add 'magic' name for master, so all nodes can be handled the same way
-        moveMasterToFirstPossition(names);
+        // add 'magic' name for controller, so all nodes can be handled the same way
+        moveBuiltInNodeToFirstPosition(names);
         return names;
     }
 
-    private static void moveMasterToFirstPossition(List<String> nodeList) {
-        nodeList.remove(Constants.MASTER);
-        nodeList.add(0, Constants.MASTER);
+    private static void moveBuiltInNodeToFirstPosition(List<String> nodeList) {
+        String controllerLabel = Jenkins.get().getSelfLabel().getName();
+        if (controllerLabel.equals(Constants.MASTER)) {
+            nodeList.remove(Constants.MASTER);
+            nodeList.add(0, Constants.MASTER);
+        } else {
+            nodeList.remove(controllerLabel);
+            nodeList.add(0, controllerLabel);
+        }
     }
 
     /**
-     * Comparator preferring the master name
+     * Comparator preferring the label of the controller
      */
     private static final class NodeNameComparator implements Comparator<String> {
         public static final NodeNameComparator INSTANCE = new NodeNameComparator();
@@ -226,14 +233,14 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
 
     @Override
     public ParameterValue createValue(StaplerRequest req, JSONObject jo) {
-        // as String from UI: {"labels":"master","name":"HOSTN"}
-        // as JSONArray: {"name":"HOSTN","value":["master","host2"]}
-        // as String from script: {"name":"HOSTN","value":"master"}
+        // as String from UI: {"labels":"built-in","name":"HOSTN"}
+        // as JSONArray: {"name":"HOSTN","value":["built-in","host2"]}
+        // as String from script: {"name":"HOSTN","value":"built-in"}
         final String name = jo.getString("name");
         // JENKINS-28374 also respect 'labels' to allow rebuilds via rebuild plugin
         final Object joValue = jo.get("value") == null ? (jo.get("labels") == null ? jo.get("label") : jo.get("labels")) : jo.get("value");
 
-        List<String> nodes = new ArrayList<String>();
+        List<String> nodes = new ArrayList<>();
         if (joValue instanceof String) {
             nodes.add((String) joValue);
         } else if (joValue instanceof JSONArray) {
@@ -268,7 +275,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
     public Object readResolve() {
         if (defaultValue != null) {
             if (defaultSlaves == null) {
-                defaultSlaves = new ArrayList<String>();
+                defaultSlaves = new ArrayList<>();
             }
             defaultSlaves.add(defaultValue);
         }
@@ -282,6 +289,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
         return this;
     }
 
+    @Override
     public TriggerNextBuildWrapper createBuildWrapper() {
         if (this.getAllowMultiNodeSelection()) {
             // we expect only one node parameter definition per job

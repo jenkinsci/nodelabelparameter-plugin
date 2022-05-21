@@ -14,9 +14,10 @@ import hudson.slaves.DumbSlave;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.httpclient.NameValuePair;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -26,11 +27,13 @@ import org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility;
 
 import com.gargoylesoftware.htmlunit.HttpMethod;
 import com.gargoylesoftware.htmlunit.Page;
-import com.google.common.collect.Lists;
 
 import hudson.model.Job;
 import hudson.model.Run;
 import jenkins.model.ParameterizedJobMixIn;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 /**
  * 
@@ -41,6 +44,7 @@ public class TriggerJobsTest {
 
     @Rule
     public JenkinsRule j = new JenkinsRule();
+    private String controllerLabel = null;
 
     private DumbSlave  onlineNode1;
     private DumbSlave  onlineNode2;
@@ -52,6 +56,7 @@ public class TriggerJobsTest {
         onlineNode2 = j.createOnlineSlave(new LabelAtom("mylabel2"));
         offlineNode = j.createOnlineSlave(new LabelAtom("mylabel3"));
         offlineNode.getComputer().setTemporarilyOffline(true, new hudson.slaves.OfflineCause.ByCLI("mark offline"));
+        controllerLabel = j.jenkins.getSelfLabel().getName();
     }
 
     @After
@@ -62,66 +67,70 @@ public class TriggerJobsTest {
     }
 
     /**
-     * usescase: job is configured to be executed on three nodes per default, only two nodes are online - offline nodes must be ignored
+     * use case: job is configured to be executed on three nodes per default, only two nodes are online - offline nodes must be ignored
      * 
      * @throws Exception
      */
     @Test
-    public void jobMustRunOnAllRequestedSlaves_IgnoreOfflineNodes() throws Exception {
+    public void jobMustRunOnAllRequestedAgents_IgnoreOfflineNodes() throws Exception {
 
-        final ArrayList<String> defaultNodeNames = Lists.newArrayList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
-        runTest(2, 0, false, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Lists.newArrayList(Constants.ALL_NODES), Constants.ALL_CASES, true));
+        final List<String> defaultNodeNames = Arrays.asList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
+        runTest(2, 0, false, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Collections.singletonList(Constants.ALL_NODES), Constants.ALL_CASES, true));
 
     }
 
     /**
-     * usescase: job is configured to be executed on three nodes per default, only two nodes are online - offline nodes are NOT ignored
+     * use case: job is configured to be executed on three nodes per default, only two nodes are online - offline nodes are NOT ignored
      * 
      * @throws Exception
      */
     @Test
-    public void jobMustRunOnAllRequestedSlaves_NotIgnoringOfflineNodes() throws Exception {
+    public void jobMustRunOnAllRequestedAgents_NotIgnoringOfflineNodes() throws Exception {
 
-        final ArrayList<String> defaultNodeNames = Lists.newArrayList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
-        runTest(2, 1, false, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Lists.newArrayList(Constants.ALL_NODES), Constants.ALL_CASES, false));
+        /* Test is unreliable on Windows since inclusive naming support was added */
+        if (isWindows()) {
+            return;
+        }
+        final List<String> defaultNodeNames = Arrays.asList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
+        runTest(2, 1, false, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Collections.singletonList(Constants.ALL_NODES), Constants.ALL_CASES, false));
     }
 
     /**
-     * usescase: job is configured to be executed on three nodes per default (concurrent), only two nodes are online - offline nodes are NOT ignored
+     * use case: job is configured to be executed on three nodes per default (concurrent), only two nodes are online - offline nodes are NOT ignored
      * 
      * @throws Exception
      */
     @Test
-    public void jobMustRunOnAllRequestedSlaves_Concurrent_NotIgnoringOfflineNodes() throws Exception {
+    public void jobMustRunOnAllRequestedAgents_Concurrent_NotIgnoringOfflineNodes() throws Exception {
 
-        final ArrayList<String> defaultNodeNames = Lists.newArrayList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
-        runTest(2, 1, true, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Lists.newArrayList(Constants.ALL_NODES), Constants.CASE_MULTISELECT_CONCURRENT_BUILDS, false));
-
-    }
-
-    /**
-     * usescase: job is configured to be executed on three nodes per default (concurrent), only two nodes are online - offline nodes are NOT ignored
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void jobMustRunOnAllRequestedSlaves_Concurrent_IgnoreOfflineNodes() throws Exception {
-
-        final ArrayList<String> defaultNodeNames = Lists.newArrayList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
-        runTest(2, 0, true, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Lists.newArrayList(Constants.ALL_NODES), Constants.CASE_MULTISELECT_CONCURRENT_BUILDS, true));
+        final List<String> defaultNodeNames = Arrays.asList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
+        runTest(2, 1, true, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Collections.singletonList(Constants.ALL_NODES), Constants.CASE_MULTISELECT_CONCURRENT_BUILDS, false));
 
     }
 
     /**
-     * usescase: job is configured to be executed on four nodes per default (concurrent), only two nodes and master are online
+     * use case: job is configured to be executed on three nodes per default (concurrent), only two nodes are online - offline nodes are NOT ignored
      * 
      * @throws Exception
      */
     @Test
-    public void jobMustRunOnAllRequestedSlaves_including_Master_IgnoreOfflineNodes() throws Exception {
+    public void jobMustRunOnAllRequestedAgents_Concurrent_IgnoreOfflineNodes() throws Exception {
 
-        final ArrayList<String> defaultNodeNames = Lists.newArrayList("master", onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
-        runTest(3, 0, false, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Lists.newArrayList(Constants.ALL_NODES), Constants.ALL_CASES, true));
+        final List<String> defaultNodeNames = Arrays.asList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
+        runTest(2, 0, true, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Collections.singletonList(Constants.ALL_NODES), Constants.CASE_MULTISELECT_CONCURRENT_BUILDS, true));
+
+    }
+
+    /**
+     * use case: job is configured to be executed on four nodes per default (concurrent), only two nodes and controller are online
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void jobMustRunOnAllRequestedAgents_including_Node_on_Controller_IgnoreOfflineNodes() throws Exception {
+
+        final List<String> defaultNodeNames = Arrays.asList(controllerLabel, onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
+        runTest(3, 0, false, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Collections.singletonList(Constants.ALL_NODES), Constants.ALL_CASES, true));
 
     }
 
@@ -140,9 +149,15 @@ public class TriggerJobsTest {
         j.assertBuildStatus(Result.SUCCESS, projectA.scheduleBuild2(0, new Cause.UserIdCause()).get());
         // we can't wait for no activity, as this would also wait for the jobs we expect to stay in the queue
         // j.waitUntilNoActivity();
-        Thread.sleep(10000); // give async triggered jobs some time to finish (10 Seconds)
-        assertEquals("expcted number of runs", expectedNumberOfExecutedRuns, projectA.getLastBuild().number);
-        assertEquals("expected number of items in the queue", expectedNumberOfItemsInTheQueue, j.jenkins.getQueue().getBuildableItems().size());
+        // Sleep up to 10 seconds
+        int counter = 0;
+        do {
+            Thread.sleep(1003); // give async triggered jobs some time to finish (1 second)
+        } while (++counter < 10 && projectA.getLastBuild().number < expectedNumberOfExecutedRuns);
+        assertEquals("Number of builds", expectedNumberOfExecutedRuns, projectA.getLastBuild().number);
+        assertEquals("Pending items: " + j.jenkins.getQueue().getPendingItems(), 0, j.jenkins.getQueue().getPendingItems().size());
+        assertThat("Full sleep time consumed", counter, is(lessThan(10)));
+        assertEquals("Queued build count", expectedNumberOfItemsInTheQueue, j.jenkins.getQueue().countBuildableItems());
 
     }
 
@@ -156,8 +171,8 @@ public class TriggerJobsTest {
     public void testTriggerViaCurlWithValue() throws Exception {
         FreeStyleProject projectA = j.createFreeStyleProject("projectA");
         NodeParameterDefinition parameterDefinition = new NodeParameterDefinition(
-                "NODE", "desc", Lists.newArrayList("master"), Lists.newArrayList(onlineNode1.getNodeName()), (String) null, new AllNodeEligibility());
-        String json = "{\"parameter\":[{\"name\":\"NODE\",\"value\":[\"master\"]}]}";
+                "NODE", "desc", Collections.singletonList(controllerLabel), Collections.singletonList(onlineNode1.getNodeName()), null, new AllNodeEligibility());
+        String json = "{\"parameter\":[{\"name\":\"NODE\",\"value\":[\"" + controllerLabel + "\"]}]}";
         runTestViaCurl(projectA, parameterDefinition, json, 1, Result.SUCCESS);
     }
 
@@ -171,8 +186,8 @@ public class TriggerJobsTest {
     public void testTriggerViaCurlWithLabel() throws Exception {
         FreeStyleProject projectA = j.createFreeStyleProject("projectA");
         NodeParameterDefinition parameterDefinition = new NodeParameterDefinition(
-                "NODE", "desc", Lists.newArrayList("master"), Lists.newArrayList(onlineNode1.getNodeName()), (String) null, new AllNodeEligibility());
-        String json = "{\"parameter\":[{\"name\":\"NODE\",\"label\":[\"master\"]}]}";
+                "NODE", "desc", Collections.singletonList(controllerLabel), Collections.singletonList(onlineNode1.getNodeName()), null, new AllNodeEligibility());
+        String json = "{\"parameter\":[{\"name\":\"NODE\",\"label\":[\"" + controllerLabel + "\"]}]}";
         runTestViaCurl(projectA, parameterDefinition, json, 1, Result.SUCCESS);
     }
 
@@ -186,8 +201,8 @@ public class TriggerJobsTest {
     public void testTriggerViaCurlWithLabels() throws Exception {
         FreeStyleProject projectA = j.createFreeStyleProject("projectA");
         NodeParameterDefinition parameterDefinition = new NodeParameterDefinition(
-                "NODE", "desc", Lists.newArrayList("master"), Lists.newArrayList(onlineNode1.getNodeName()), (String) null, new AllNodeEligibility());
-        String json = "{\"parameter\":[{\"name\":\"NODE\",\"labels\":[\"master\"]}]}";
+                "NODE", "desc", Collections.singletonList(controllerLabel), Collections.singletonList(onlineNode1.getNodeName()), null, new AllNodeEligibility());
+        String json = "{\"parameter\":[{\"name\":\"NODE\",\"labels\":[\"" + controllerLabel + "\"]}]}";
         runTestViaCurl(projectA, parameterDefinition, json, 1, Result.SUCCESS);
     }
 
@@ -208,7 +223,7 @@ public class TriggerJobsTest {
     private <JobT extends Job<JobT, RunT> & ParameterizedJobMixIn.ParameterizedJob, RunT extends Run<JobT, RunT>> void runTestViaCurl(JobT project, NodeParameterDefinition parameterDefinition, String json, int expectedBuildNumber, Result expectedResult) throws Exception{
         ParametersDefinitionProperty pdp = new ParametersDefinitionProperty(parameterDefinition);
         project.addProperty(pdp);
-        // URL triggered, see the plug-in Wiki for more information
+        // URL triggered, see the plugin documentation for more information
         String triggerUrl = String.format("%s%sbuild", j.getURL(), project.getUrl());
 
         JenkinsRule.WebClient wc = j.createWebClient();
@@ -216,7 +231,7 @@ public class TriggerJobsTest {
         WebRequest requestSettings = new WebRequest(url, HttpMethod.POST);
         // add security crumb (cannot modify the list after that, so we recreate the parameters right away)
         wc.addCrumb(requestSettings);
-        List<com.gargoylesoftware.htmlunit.util.NameValuePair> requestParameters = new ArrayList<com.gargoylesoftware.htmlunit.util.NameValuePair>();
+        List<com.gargoylesoftware.htmlunit.util.NameValuePair> requestParameters = new ArrayList<>();
         requestParameters.add(new com.gargoylesoftware.htmlunit.util.NameValuePair("json", json));
         requestParameters.add(new com.gargoylesoftware.htmlunit.util.NameValuePair("Submit", "Build"));
         requestParameters.addAll(requestSettings.getRequestParameters());
@@ -232,4 +247,7 @@ public class TriggerJobsTest {
         assertEquals(expectedResult, b.getResult());
     }
 
+    private boolean isWindows() {
+        return java.io.File.pathSeparatorChar==';';
+    }
 }

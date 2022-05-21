@@ -10,7 +10,9 @@ import hudson.model.ParametersDefinitionProperty;
 import hudson.model.labels.LabelAtom;
 import hudson.slaves.DumbSlave;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
@@ -20,7 +22,8 @@ import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.IgnoreOfflineNodeEligibility;
 
-import com.google.common.collect.Lists;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 /**
  * 
@@ -31,6 +34,7 @@ public class NodelLabelNodePropertyTest {
 
     @Rule
     public JenkinsRule j = new JenkinsRule();
+    private String controllerLabel = null;
 
     private DumbSlave  onlineNode1;
     private DumbSlave  onlineNode2;
@@ -42,6 +46,7 @@ public class NodelLabelNodePropertyTest {
         onlineNode2 = j.createOnlineSlave(new LabelAtom("mylabel2"));
         offlineNode = j.createOnlineSlave(new LabelAtom("mylabel3"));
         offlineNode.getComputer().setTemporarilyOffline(true, new hudson.slaves.OfflineCause.ByCLI("mark offline"));
+        controllerLabel = j.jenkins.getSelfLabel().getName();
     }
 
     @After
@@ -63,8 +68,8 @@ public class NodelLabelNodePropertyTest {
         assertTrue(NodeUtil.isNodeOnline(onlineNode2.getNodeName()));
         assertFalse(NodeUtil.isNodeOnline(offlineNode.getNodeName()));
 
-        final ArrayList<String> defaultNodeNames = Lists.newArrayList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
-        runTest(2, 0, true, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Lists.newArrayList(Constants.ALL_NODES), Constants.CASE_MULTISELECT_CONCURRENT_BUILDS, new IgnoreOfflineNodeEligibility()));
+        final List<String> defaultNodeNames = Arrays.asList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
+        runTest(2, 0, true, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Collections.singletonList(Constants.ALL_NODES), Constants.CASE_MULTISELECT_CONCURRENT_BUILDS, new IgnoreOfflineNodeEligibility()));
 
     }
 
@@ -80,8 +85,8 @@ public class NodelLabelNodePropertyTest {
         assertTrue(NodeUtil.isNodeOnline(onlineNode2.getNodeName()));
         assertFalse(NodeUtil.isNodeOnline(offlineNode.getNodeName()));
 
-        final ArrayList<String> defaultNodeNames = Lists.newArrayList(offlineNode.getNodeName(), onlineNode2.getNodeName(), onlineNode1.getNodeName(), "master");
-        runTest(3, 1, true, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Lists.newArrayList(Constants.ALL_NODES), Constants.CASE_MULTISELECT_CONCURRENT_BUILDS, new AllNodeEligibility()));
+        final List<String> defaultNodeNames = Arrays.asList(offlineNode.getNodeName(), onlineNode2.getNodeName(), onlineNode1.getNodeName(), controllerLabel);
+        runTest(3, 1, true, new NodeParameterDefinition("NODE", "desc", defaultNodeNames, Collections.singletonList(Constants.ALL_NODES), Constants.CASE_MULTISELECT_CONCURRENT_BUILDS, new AllNodeEligibility()));
 
     }
 
@@ -96,9 +101,14 @@ public class NodelLabelNodePropertyTest {
         j.assertBuildStatus(Result.SUCCESS, projectA.scheduleBuild2(0, new Cause.UserIdCause()).get());
         // we can't wait for no activity, as this would also wait for the jobs we expect to stay in the queue
         // j.waitUntilNoActivity();
-        Thread.sleep(10000); // give async triggered jobs some time to finish (10 Seconds)
+        // Sleep up to 10 seconds
+        int counter = 0;
+        do {
+            Thread.sleep(1003); // give async triggered jobs some time to finish (1 second)
+        } while (++counter < 10 && projectA.getLastBuild().number < expectedNumberOfExecutedRuns);
         assertEquals("expcted number of runs", expectedNumberOfExecutedRuns, projectA.getLastBuild().number);
         assertEquals("expected number of items in the queue", expectedNumberOfItemsInTheQueue, j.jenkins.getQueue().getBuildableItems().size());
+        assertThat("Full sleep time consumed", counter, is(lessThan(10)));
 
     }
 }

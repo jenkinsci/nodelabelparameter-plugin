@@ -31,8 +31,6 @@ import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.TestBuilder;
 
-import com.google.common.collect.ImmutableList;
-
 public class AllNodesForLabelBuildParameterFactoryUnitTest {
 
     @Rule
@@ -60,7 +58,7 @@ public class AllNodesForLabelBuildParameterFactoryUnitTest {
         FreeStyleProject projectA = j.createFreeStyleProject("projectA");
         FreeStyleProject projectB = j.createFreeStyleProject("projectB");
 
-        final List<Boolean> executed = new ArrayList<Boolean>();
+        final List<Boolean> executed = new ArrayList<>();
 
         projectA.getBuildersList().add(new TestBuilder() {
             public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
@@ -90,7 +88,7 @@ public class AllNodesForLabelBuildParameterFactoryUnitTest {
 
     public static void noMatchingNodeShouldYieldSameLabel(final AllNodesForLabelBuildParameterFactory dummyNodesFactory, AbstractBuild<?, ?> build, BuildListener listener) throws IOException, InterruptedException, DontTriggerException {
         List<AbstractBuildParameters> parameters = dummyNodesFactory.getParameters(build, listener);
-        Set<String> nodeNames = new HashSet<String>();
+        Set<String> nodeNames = new HashSet<>();
         for (AbstractBuildParameters parameter : parameters) {
             nodeNames.add(((NodeLabelBuildParameter) parameter).nodeLabel);
         }
@@ -100,7 +98,7 @@ public class AllNodesForLabelBuildParameterFactoryUnitTest {
     public static void shouldGetParameterForEachMatchingNode(final AllNodesForLabelBuildParameterFactory twoNodesFactory, AbstractBuild<?, ?> build, BuildListener listener) throws IOException, InterruptedException, DontTriggerException {
         // test: shouldGetParameterForEachMatchingNode
         List<AbstractBuildParameters> parameters = twoNodesFactory.getParameters(build, listener);
-        Set<String> nodeNames = new HashSet<String>();
+        Set<String> nodeNames = new HashSet<>();
         for (AbstractBuildParameters parameter : parameters) {
             nodeNames.add(((NodeLabelBuildParameter) parameter).nodeLabel);
         }
@@ -108,8 +106,8 @@ public class AllNodesForLabelBuildParameterFactoryUnitTest {
     }
 
     private TriggerBuilder createTriggerBuilder(AbstractProject<?, ?> project, AbstractBuildParameterFactory factory) {
-        TriggerBuilder tBuilder = new TriggerBuilder(new BlockableBuildTriggerConfig(project.getName(), new BlockingBehaviour(Result.FAILURE, Result.UNSTABLE, Result.FAILURE), ImmutableList.<AbstractBuildParameterFactory> of(factory),
-                Collections.<AbstractBuildParameters> emptyList()));
+        TriggerBuilder tBuilder = new TriggerBuilder(new BlockableBuildTriggerConfig(project.getName(), new BlockingBehaviour(Result.FAILURE, Result.UNSTABLE, Result.FAILURE), Collections.singletonList(factory),
+                Collections.emptyList()));
         return tBuilder;
     }
 }

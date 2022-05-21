@@ -13,6 +13,7 @@ import hudson.plugins.parameterizedtrigger.AbstractBuildParameters;
 import hudson.util.FormValidation;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
@@ -26,8 +27,6 @@ import org.jvnet.jenkins.plugins.nodelabelparameter.Messages;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
-
-import com.google.common.collect.Lists;
 
 /**
  * A build parameter factory generating NodeLabelParameters for each node matching a label
@@ -55,18 +54,18 @@ public class NodeListBuildParameterFactory extends AbstractBuildParameterFactory
             e.printStackTrace(listener.getLogger());
         }
 
-        List<AbstractBuildParameters> params = Lists.newArrayList();
+        List<AbstractBuildParameters> params = new ArrayList<>();
 
         if (StringUtils.isBlank(nodeListStringExpanded)) {
             listener.getLogger().println("[WARN] no node name was given! [" + nodeListString + "], can't trigger other project");
         } else {
 
-            String nodes[] = nodeListStringExpanded.trim().split(",");
+            String[] nodes = nodeListStringExpanded.trim().split(",");
             if (nodes == null || nodes.length == 0) {
                 params.add(new NodeLabelBuildParameter(name, nodeListStringExpanded));
             } else {
-                for (int i = 0; i < nodes.length; i++) {
-                    params.add(new NodeLabelBuildParameter(name, nodes[i]));
+                for (String node : nodes) {
+                    params.add(new NodeLabelBuildParameter(name, node));
                 }
             }
         }
@@ -85,13 +84,13 @@ public class NodeListBuildParameterFactory extends AbstractBuildParameterFactory
         /**
          * Autocompletion method, called by UI to support user filling the form
          * 
-         * @param value
-         * @return
+         * @param value user provided string
+         * @return auto-completion candidates
          */
         public AutoCompletionCandidates doAutoCompleteNodeListString(@QueryParameter String value) {
             final AutoCompletionCandidates candidates = new AutoCompletionCandidates();
 
-            for (Node n : Jenkins.getActiveInstance().getNodes()) {
+            for (Node n : Jenkins.get().getNodes()) {
                 candidates.add(n.getSelfLabel().getExpression());
             }
 
@@ -111,7 +110,7 @@ public class NodeListBuildParameterFactory extends AbstractBuildParameterFactory
             while (tokens.hasMoreTokens()) {
                 String nodeName = tokens.nextToken().trim();
                 if (StringUtils.isNotBlank(nodeName)) {
-                    final Node node = Jenkins.getActiveInstance().getNode(nodeName);
+                    final Node node = Jenkins.get().getNode(nodeName);
                     if (node == null) {
                         return FormValidation.error(Messages.NodeListBuildParameterFactory_nodeNotFound(nodeName));
                     }
