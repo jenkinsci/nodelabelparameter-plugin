@@ -159,7 +159,7 @@ public class LabelParameterDefinition extends SimpleParameterDefinition implemen
          * @return if ok, a list of nodes matching the given label
          * @throws ServletException on error
          */
-        public FormValidation doListNodesForLabel(@QueryParameter("label") final String label) throws ServletException {
+        public FormValidation doListNodesForLabel(@QueryParameter("value") final String label) throws ServletException {
 
             if (StringUtils.isBlank(label))
                 return FormValidation.error(Messages.LabelParameterDefinition_labelRequired());
