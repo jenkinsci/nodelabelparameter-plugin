@@ -36,5 +36,5 @@ THE SOFTWARE.
 		</div>
 	</f:entry>	
     <j:set var="descriptor" value="${it.descriptor}"/>
-    <f:validateButton title="${%Show nodes}" progress="${%searching...}" method="listNodesForLabel" with="label" />
+    <f:validateButton title="${%Show nodes}" progress="${%searching...}" method="listNodesForLabel" with="value" />
 </j:jelly>
