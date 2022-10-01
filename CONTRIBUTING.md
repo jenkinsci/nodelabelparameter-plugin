@@ -11,6 +11,8 @@ Before submitting your change, please assure that you've added tests which verif
 
 Code coverage reporting is available as a maven target.
 Please try to improve code coverage with tests when you submit.
+
+* `mvn clean -DskipTests verify` to build without running tests
 * `mvn -P enable-jacoco clean verify jacoco:report` to report code coverage
 
 Please don't introduce new spotbugs output.
