@@ -17,6 +17,28 @@ Please don't introduce new spotbugs output.
 * `mvn spotbugs:check` to analyze project using [Spotbugs](https://spotbugs.github.io)
 * `mvn spotbugs:gui` to review report using GUI
 
+## Fetching code coverage
+
+Once you get the report code coverage, there are a couple ways you can fetch the classes that are covered in tests.
+
+This depends a lot on the operating system and environment. The following commands will open the `index.html` file in the browser.
+
+* Windows - `target/site/jacoco/index.html`
+* Linux - `xdg-open target/site/jacoco/index.html`
+* Gitpod - `cd target/site/jacoco && python -m http.server 8000`
+
+The file will have a list of package names. You can click on them to find a list of class names.
+
+The lines of the code will be covered in three different colors. Red, green, and orange.
+
+The red lines are not covered in the tests. The green lines are covered with tests. 
+
+Your goal is to add to tests that covers one or more of the red lines with the new tests.
+
+
+
+
+
 ## Report an issue
 
 Report issues and enhancements with the link:https://www.jenkins.io/participate/report-issue/redirect/#15873[Jenkins issue tracker].
