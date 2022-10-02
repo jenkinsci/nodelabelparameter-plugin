@@ -23,7 +23,7 @@ Once you get the report code coverage, there are a couple ways you can fetch the
 
 This depends a lot on the operating system and environment. The following commands will open the `index.html` file in the browser.
 
-* Windows - `target/site/jacoco/index.html`
+* Windows - `start target\site\jacoco\index.html`
 * Linux - `xdg-open target/site/jacoco/index.html`
 * Gitpod - `cd target/site/jacoco && python -m http.server 8000`
 
