@@ -9,8 +9,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class NodeListBuildParameterFactoryTest {
     @Test
     void testNodeListBuildParameterFactoryConstructor() {
-        NodeListBuildParameterFactory factory = new NodeListBuildParameterFactory("labelName", "nodeListStringExample");
+        NodeListBuildParameterFactory factory = new NodeListBuildParameterFactory("labelName", "nodeListName");
         assertThat(factory.name, is("labelName"));
-        assertThat(factory.nodeListString, is("nodeListStringExample"));
+        assertThat(factory.nodeListString, is("nodeListName"));
     }
 }
