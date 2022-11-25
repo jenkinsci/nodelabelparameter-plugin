@@ -51,7 +51,6 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
     private NodeEligibility   nodeEligibility;
 
     @DataBoundConstructor
-    @SuppressFBWarnings(value="EI_EXPOSE_REP2", justification="Low risk")
     public NodeParameterDefinition(String name, String description, List<String> defaultSlaves, List<String> allowedSlaves, String triggerIfResult, NodeEligibility nodeEligibility) {
         super(name, description);
         this.allowedSlaves = allowedSlaves;
@@ -87,7 +86,6 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
 
     }
 
-    @SuppressFBWarnings(value="EI_EXPOSE_REP", justification="Low risk")
     public List<String> getDefaultSlaves() {
         return defaultSlaves;
     }
