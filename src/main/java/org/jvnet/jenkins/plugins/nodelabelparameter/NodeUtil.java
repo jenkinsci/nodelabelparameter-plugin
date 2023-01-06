@@ -6,14 +6,12 @@ import jenkins.model.Jenkins;
 
 public final class NodeUtil {
 
-    private NodeUtil() {
-    }
+    private NodeUtil() {}
 
     /**
      * Checks whether the given node is available for an execution of the job,
-     * 
-     * @param nodeName
-     *            the name of the node to check
+     *
+     * @param nodeName the name of the node to check
      * @return <code>true</code> if the job is ok to be used
      */
     public static boolean isNodeOnline(String nodeName) {
@@ -30,5 +28,4 @@ public final class NodeUtil {
         }
         return false;
     }
-
 }

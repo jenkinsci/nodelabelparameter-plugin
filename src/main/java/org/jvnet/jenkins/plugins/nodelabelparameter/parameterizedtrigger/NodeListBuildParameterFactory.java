@@ -2,24 +2,21 @@ package org.jvnet.jenkins.plugins.nodelabelparameter.parameterizedtrigger;
 
 import hudson.Extension;
 import hudson.Util;
+import hudson.model.AbstractBuild;
 import hudson.model.AutoCompletionCandidates;
 import hudson.model.Item;
-import hudson.model.TaskListener;
-import hudson.model.AbstractBuild;
 import hudson.model.Node;
+import hudson.model.TaskListener;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameterFactory;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameterFactoryDescriptor;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameters;
 import hudson.util.FormValidation;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
-
 import jenkins.model.Jenkins;
-
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
 import org.jenkinsci.plugins.tokenmacro.TokenMacro;
@@ -28,12 +25,11 @@ import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
-/**
- * A build parameter factory generating NodeLabelParameters for each node matching a label
- */
+/** A build parameter factory generating NodeLabelParameters for each node matching a label */
 public class NodeListBuildParameterFactory extends AbstractBuildParameterFactory {
 
-    private static final Logger LOGGER = Logger.getLogger(NodeListBuildParameterFactory.class.getName());
+    private static final Logger LOGGER =
+            Logger.getLogger(NodeListBuildParameterFactory.class.getName());
 
     public final String name;
     public final String nodeListString;
@@ -45,7 +41,9 @@ public class NodeListBuildParameterFactory extends AbstractBuildParameterFactory
     }
 
     @Override
-    public List<AbstractBuildParameters> getParameters(AbstractBuild<?, ?> build, TaskListener listener) throws IOException, InterruptedException, AbstractBuildParameters.DontTriggerException {
+    public List<AbstractBuildParameters> getParameters(
+            AbstractBuild<?, ?> build, TaskListener listener)
+            throws IOException, InterruptedException, AbstractBuildParameters.DontTriggerException {
         String nodeListStringExpanded = nodeListString;
         try {
             nodeListStringExpanded = TokenMacro.expandAll(build, listener, nodeListStringExpanded);
@@ -57,7 +55,11 @@ public class NodeListBuildParameterFactory extends AbstractBuildParameterFactory
         List<AbstractBuildParameters> params = new ArrayList<>();
 
         if (StringUtils.isBlank(nodeListStringExpanded)) {
-            listener.getLogger().println("[WARN] no node name was given! [" + nodeListString + "], can't trigger other project");
+            listener.getLogger()
+                    .println(
+                            "[WARN] no node name was given! ["
+                                    + nodeListString
+                                    + "], can't trigger other project");
         } else {
 
             String[] nodes = nodeListStringExpanded.trim().split(",");
@@ -83,7 +85,7 @@ public class NodeListBuildParameterFactory extends AbstractBuildParameterFactory
 
         /**
          * Autocompletion method, called by UI to support user filling the form
-         * 
+         *
          * @param value user provided string
          * @return auto-completion candidates
          */
@@ -95,15 +97,12 @@ public class NodeListBuildParameterFactory extends AbstractBuildParameterFactory
             }
 
             return candidates;
-
         }
 
-        /**
-         * Form validation method.
-         */
-        public FormValidation doCheckNodeListString(@AncestorInPath Item project, @QueryParameter String value) {
-            if (!project.hasPermission(Item.CONFIGURE))
-                return FormValidation.ok();
+        /** Form validation method. */
+        public FormValidation doCheckNodeListString(
+                @AncestorInPath Item project, @QueryParameter String value) {
+            if (!project.hasPermission(Item.CONFIGURE)) return FormValidation.ok();
 
             StringTokenizer tokens = new StringTokenizer(Util.fixNull(value), ",");
             boolean hasProjects = false;
@@ -112,17 +111,18 @@ public class NodeListBuildParameterFactory extends AbstractBuildParameterFactory
                 if (StringUtils.isNotBlank(nodeName)) {
                     final Node node = Jenkins.get().getNode(nodeName);
                     if (node == null) {
-                        return FormValidation.error(Messages.NodeListBuildParameterFactory_nodeNotFound(nodeName));
+                        return FormValidation.error(
+                                Messages.NodeListBuildParameterFactory_nodeNotFound(nodeName));
                     }
                     hasProjects = true;
                 }
             }
             if (!hasProjects) {
-                return FormValidation.error(Messages.NodeListBuildParameterFactory_nodeNotDefined());
+                return FormValidation.error(
+                        Messages.NodeListBuildParameterFactory_nodeNotDefined());
             }
 
             return FormValidation.ok();
         }
-
     }
 }

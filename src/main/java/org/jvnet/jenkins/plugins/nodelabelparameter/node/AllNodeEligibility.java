@@ -2,20 +2,18 @@ package org.jvnet.jenkins.plugins.nodelabelparameter.node;
 
 import hudson.Extension;
 import hudson.model.Node;
-
 import org.jvnet.jenkins.plugins.nodelabelparameter.Messages;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
  * NodeEligibility not performing any restrictions
- * 
+ *
  * @author Dominik Bartholdi (imod)
  */
 public class AllNodeEligibility extends NodeEligibility {
 
     @DataBoundConstructor
-    public AllNodeEligibility() {
-    }
+    public AllNodeEligibility() {}
 
     @Override
     public boolean isEligible(Node node) {
@@ -29,5 +27,4 @@ public class AllNodeEligibility extends NodeEligibility {
             return Messages.NodeEligibility_allNodes();
         }
     }
-
 }
