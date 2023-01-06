@@ -5,45 +5,46 @@ New feature proposals and bug fix proposals should be submitted as
 [GitHub pull requests](https://help.github.com/articles/creating-a-pull-request).
 Your pull request will be evaluated by the [Jenkins job](https://ci.jenkins.io/job/Plugins/job/nodelabelparameter-plugin/).
 
-Before submitting your change, please assure that you've added tests which verify your change.
+Before submitting your change, please assure that you've added tests that verify the change.
 
-## Code Formatting
+## Code formatting
 
 Source code and pom file formatting is maintained by the `spotless` maven plugin.
 Before submitting a pull request, confirm the formatting is correct with:
 
 * `mvn spotless:apply`
 
-## Code Coverage
-
-Code coverage reporting is available as a maven target.
-Please try to improve code coverage with tests when you submit.
-
-* `mvn -P enable-jacoco clean install jacoco:report` to report code coverage
+## Spotbugs checks
 
 Please don't introduce new spotbugs output.
-* `mvn spotbugs:check` to analyze project using [Spotbugs](https://spotbugs.github.io)
-* `mvn spotbugs:gui` to review report using GUI
 
-## Fetching code coverage
+* `mvn spotbugs:check` analyzes the project using [Spotbugs](https://spotbugs.github.io)
+* `mvn spotbugs:gui` displays the spotbugs report using GUI
 
-Once you get the report code coverage, there are a couple ways you can fetch the classes that are covered in tests.
+## Code coverage
 
-This depends a lot on the operating system and environment. The following commands will open the `index.html` file in the browser.
+Code coverage reporting is available as a maven target.
+Please try to improve code coverage with tests when you submit pull requests.
+
+* `mvn -P enable-jacoco clean install jacoco:report` reports code coverage
+
+### Reviewing code coverage
+
+The code coverage report is a set of HTML files that show methods and lines executed.
+The following commands will open the `index.html` file in the browser.
 
 * Windows - `start target\site\jacoco\index.html`
 * Linux - `xdg-open target/site/jacoco/index.html`
 * Gitpod - `cd target/site/jacoco && python -m http.server 8000`
 
-The file will have a list of package names. You can click on them to find a list of class names.
+The file will have a list of package names.
+Click on them to find a list of class names.
 
-The lines of the code will be covered in three different colors. Red, green, and orange.
+The lines of the code will be covered in three different colors, red, green, and orange.
+Red lines are not covered in the tests.
+Green lines are covered with tests.
 
-The red lines are not covered in the tests. The green lines are covered with tests. 
+## Reporting Issues
 
-Your goal is to add to tests that covers one or more of the red lines with the new tests.
-
-## Report an issue
-
-Report issues and enhancements with the link:https://www.jenkins.io/participate/report-issue/redirect/#15873[Jenkins issue tracker].
+Report issues in the [Jenkins issue tracker](https://www.jenkins.io/participate/report-issue/redirect/#15873).
 Please use the link:https://www.jenkins.io/participate/report-issue/["How to Report an Issue"] guidelines when reporting issues.
