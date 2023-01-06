@@ -17,7 +17,8 @@ public class NextLabelCause extends UpstreamCause {
 
     @Override
     public String getShortDescription() {
-        return org.jvnet.jenkins.plugins.nodelabelparameter.Messages.NextLabelCause_description(label);
+        return org.jvnet.jenkins.plugins.nodelabelparameter.Messages.NextLabelCause_description(
+                label);
     }
 
     @Override
@@ -29,7 +30,6 @@ public class NextLabelCause extends UpstreamCause {
         NextLabelCause that = (NextLabelCause) o;
 
         return label.equals(that.label);
-
     }
 
     @Override

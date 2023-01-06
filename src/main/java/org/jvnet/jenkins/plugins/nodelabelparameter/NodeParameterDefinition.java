@@ -1,24 +1,19 @@
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
-import hudson.model.ParameterValue;
-import hudson.model.SimpleParameterDefinition;
 import hudson.model.Node;
 import hudson.model.ParameterDefinition;
-
+import hudson.model.ParameterValue;
+import hudson.model.SimpleParameterDefinition;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-
 import jenkins.model.Jenkins;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-
 import org.apache.commons.lang.StringUtils;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.IgnoreOfflineNodeEligibility;
@@ -28,30 +23,36 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
 /**
- * Defines a build parameter used to select the node where a job should be executed. Although it is possible to define the node name in the UI at "restrict where this job should run", but that
- * would tie a job to a specific node. This parameter actually allows a list of possible nodes and asks the user before execution.
- * 
+ * Defines a build parameter used to select the node where a job should be executed. Although it is
+ * possible to define the node name in the UI at "restrict where this job should run", but that
+ * would tie a job to a specific node. This parameter actually allows a list of possible nodes and
+ * asks the user before execution.
+ *
  * @author Dominik Bartholdi (imod)
- * 
  */
-public class NodeParameterDefinition extends SimpleParameterDefinition implements MultipleNodeDescribingParameterDefinition {
+public class NodeParameterDefinition extends SimpleParameterDefinition
+        implements MultipleNodeDescribingParameterDefinition {
 
     private static final long serialVersionUID = 1L;
 
     public final List<String> allowedSlaves;
-    private List<String>      defaultSlaves;
-    @Deprecated
-    public transient String   defaultValue;
-    private String            triggerIfResult;
-    private boolean           allowMultiNodeSelection;
-    private boolean           triggerConcurrentBuilds;
-    @Deprecated
-    private boolean           ignoreOfflineNodes;
+    private List<String> defaultSlaves;
+    @Deprecated public transient String defaultValue;
+    private String triggerIfResult;
+    private boolean allowMultiNodeSelection;
+    private boolean triggerConcurrentBuilds;
+    @Deprecated private boolean ignoreOfflineNodes;
 
-    private NodeEligibility   nodeEligibility;
+    private NodeEligibility nodeEligibility;
 
     @DataBoundConstructor
-    public NodeParameterDefinition(String name, String description, List<String> defaultSlaves, List<String> allowedSlaves, String triggerIfResult, NodeEligibility nodeEligibility) {
+    public NodeParameterDefinition(
+            String name,
+            String description,
+            List<String> defaultSlaves,
+            List<String> allowedSlaves,
+            String triggerIfResult,
+            NodeEligibility nodeEligibility) {
         super(name, description);
         this.allowedSlaves = allowedSlaves;
         this.defaultSlaves = defaultSlaves;
@@ -71,28 +72,42 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
     }
 
     @Deprecated
-    public NodeParameterDefinition(String name, String description, List<String> defaultAgents, List<String> allowedAgents, String triggerIfResult, boolean ignoreOfflineNodes) {
-        this(name, description, defaultAgents, allowedAgents, triggerIfResult, ignoreOfflineNodes ? new IgnoreOfflineNodeEligibility() : new AllNodeEligibility());
+    public NodeParameterDefinition(
+            String name,
+            String description,
+            List<String> defaultAgents,
+            List<String> allowedAgents,
+            String triggerIfResult,
+            boolean ignoreOfflineNodes) {
+        this(
+                name,
+                description,
+                defaultAgents,
+                allowedAgents,
+                triggerIfResult,
+                ignoreOfflineNodes ? new IgnoreOfflineNodeEligibility() : new AllNodeEligibility());
     }
 
     @Deprecated
-    public NodeParameterDefinition(String name, String description, String defaultValue, List<String> allowedAgents, String triggerIfResult) {
+    public NodeParameterDefinition(
+            String name,
+            String description,
+            String defaultValue,
+            List<String> allowedAgents,
+            String triggerIfResult) {
         this(name, description, new ArrayList<>(), allowedAgents, triggerIfResult, false);
 
         if (this.allowedSlaves != null && this.allowedSlaves.contains(defaultValue)) {
             this.allowedSlaves.remove(defaultValue);
             this.allowedSlaves.add(0, defaultValue);
         }
-
     }
 
     public List<String> getDefaultSlaves() {
         return defaultSlaves;
     }
 
-    /**
-     * e.g. what to show if a build is triggered by hand?
-     */
+    /** e.g. what to show if a build is triggered by hand? */
     @Override
     public NodeParameterValue getDefaultParameterValue() {
         return new NodeParameterValue(getName(), getDefaultSlaves(), nodeEligibility);
@@ -109,12 +124,18 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
     }
 
     /**
-     * Returns a list of nodes the job could run on. If allowed nodes is empty, it falls back to all nodes
-     * 
+     * Returns a list of nodes the job could run on. If allowed nodes is empty, it falls back to all
+     * nodes
+     *
      * @return list of nodenames.
      */
     public List<String> getAllowedNodesOrAll() {
-        final List<String> agents = allowedSlaves == null || allowedSlaves.isEmpty() || allowedSlaves.contains(Constants.ALL_NODES) ? getNodeNames() : allowedSlaves;
+        final List<String> agents =
+                allowedSlaves == null
+                                || allowedSlaves.isEmpty()
+                                || allowedSlaves.contains(Constants.ALL_NODES)
+                        ? getNodeNames()
+                        : allowedSlaves;
 
         agents.sort(NodeNameComparator.INSTANCE);
         String controllerLabel = Jenkins.get().getSelfLabel().getName();
@@ -138,7 +159,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
 
     /**
      * returns all available nodes plus an identifier to identify all agents at position one.
-     * 
+     *
      * @return list of node names
      */
     public static List<String> getSlaveNamesForSelection() {
@@ -149,7 +170,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
 
     /**
      * Gets the names of all configured agents, regardless whether they are online.
-     * 
+     *
      * @return list with all agent names
      */
     public static List<String> getSlaveNames() {
@@ -158,7 +179,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
 
     /**
      * Gets all node names - sorted and controller label at first position.
-     * 
+     *
      * @return a list of all node names.
      */
     private static List<String> getNodeNames() {
@@ -188,9 +209,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
         }
     }
 
-    /**
-     * Comparator preferring the label of the controller
-     */
+    /** Comparator preferring the label of the controller */
     private static final class NodeNameComparator implements Comparator<String> {
         public static final NodeNameComparator INSTANCE = new NodeNameComparator();
 
@@ -199,7 +218,8 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
         }
     }
 
-    public void validateBuild(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
+    public void validateBuild(
+            AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
         if (build.getProject().isConcurrentBuild() && !this.isTriggerConcurrentBuilds()) {
             final String msg = Messages.BuildWrapper_param_not_concurrent(this.getName());
             throw new IllegalStateException(msg);
@@ -220,10 +240,8 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
         public String getHelpFile() {
             return "/plugin/nodelabelparameter/nodeparam.html";
         }
-        
-        /**
-         * provides the default node eligibility for the UI
-         */
+
+        /** provides the default node eligibility for the UI */
         public NodeEligibility getDefaultNodeEligibility() {
             return new AllNodeEligibility();
         }
@@ -236,7 +254,10 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
         // as String from script: {"name":"HOSTN","value":"built-in"}
         final String name = jo.getString("name");
         // JENKINS-28374 also respect 'labels' to allow rebuilds via rebuild plugin
-        final Object joValue = jo.get("value") == null ? (jo.get("labels") == null ? jo.get("label") : jo.get("labels")) : jo.get("value");
+        final Object joValue =
+                jo.get("value") == null
+                        ? (jo.get("labels") == null ? jo.get("label") : jo.get("labels"))
+                        : jo.get("value");
 
         List<String> nodes = new ArrayList<>();
         if (joValue instanceof String) {
@@ -277,7 +298,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
             }
             defaultSlaves.add(defaultValue);
         }
-        if(nodeEligibility == null) {
+        if (nodeEligibility == null) {
             if (ignoreOfflineNodes) {
                 nodeEligibility = new IgnoreOfflineNodeEligibility();
             } else {
@@ -295,5 +316,4 @@ public class NodeParameterDefinition extends SimpleParameterDefinition implement
         }
         return null;
     }
-
 }

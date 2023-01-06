@@ -1,47 +1,44 @@
 package org.jvnet.jenkins.plugins.nodelabelparameter.parameterizedtrigger;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import hudson.model.FreeStyleBuild;
-import hudson.model.Result;
 import hudson.model.FreeStyleProject;
 import hudson.model.Node;
 import hudson.model.Project;
 import hudson.model.Queue;
+import hudson.model.Result;
 import hudson.model.labels.LabelAtom;
 import hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig;
 import hudson.plugins.parameterizedtrigger.BlockingBehaviour;
 import hudson.plugins.parameterizedtrigger.TriggerBuilder;
 import hudson.slaves.DumbSlave;
 import hudson.util.RunList;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
 
 /**
  * @author wolfs
  */
 public class AllNodesForLabelBuildParameterFactoryTest {
 
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+    @Rule public JenkinsRule j = new JenkinsRule();
 
     @Test
     public void testLabelFactoryNonBlocking() throws Exception {
         // create a slave with a given label to execute projectB on
         String label = "label";
-        List<DumbSlave> slaves = createSlaves(label,3);
+        List<DumbSlave> slaves = createSlaves(label, 3);
 
         FreeStyleProject projectB = j.createFreeStyleProject();
         projectB.setQuietPeriod(1);
@@ -61,7 +58,7 @@ public class AllNodesForLabelBuildParameterFactoryTest {
     public void testLabelFactoryBlocking() throws Exception {
         // create a slave with a given label to execute projectB on
         String label = "label";
-        List<DumbSlave> slaves = createSlaves(label,2);
+        List<DumbSlave> slaves = createSlaves(label, 2);
 
         FreeStyleProject projectB = j.createFreeStyleProject();
         projectB.setQuietPeriod(1);
@@ -117,12 +114,18 @@ public class AllNodesForLabelBuildParameterFactoryTest {
         }
     }
 
-    private void addLabelParameterFactory(Project<?, ?> projectA, FreeStyleProject projectB, String label) {
+    private void addLabelParameterFactory(
+            Project<?, ?> projectA, FreeStyleProject projectB, String label) {
         addLabelParameterFactory(projectA, projectB, null, label);
     }
 
-    private void addBlockingLabelParameterFactory(Project<?, ?> projectA, FreeStyleProject projectB, String label) {
-        addLabelParameterFactory(projectA, projectB, new BlockingBehaviour(Result.FAILURE, Result.UNSTABLE, Result.FAILURE), label);
+    private void addBlockingLabelParameterFactory(
+            Project<?, ?> projectA, FreeStyleProject projectB, String label) {
+        addLabelParameterFactory(
+                projectA,
+                projectB,
+                new BlockingBehaviour(Result.FAILURE, Result.UNSTABLE, Result.FAILURE),
+                label);
     }
 
     private void addLabelParameterFactory(
@@ -130,12 +133,16 @@ public class AllNodesForLabelBuildParameterFactoryTest {
             FreeStyleProject projectB,
             BlockingBehaviour blockingBehaviour,
             String label) {
-        projectA.getBuildersList().add(
-                new TriggerBuilder(new BlockableBuildTriggerConfig(projectB.getName(),
-                        blockingBehaviour,
-                        Collections.singletonList(new AllNodesForLabelBuildParameterFactory(
-                                "LABEL", label, false)),
-                        Collections.emptyList())));
+        projectA.getBuildersList()
+                .add(
+                        new TriggerBuilder(
+                                new BlockableBuildTriggerConfig(
+                                        projectB.getName(),
+                                        blockingBehaviour,
+                                        Collections.singletonList(
+                                                new AllNodesForLabelBuildParameterFactory(
+                                                        "LABEL", label, false)),
+                                        Collections.emptyList())));
     }
 
     private List<DumbSlave> createSlaves(String label, int num) throws Exception {
@@ -147,5 +154,4 @@ public class AllNodesForLabelBuildParameterFactoryTest {
         }
         return slaves;
     }
-
 }

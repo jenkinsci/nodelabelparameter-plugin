@@ -7,13 +7,19 @@ Your pull request will be evaluated by the [Jenkins job](https://ci.jenkins.io/j
 
 Before submitting your change, please assure that you've added tests which verify your change.
 
+## Code Formatting
+
+Source code and pom file formatting is maintained by the `spotless` maven plugin.
+Before submitting a pull request, confirm the formatting is correct with:
+
+* `mvn spotless:apply`
+
 ## Code Coverage
 
 Code coverage reporting is available as a maven target.
 Please try to improve code coverage with tests when you submit.
 
-* `mvn clean -DskipTests verify` to build without running tests
-* `mvn -P enable-jacoco clean verify jacoco:report` to report code coverage
+* `mvn -P enable-jacoco clean install jacoco:report` to report code coverage
 
 Please don't introduce new spotbugs output.
 * `mvn spotbugs:check` to analyze project using [Spotbugs](https://spotbugs.github.io)

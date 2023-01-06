@@ -44,11 +44,11 @@
     <url>https://github.com/${gitHubRepo}</url>
   </scm>
   <properties>
+    <changelist>-SNAPSHOT</changelist>
+    <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
+    <jenkins.version>2.361.4</jenkins.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <revision>1.11.1</revision>
-    <changelist>-SNAPSHOT</changelist>
-    <jenkins.version>2.361.4</jenkins.version>
-    <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
   </properties>
 
   <dependencyManagement>
@@ -65,6 +65,12 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>3.23.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>parameterized-trigger</artifactId>
       <version>2.36</version>
@@ -73,12 +79,6 @@
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>token-macro</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.assertj</groupId>
-      <artifactId>assertj-core</artifactId>
-      <version>3.23.1</version>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 
@@ -107,14 +107,29 @@
             <!-- define a language-specific format -->
             <java>
               <!-- no need to specify files, inferred automatically -->
+              <!-- apply a specific flavor of google-java-format -->
+              <googleJavaFormat>
+                <version>1.15.0</version>
+                <style>AOSP</style>
+              </googleJavaFormat>
               <endWithNewline />
               <removeUnusedImports />
             </java>
             <pom>
+              <indent>
+                <spaces>true</spaces>
+              </indent>
+              <includes>
+                <include>pom.xml</include>
+              </includes>
               <sortPom>
-                <encoding>${project.build.sourceEncoding}</encoding>
-                <lineSeparator>\n</lineSeparator>
                 <expandEmptyElements>false</expandEmptyElements>
+                <sortDependencies>groupId,artifactId</sortDependencies>
+                <sortDependencyExclusions>groupId,artifactId</sortDependencyExclusions>
+                <sortExecutions>true</sortExecutions>
+                <sortModules>true</sortModules>
+                <sortPlugins>groupId,artifactId</sortPlugins>
+                <sortProperties>true</sortProperties>
                 <spaceBeforeCloseEmptyElement>true</spaceBeforeCloseEmptyElement>
               </sortPom>
             </pom>
