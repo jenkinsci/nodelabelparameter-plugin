@@ -43,13 +43,21 @@ public class NodeParameterValue extends LabelParameterValue {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
 
         NodeParameterValue that = (NodeParameterValue) o;
 
-        if (!Objects.equals(nextLabels, that.nextLabels)) return false;
+        if (!Objects.equals(nextLabels, that.nextLabels)) {
+            return false;
+        }
 
         return true;
     }

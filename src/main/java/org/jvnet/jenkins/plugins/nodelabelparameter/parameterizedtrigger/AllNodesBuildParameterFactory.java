@@ -25,8 +25,7 @@ public class AllNodesBuildParameterFactory extends AbstractBuildParameterFactory
     public AllNodesBuildParameterFactory() {}
 
     @Override
-    public List<AbstractBuildParameters> getParameters(
-            AbstractBuild<?, ?> build, TaskListener listener) {
+    public List<AbstractBuildParameters> getParameters(AbstractBuild<?, ?> build, TaskListener listener) {
         Computer[] nodes = Jenkins.get().getComputers();
 
         final PrintStream logger = listener.getLogger();
@@ -35,12 +34,11 @@ public class AllNodesBuildParameterFactory extends AbstractBuildParameterFactory
             Node n = c.getNode();
             if (n != null && c.isOnline() && c.getNumExecutors() > 0) {
                 params.add(new NodeLabelBuildParameter("label", n.getSelfLabel().getName()));
-                logger.println(
-                        "trigger build on "
-                                + n.getDisplayName()
-                                + " ("
-                                + n.getSelfLabel().getName()
-                                + ")");
+                logger.println("trigger build on "
+                        + n.getDisplayName()
+                        + " ("
+                        + n.getSelfLabel().getName()
+                        + ")");
             }
         }
 
