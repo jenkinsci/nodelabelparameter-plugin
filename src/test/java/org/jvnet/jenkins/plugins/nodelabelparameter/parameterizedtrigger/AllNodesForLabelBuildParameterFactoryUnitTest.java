@@ -32,7 +32,8 @@ import org.jvnet.hudson.test.TestBuilder;
 
 public class AllNodesForLabelBuildParameterFactoryUnitTest {
 
-    @Rule public JenkinsRule j = new JenkinsRule();
+    @Rule
+    public JenkinsRule j = new JenkinsRule();
 
     @Before
     public void setUp() throws Exception {
@@ -61,35 +62,29 @@ public class AllNodesForLabelBuildParameterFactoryUnitTest {
 
         final List<Boolean> executed = new ArrayList<>();
 
-        projectA.getBuildersList()
-                .add(
-                        new TestBuilder() {
-                            public boolean perform(
-                                    AbstractBuild<?, ?> build,
-                                    Launcher launcher,
-                                    BuildListener listener)
-                                    throws InterruptedException, IOException {
-                                try {
+        projectA.getBuildersList().add(new TestBuilder() {
+            public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
+                    throws InterruptedException, IOException {
+                try {
 
-                                    shouldGetParameterForEachMatchingNode(
-                                            twoNodesFactory, build, listener);
-                                    noMatchingNodeShouldYieldSameLabel(
-                                            dummyNodesFactory, build, listener);
+                    shouldGetParameterForEachMatchingNode(twoNodesFactory, build, listener);
+                    noMatchingNodeShouldYieldSameLabel(dummyNodesFactory, build, listener);
 
-                                } catch (DontTriggerException e) {
-                                    e.printStackTrace();
-                                    Assert.fail(e.getMessage());
-                                    return false;
-                                }
+                } catch (DontTriggerException e) {
+                    e.printStackTrace();
+                    Assert.fail(e.getMessage());
+                    return false;
+                }
 
-                                executed.add(Boolean.TRUE);
-                                return true;
-                            }
-                        });
+                executed.add(Boolean.TRUE);
+                return true;
+            }
+        });
 
         projectA.getBuildersList().add(createTriggerBuilder(projectB, twoNodesFactory));
         j.assertBuildStatus(
-                Result.SUCCESS, projectA.scheduleBuild2(0, new Cause.UserIdCause()).get());
+                Result.SUCCESS,
+                projectA.scheduleBuild2(0, new Cause.UserIdCause()).get());
         // make sure the test was really executed
         assertThat(executed).containsOnly(Boolean.TRUE);
     }
@@ -121,16 +116,12 @@ public class AllNodesForLabelBuildParameterFactoryUnitTest {
         assertThat(nodeNames).containsOnly("node2", "node3");
     }
 
-    private TriggerBuilder createTriggerBuilder(
-            AbstractProject<?, ?> project, AbstractBuildParameterFactory factory) {
-        TriggerBuilder tBuilder =
-                new TriggerBuilder(
-                        new BlockableBuildTriggerConfig(
-                                project.getName(),
-                                new BlockingBehaviour(
-                                        Result.FAILURE, Result.UNSTABLE, Result.FAILURE),
-                                Collections.singletonList(factory),
-                                Collections.emptyList()));
+    private TriggerBuilder createTriggerBuilder(AbstractProject<?, ?> project, AbstractBuildParameterFactory factory) {
+        TriggerBuilder tBuilder = new TriggerBuilder(new BlockableBuildTriggerConfig(
+                project.getName(),
+                new BlockingBehaviour(Result.FAILURE, Result.UNSTABLE, Result.FAILURE),
+                Collections.singletonList(factory),
+                Collections.emptyList()));
         return tBuilder;
     }
 }

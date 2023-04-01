@@ -40,7 +40,8 @@ import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterDefinition;
 
 public class NodeLabelBuildParameterTest {
 
-    @Rule public JenkinsRule j = new JenkinsRule();
+    @Rule
+    public JenkinsRule j = new JenkinsRule();
 
     /**
      * Tests whether a job A is able to trigger job B to be executed on a specific node/slave. If it
@@ -60,18 +61,13 @@ public class NodeLabelBuildParameterTest {
         // create projectA, which triggers projectB with a given label parameter
         Project<?, ?> projectA = j.createFreeStyleProject("projectA");
         projectA.getPublishersList()
-                .add(
-                        new BuildTrigger(
-                                new BuildTriggerConfig(
-                                        "projectB",
-                                        ResultCondition.SUCCESS,
-                                        new NodeLabelBuildParameter(paramName, nodeName))));
+                .add(new BuildTrigger(new BuildTriggerConfig(
+                        "projectB", ResultCondition.SUCCESS, new NodeLabelBuildParameter(paramName, nodeName))));
 
         // create projectB, with a predefined parameter (same name as used in projectA!)
         FreeStyleProject projectB = j.createFreeStyleProject("projectB");
         ParametersDefinitionProperty pdp =
-                new ParametersDefinitionProperty(
-                        new LabelParameterDefinition(paramName, "some desc", "wrongNodeName"));
+                new ParametersDefinitionProperty(new LabelParameterDefinition(paramName, "some desc", "wrongNodeName"));
         projectB.addProperty(pdp);
         // CaptureEnvironmentBuilder builder = new CaptureEnvironmentBuilder();
         // projectB.getBuildersList().add(builder);

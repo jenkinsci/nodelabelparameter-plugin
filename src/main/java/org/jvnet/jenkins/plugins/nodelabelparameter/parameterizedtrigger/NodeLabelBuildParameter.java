@@ -31,8 +31,7 @@ public class NodeLabelBuildParameter extends AbstractBuildParameters {
         this.nodeLabel = nodeLabel;
     }
 
-    public Action getAction(AbstractBuild<?, ?> build, TaskListener listener)
-            throws IOException, InterruptedException {
+    public Action getAction(AbstractBuild<?, ?> build, TaskListener listener) throws IOException, InterruptedException {
         String labelExpanded = nodeLabel;
         try {
             labelExpanded = TokenMacro.expandAll(build, listener, labelExpanded);

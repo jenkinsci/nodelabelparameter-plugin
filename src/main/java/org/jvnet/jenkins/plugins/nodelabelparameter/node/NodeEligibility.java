@@ -9,8 +9,7 @@ import hudson.model.Node;
 import java.io.Serializable;
 import jenkins.model.Jenkins;
 
-public abstract class NodeEligibility
-        implements Describable<NodeEligibility>, ExtensionPoint, Serializable {
+public abstract class NodeEligibility implements Describable<NodeEligibility>, ExtensionPoint, Serializable {
 
     public abstract boolean isEligible(Node node);
 

@@ -28,7 +28,9 @@ import org.jvnet.jenkins.plugins.nodelabelparameter.node.IgnoreOfflineNodeEligib
  */
 public class NodelLabelNodePropertyTest {
 
-    @Rule public JenkinsRule j = new JenkinsRule();
+    @Rule
+    public JenkinsRule j = new JenkinsRule();
+
     private String controllerLabel = null;
 
     private DumbSlave onlineNode1;
@@ -40,9 +42,7 @@ public class NodelLabelNodePropertyTest {
         onlineNode1 = j.createOnlineSlave(new LabelAtom("mylabel1"));
         onlineNode2 = j.createOnlineSlave(new LabelAtom("mylabel2"));
         offlineNode = j.createOnlineSlave(new LabelAtom("mylabel3"));
-        offlineNode
-                .getComputer()
-                .setTemporarilyOffline(true, new hudson.slaves.OfflineCause.ByCLI("mark offline"));
+        offlineNode.getComputer().setTemporarilyOffline(true, new hudson.slaves.OfflineCause.ByCLI("mark offline"));
         controllerLabel = j.jenkins.getSelfLabel().getName();
     }
 
@@ -67,10 +67,7 @@ public class NodelLabelNodePropertyTest {
         assertFalse(NodeUtil.isNodeOnline(offlineNode.getNodeName()));
 
         final List<String> defaultNodeNames =
-                Arrays.asList(
-                        onlineNode1.getNodeName(),
-                        offlineNode.getNodeName(),
-                        onlineNode2.getNodeName());
+                Arrays.asList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
         runTest(
                 2,
                 0,
@@ -97,12 +94,8 @@ public class NodelLabelNodePropertyTest {
         assertTrue(NodeUtil.isNodeOnline(onlineNode2.getNodeName()));
         assertFalse(NodeUtil.isNodeOnline(offlineNode.getNodeName()));
 
-        final List<String> defaultNodeNames =
-                Arrays.asList(
-                        offlineNode.getNodeName(),
-                        onlineNode2.getNodeName(),
-                        onlineNode1.getNodeName(),
-                        controllerLabel);
+        final List<String> defaultNodeNames = Arrays.asList(
+                offlineNode.getNodeName(), onlineNode2.getNodeName(), onlineNode1.getNodeName(), controllerLabel);
         runTest(
                 3,
                 1,
@@ -130,7 +123,8 @@ public class NodelLabelNodePropertyTest {
         projectA.addProperty(pdp);
 
         j.assertBuildStatus(
-                Result.SUCCESS, projectA.scheduleBuild2(0, new Cause.UserIdCause()).get());
+                Result.SUCCESS,
+                projectA.scheduleBuild2(0, new Cause.UserIdCause()).get());
         // we can't wait for no activity, as this would also wait for the jobs we expect to stay in
         // the queue
         // j.waitUntilNoActivity();
@@ -139,10 +133,7 @@ public class NodelLabelNodePropertyTest {
         do {
             Thread.sleep(1003); // give async triggered jobs some time to finish (1 second)
         } while (++counter < 10 && projectA.getLastBuild().number < expectedNumberOfExecutedRuns);
-        assertEquals(
-                "expcted number of runs",
-                expectedNumberOfExecutedRuns,
-                projectA.getLastBuild().number);
+        assertEquals("expcted number of runs", expectedNumberOfExecutedRuns, projectA.getLastBuild().number);
         assertEquals(
                 "expected number of items in the queue",
                 expectedNumberOfItemsInTheQueue,

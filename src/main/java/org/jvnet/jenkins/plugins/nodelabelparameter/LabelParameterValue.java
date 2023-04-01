@@ -65,10 +65,7 @@ public class LabelParameterValue extends ParameterValue {
      */
     @DataBoundConstructor
     public LabelParameterValue(
-            String name,
-            String label,
-            boolean allNodesMatchingLabel,
-            NodeEligibility nodeEligibility) {
+            String name, String label, boolean allNodesMatchingLabel, NodeEligibility nodeEligibility) {
         super(nameOrDefault(name));
         if (label != null) {
             this.label = label.trim();
@@ -77,8 +74,7 @@ public class LabelParameterValue extends ParameterValue {
         computeNextLabels(allNodesMatchingLabel, nodeEligibility);
     }
 
-    /* package */ void computeNextLabels(
-            boolean allNodesMatchingLabel, NodeEligibility nodeEligibility) {
+    /* package */ void computeNextLabels(boolean allNodesMatchingLabel, NodeEligibility nodeEligibility) {
         if (allNodesMatchingLabel && label != null) {
             List<String> labels = getNodeNamesForLabelExpression(label);
             if (labels.isEmpty()) {
@@ -121,9 +117,7 @@ public class LabelParameterValue extends ParameterValue {
         if (StringUtils.isBlank(getLabel())) {
             // these artificial label will cause the job to stay in the queue and the user will see
             // this label
-            setLabel(
-                    Messages.LabelParameterValue_triggerWithoutValidOnlineNode(
-                            StringUtils.join(labels, ',')));
+            setLabel(Messages.LabelParameterValue_triggerWithoutValidOnlineNode(StringUtils.join(labels, ',')));
         }
     }
 
@@ -219,12 +213,10 @@ public class LabelParameterValue extends ParameterValue {
         final ParametersDefinitionProperty property =
                 build.getProject().getProperty(hudson.model.ParametersDefinitionProperty.class);
         if (property != null) {
-            final List<ParameterDefinition> parameterDefinitions =
-                    property.getParameterDefinitions();
+            final List<ParameterDefinition> parameterDefinitions = property.getParameterDefinitions();
             for (ParameterDefinition paramDef : parameterDefinitions) {
                 if (paramDef instanceof MultipleNodeDescribingParameterDefinition) {
-                    return ((MultipleNodeDescribingParameterDefinition) paramDef)
-                            .createBuildWrapper();
+                    return ((MultipleNodeDescribingParameterDefinition) paramDef).createBuildWrapper();
                 }
             }
         }
@@ -262,13 +254,9 @@ public class LabelParameterValue extends ParameterValue {
         if (c != null) {
             String cName = StringUtils.isBlank(c.getName()) ? controllerLabel : c.getName();
             build.addAction(
-                    new LabelBadgeAction(
-                            getLabel(),
-                            Messages.LabelBadgeAction_label_tooltip_node(getLabel(), cName)));
+                    new LabelBadgeAction(getLabel(), Messages.LabelBadgeAction_label_tooltip_node(getLabel(), cName)));
         } else {
-            build.addAction(
-                    new LabelBadgeAction(
-                            getLabel(), Messages.LabelBadgeAction_label_tooltip(getLabel())));
+            build.addAction(new LabelBadgeAction(getLabel(), Messages.LabelBadgeAction_label_tooltip(getLabel())));
         }
     }
 }

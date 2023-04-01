@@ -35,7 +35,9 @@ import org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility;
  */
 public class TriggerJobsTest {
 
-    @Rule public JenkinsRule j = new JenkinsRule();
+    @Rule
+    public JenkinsRule j = new JenkinsRule();
+
     private String controllerLabel = null;
 
     private DumbSlave onlineNode1;
@@ -47,9 +49,7 @@ public class TriggerJobsTest {
         onlineNode1 = j.createOnlineSlave(new LabelAtom("mylabel1"));
         onlineNode2 = j.createOnlineSlave(new LabelAtom("mylabel2"));
         offlineNode = j.createOnlineSlave(new LabelAtom("mylabel3"));
-        offlineNode
-                .getComputer()
-                .setTemporarilyOffline(true, new hudson.slaves.OfflineCause.ByCLI("mark offline"));
+        offlineNode.getComputer().setTemporarilyOffline(true, new hudson.slaves.OfflineCause.ByCLI("mark offline"));
         controllerLabel = j.jenkins.getSelfLabel().getName();
     }
 
@@ -70,10 +70,7 @@ public class TriggerJobsTest {
     public void jobMustRunOnAllRequestedAgents_IgnoreOfflineNodes() throws Exception {
 
         final List<String> defaultNodeNames =
-                Arrays.asList(
-                        onlineNode1.getNodeName(),
-                        offlineNode.getNodeName(),
-                        onlineNode2.getNodeName());
+                Arrays.asList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
         runTest(
                 2,
                 0,
@@ -101,10 +98,7 @@ public class TriggerJobsTest {
             return;
         }
         final List<String> defaultNodeNames =
-                Arrays.asList(
-                        onlineNode1.getNodeName(),
-                        offlineNode.getNodeName(),
-                        onlineNode2.getNodeName());
+                Arrays.asList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
         runTest(
                 2,
                 1,
@@ -125,14 +119,10 @@ public class TriggerJobsTest {
      * @throws Exception
      */
     @Test
-    public void jobMustRunOnAllRequestedAgents_Concurrent_NotIgnoringOfflineNodes()
-            throws Exception {
+    public void jobMustRunOnAllRequestedAgents_Concurrent_NotIgnoringOfflineNodes() throws Exception {
 
         final List<String> defaultNodeNames =
-                Arrays.asList(
-                        onlineNode1.getNodeName(),
-                        offlineNode.getNodeName(),
-                        onlineNode2.getNodeName());
+                Arrays.asList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
         runTest(
                 2,
                 1,
@@ -156,10 +146,7 @@ public class TriggerJobsTest {
     public void jobMustRunOnAllRequestedAgents_Concurrent_IgnoreOfflineNodes() throws Exception {
 
         final List<String> defaultNodeNames =
-                Arrays.asList(
-                        onlineNode1.getNodeName(),
-                        offlineNode.getNodeName(),
-                        onlineNode2.getNodeName());
+                Arrays.asList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
         runTest(
                 2,
                 0,
@@ -180,15 +167,10 @@ public class TriggerJobsTest {
      * @throws Exception
      */
     @Test
-    public void jobMustRunOnAllRequestedAgents_including_Node_on_Controller_IgnoreOfflineNodes()
-            throws Exception {
+    public void jobMustRunOnAllRequestedAgents_including_Node_on_Controller_IgnoreOfflineNodes() throws Exception {
 
-        final List<String> defaultNodeNames =
-                Arrays.asList(
-                        controllerLabel,
-                        onlineNode1.getNodeName(),
-                        offlineNode.getNodeName(),
-                        onlineNode2.getNodeName());
+        final List<String> defaultNodeNames = Arrays.asList(
+                controllerLabel, onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
         runTest(
                 3,
                 0,
@@ -220,7 +202,8 @@ public class TriggerJobsTest {
         projectA.addProperty(pdp);
 
         j.assertBuildStatus(
-                Result.SUCCESS, projectA.scheduleBuild2(0, new Cause.UserIdCause()).get());
+                Result.SUCCESS,
+                projectA.scheduleBuild2(0, new Cause.UserIdCause()).get());
         // we can't wait for no activity, as this would also wait for the jobs we expect to stay in
         // the queue
         // j.waitUntilNoActivity();
@@ -229,8 +212,7 @@ public class TriggerJobsTest {
         do {
             Thread.sleep(1003); // give async triggered jobs some time to finish (1 second)
         } while (++counter < 10 && projectA.getLastBuild().number < expectedNumberOfExecutedRuns);
-        assertEquals(
-                "Number of builds", expectedNumberOfExecutedRuns, projectA.getLastBuild().number);
+        assertEquals("Number of builds", expectedNumberOfExecutedRuns, projectA.getLastBuild().number);
         assertEquals(
                 "Pending items: " + j.jenkins.getQueue().getPendingItems(),
                 0,
@@ -251,16 +233,14 @@ public class TriggerJobsTest {
     @Test
     public void testTriggerViaCurlWithValue() throws Exception {
         FreeStyleProject projectA = j.createFreeStyleProject("projectA");
-        NodeParameterDefinition parameterDefinition =
-                new NodeParameterDefinition(
-                        "NODE",
-                        "desc",
-                        Collections.singletonList(controllerLabel),
-                        Collections.singletonList(onlineNode1.getNodeName()),
-                        null,
-                        new AllNodeEligibility());
-        String json =
-                "{\"parameter\":[{\"name\":\"NODE\",\"value\":[\"" + controllerLabel + "\"]}]}";
+        NodeParameterDefinition parameterDefinition = new NodeParameterDefinition(
+                "NODE",
+                "desc",
+                Collections.singletonList(controllerLabel),
+                Collections.singletonList(onlineNode1.getNodeName()),
+                null,
+                new AllNodeEligibility());
+        String json = "{\"parameter\":[{\"name\":\"NODE\",\"value\":[\"" + controllerLabel + "\"]}]}";
         runTestViaCurl(projectA, parameterDefinition, json, 1, Result.SUCCESS);
     }
 
@@ -273,16 +253,14 @@ public class TriggerJobsTest {
     @Test
     public void testTriggerViaCurlWithLabel() throws Exception {
         FreeStyleProject projectA = j.createFreeStyleProject("projectA");
-        NodeParameterDefinition parameterDefinition =
-                new NodeParameterDefinition(
-                        "NODE",
-                        "desc",
-                        Collections.singletonList(controllerLabel),
-                        Collections.singletonList(onlineNode1.getNodeName()),
-                        null,
-                        new AllNodeEligibility());
-        String json =
-                "{\"parameter\":[{\"name\":\"NODE\",\"label\":[\"" + controllerLabel + "\"]}]}";
+        NodeParameterDefinition parameterDefinition = new NodeParameterDefinition(
+                "NODE",
+                "desc",
+                Collections.singletonList(controllerLabel),
+                Collections.singletonList(onlineNode1.getNodeName()),
+                null,
+                new AllNodeEligibility());
+        String json = "{\"parameter\":[{\"name\":\"NODE\",\"label\":[\"" + controllerLabel + "\"]}]}";
         runTestViaCurl(projectA, parameterDefinition, json, 1, Result.SUCCESS);
     }
 
@@ -295,16 +273,14 @@ public class TriggerJobsTest {
     @Test
     public void testTriggerViaCurlWithLabels() throws Exception {
         FreeStyleProject projectA = j.createFreeStyleProject("projectA");
-        NodeParameterDefinition parameterDefinition =
-                new NodeParameterDefinition(
-                        "NODE",
-                        "desc",
-                        Collections.singletonList(controllerLabel),
-                        Collections.singletonList(onlineNode1.getNodeName()),
-                        null,
-                        new AllNodeEligibility());
-        String json =
-                "{\"parameter\":[{\"name\":\"NODE\",\"labels\":[\"" + controllerLabel + "\"]}]}";
+        NodeParameterDefinition parameterDefinition = new NodeParameterDefinition(
+                "NODE",
+                "desc",
+                Collections.singletonList(controllerLabel),
+                Collections.singletonList(onlineNode1.getNodeName()),
+                null,
+                new AllNodeEligibility());
+        String json = "{\"parameter\":[{\"name\":\"NODE\",\"labels\":[\"" + controllerLabel + "\"]}]}";
         runTestViaCurl(projectA, parameterDefinition, json, 1, Result.SUCCESS);
     }
 
@@ -323,9 +299,7 @@ public class TriggerJobsTest {
      * @throws Exception when executing requests and also while using the JenkinsRule and WebClient
      *     methods
      */
-    private <
-                    JobT extends Job<JobT, RunT> & ParameterizedJobMixIn.ParameterizedJob,
-                    RunT extends Run<JobT, RunT>>
+    private <JobT extends Job<JobT, RunT> & ParameterizedJobMixIn.ParameterizedJob, RunT extends Run<JobT, RunT>>
             void runTestViaCurl(
                     JobT project,
                     NodeParameterDefinition parameterDefinition,
@@ -344,11 +318,9 @@ public class TriggerJobsTest {
         // add security crumb (cannot modify the list after that, so we recreate the parameters
         // right away)
         wc.addCrumb(requestSettings);
-        List<com.gargoylesoftware.htmlunit.util.NameValuePair> requestParameters =
-                new ArrayList<>();
+        List<com.gargoylesoftware.htmlunit.util.NameValuePair> requestParameters = new ArrayList<>();
         requestParameters.add(new com.gargoylesoftware.htmlunit.util.NameValuePair("json", json));
-        requestParameters.add(
-                new com.gargoylesoftware.htmlunit.util.NameValuePair("Submit", "Build"));
+        requestParameters.add(new com.gargoylesoftware.htmlunit.util.NameValuePair("Submit", "Build"));
         requestParameters.addAll(requestSettings.getRequestParameters());
         requestSettings.setRequestParameters(requestParameters);
 
