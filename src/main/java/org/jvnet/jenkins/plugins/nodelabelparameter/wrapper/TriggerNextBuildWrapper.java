@@ -95,14 +95,11 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
             final List<String> singleNodeList = new ArrayList<>();
             singleNodeList.add(nodeName);
             final LabelParameterValue pValue =
-                    new LabelParameterValue(
-                            parmaName, singleNodeList, parameterDefinition.getNodeEligibility());
+                    new LabelParameterValue(parmaName, singleNodeList, parameterDefinition.getNodeEligibility());
             List<ParameterValue> copies = new ArrayList<>(newPrams);
             copies.add(pValue); // where to do the next build
             listener.getLogger().println("Schedule build on node " + nodeName);
-            build.getProject()
-                    .scheduleBuild(
-                            0, new NextLabelCause(nodeName, build), new ParametersAction(copies));
+            build.getProject().scheduleBuild(0, new NextLabelCause(nodeName, build), new ParametersAction(copies));
         }
     }
 
@@ -113,8 +110,7 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
     private class TriggerNextBuildEnvironment extends Environment {
 
         @Override
-        public boolean tearDown(AbstractBuild build, BuildListener listener)
-                throws IOException, InterruptedException {
+        public boolean tearDown(AbstractBuild build, BuildListener listener) throws IOException, InterruptedException {
             triggerBuilds(build, listener);
             return true;
         }
@@ -136,18 +132,13 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
                     nextNodes = new ArrayList<>(nextNodes);
                     nextNodes.remove(initialBuildNode);
                     if (!nextNodes.isEmpty()
-                            && shouldScheduleNextJob(
-                                    build.getResult(), parameterDefinition.getTriggerIfResult())) {
-                        LabelParameterValue newNodeParam =
-                                new LabelParameterValue(
-                                        origNodePram.getName(),
-                                        nextNodes,
-                                        parameterDefinition.getNodeEligibility());
+                            && shouldScheduleNextJob(build.getResult(), parameterDefinition.getTriggerIfResult())) {
+                        LabelParameterValue newNodeParam = new LabelParameterValue(
+                                origNodePram.getName(), nextNodes, parameterDefinition.getNodeEligibility());
                         newPrams.add(newNodeParam);
                         final String nextLabel = newNodeParam.getLabel();
                         if (nextLabel != null) {
-                            listener.getLogger()
-                                    .print("schedule single build on node " + nextLabel);
+                            listener.getLogger().print("schedule single build on node " + nextLabel);
                             nextLabelCause = new NextLabelCause(nextLabel, build);
                             triggerNewBuild = true;
                         } else {
@@ -188,11 +179,9 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
                 // result.
 
                 if (Constants.CASE_SUCCESS.equals(runIfResult)) {
-                    return ((buildResult == null)
-                            || (buildResult.isBetterOrEqualTo(Result.SUCCESS)));
+                    return ((buildResult == null) || (buildResult.isBetterOrEqualTo(Result.SUCCESS)));
                 } else if (Constants.CASE_UNSTABLE.equals(runIfResult)) {
-                    return ((buildResult == null)
-                            || (buildResult.isBetterOrEqualTo(Result.UNSTABLE)));
+                    return ((buildResult == null) || (buildResult.isBetterOrEqualTo(Result.UNSTABLE)));
                 }
             }
 

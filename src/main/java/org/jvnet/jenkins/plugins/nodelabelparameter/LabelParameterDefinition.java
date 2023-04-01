@@ -42,7 +42,10 @@ public class LabelParameterDefinition extends SimpleParameterDefinition
 
     public final String defaultValue;
     private boolean allNodesMatchingLabel;
-    @Deprecated private transient boolean ignoreOfflineNodes;
+
+    @Deprecated
+    private transient boolean ignoreOfflineNodes;
+
     private String triggerIfResult;
 
     private NodeEligibility nodeEligibility;
@@ -59,8 +62,7 @@ public class LabelParameterDefinition extends SimpleParameterDefinition
         this.defaultValue = defaultValue;
         this.allNodesMatchingLabel = allNodesMatchingLabel;
         this.nodeEligibility = nodeEligibility == null ? new AllNodeEligibility() : nodeEligibility;
-        this.triggerIfResult =
-                StringUtils.isBlank(triggerIfResult) ? Constants.ALL_CASES : triggerIfResult;
+        this.triggerIfResult = StringUtils.isBlank(triggerIfResult) ? Constants.ALL_CASES : triggerIfResult;
     }
 
     @Deprecated
@@ -79,8 +81,7 @@ public class LabelParameterDefinition extends SimpleParameterDefinition
         } else {
             this.nodeEligibility = new AllNodeEligibility();
         }
-        this.triggerIfResult =
-                StringUtils.isBlank(triggerIfResult) ? Constants.ALL_CASES : triggerIfResult;
+        this.triggerIfResult = StringUtils.isBlank(triggerIfResult) ? Constants.ALL_CASES : triggerIfResult;
     }
 
     @Deprecated
@@ -106,14 +107,14 @@ public class LabelParameterDefinition extends SimpleParameterDefinition
 
     @Override
     public LabelParameterValue getDefaultParameterValue() {
-        return new LabelParameterValue(
-                getName(), defaultValue, allNodesMatchingLabel, nodeEligibility);
+        return new LabelParameterValue(getName(), defaultValue, allNodesMatchingLabel, nodeEligibility);
     }
 
     public boolean isAllNodesMatchingLabel() {
         return allNodesMatchingLabel;
     }
 
+    @Override
     public NodeEligibility getNodeEligibility() {
         return nodeEligibility;
     }
@@ -154,17 +155,17 @@ public class LabelParameterDefinition extends SimpleParameterDefinition
          * @return validation result for the form
          */
         public FormValidation doCheckDefaultValue(@QueryParameter String value) {
-            if (value.isEmpty()) return FormValidation.ok();
+            if (value.isEmpty()) {
+                return FormValidation.ok();
+            }
             try {
                 int matchingNodeCount = getNodesForLabel(value).size(); // validates expression
                 return matchingNodeCount == 0
-                        ? FormValidation.warning(
-                                Messages.NodeLabelParameterDefinition_noNodeMatched(value))
+                        ? FormValidation.warning(Messages.NodeLabelParameterDefinition_noNodeMatched(value))
                         : FormValidation.ok();
             } catch (ANTLRException e) {
                 return FormValidation.error(
-                        Messages.NodeLabelParameterDefinition_labelExpressionNotValid(
-                                value, e.getMessage()));
+                        Messages.NodeLabelParameterDefinition_labelExpressionNotValid(value, e.getMessage()));
             }
         }
 
@@ -175,30 +176,27 @@ public class LabelParameterDefinition extends SimpleParameterDefinition
          * @return if ok, a list of nodes matching the given label
          * @throws ServletException on error
          */
-        public FormValidation doListNodesForLabel(@QueryParameter("value") final String label)
-                throws ServletException {
+        public FormValidation doListNodesForLabel(@QueryParameter("value") final String label) throws ServletException {
 
-            if (StringUtils.isBlank(label))
+            if (StringUtils.isBlank(label)) {
                 return FormValidation.error(Messages.LabelParameterDefinition_labelRequired());
+            }
             try {
                 final Set<Node> nodes = getNodesForLabel(label);
                 if (nodes.isEmpty()) {
-                    return FormValidation.warning(
-                            Messages.NodeLabelParameterDefinition_noNodeMatched(label));
+                    return FormValidation.warning(Messages.NodeLabelParameterDefinition_noNodeMatched(label));
                 }
                 final List<String> nodeNames =
                         nodes.stream().map(new NodeDescFunction()).collect(Collectors.toList());
                 final String html = String.join("</li><li>", nodeNames);
-                return FormValidation.okWithMarkup(
-                        "<b>"
-                                + Messages.LabelParameterDefinition_matchingNodes()
-                                + "</b><ul><li>"
-                                + html
-                                + "</li></ul>");
+                return FormValidation.okWithMarkup("<b>"
+                        + Messages.LabelParameterDefinition_matchingNodes()
+                        + "</b><ul><li>"
+                        + html
+                        + "</li></ul>");
             } catch (ANTLRException e) {
                 return FormValidation.error(
-                        Messages.NodeLabelParameterDefinition_labelExpressionNotValid(
-                                label, e.getMessage()));
+                        Messages.NodeLabelParameterDefinition_labelExpressionNotValid(label, e.getMessage()));
             }
         }
 
@@ -214,11 +212,10 @@ public class LabelParameterDefinition extends SimpleParameterDefinition
 
         /** function providing the node description for UI when listing matching nodes */
         private static final class NodeDescFunction implements Function<Node, String> {
+            @Override
             public String apply(Node n) {
                 String controllerLabel = Jenkins.get().getSelfLabel().getName();
-                return n != null && StringUtils.isNotBlank(n.getNodeName())
-                        ? n.getNodeName()
-                        : controllerLabel;
+                return n != null && StringUtils.isNotBlank(n.getNodeName()) ? n.getNodeName() : controllerLabel;
             }
         }
     }
@@ -243,6 +240,7 @@ public class LabelParameterDefinition extends SimpleParameterDefinition
         return new LabelParameterValue(getName(), str, allNodesMatchingLabel, nodeEligibility);
     }
 
+    @Override
     public String getTriggerIfResult() {
         return triggerIfResult;
     }
@@ -251,14 +249,15 @@ public class LabelParameterDefinition extends SimpleParameterDefinition
         return Constants.ALL_CASES.equals(triggerIfResult);
     }
 
-    public void validateBuild(
-            AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
+    @Override
+    public void validateBuild(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
         if (build.getProject().isConcurrentBuild() && !this.isTriggerConcurrentBuilds()) {
             final String msg = Messages.BuildWrapper_param_not_concurrent(this.getName());
             throw new IllegalStateException(msg);
         }
     }
 
+    @Override
     public TriggerNextBuildWrapper createBuildWrapper() {
         if (this.isAllNodesMatchingLabel()) {
             // we expect only one node parameter definition per job

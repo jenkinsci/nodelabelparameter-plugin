@@ -37,11 +37,16 @@ public class NodeParameterDefinition extends SimpleParameterDefinition
 
     public final List<String> allowedSlaves;
     private List<String> defaultSlaves;
-    @Deprecated public transient String defaultValue;
+
+    @Deprecated
+    public transient String defaultValue;
+
     private String triggerIfResult;
     private boolean allowMultiNodeSelection;
     private boolean triggerConcurrentBuilds;
-    @Deprecated private boolean ignoreOfflineNodes;
+
+    @Deprecated
+    private boolean ignoreOfflineNodes;
 
     private NodeEligibility nodeEligibility;
 
@@ -90,11 +95,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition
 
     @Deprecated
     public NodeParameterDefinition(
-            String name,
-            String description,
-            String defaultValue,
-            List<String> allowedAgents,
-            String triggerIfResult) {
+            String name, String description, String defaultValue, List<String> allowedAgents, String triggerIfResult) {
         this(name, description, new ArrayList<>(), allowedAgents, triggerIfResult, false);
 
         if (this.allowedSlaves != null && this.allowedSlaves.contains(defaultValue)) {
@@ -131,9 +132,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition
      */
     public List<String> getAllowedNodesOrAll() {
         final List<String> agents =
-                allowedSlaves == null
-                                || allowedSlaves.isEmpty()
-                                || allowedSlaves.contains(Constants.ALL_NODES)
+                allowedSlaves == null || allowedSlaves.isEmpty() || allowedSlaves.contains(Constants.ALL_NODES)
                         ? getNodeNames()
                         : allowedSlaves;
 
@@ -149,10 +148,12 @@ public class NodeParameterDefinition extends SimpleParameterDefinition
     /**
      * @return the triggerIfResult
      */
+    @Override
     public String getTriggerIfResult() {
         return triggerIfResult;
     }
 
+    @Override
     public NodeEligibility getNodeEligibility() {
         return nodeEligibility;
     }
@@ -213,13 +214,14 @@ public class NodeParameterDefinition extends SimpleParameterDefinition
     private static final class NodeNameComparator implements Comparator<String> {
         public static final NodeNameComparator INSTANCE = new NodeNameComparator();
 
+        @Override
         public int compare(String o1, String o2) {
             return o1.compareTo(o2);
         }
     }
 
-    public void validateBuild(
-            AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
+    @Override
+    public void validateBuild(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
         if (build.getProject().isConcurrentBuild() && !this.isTriggerConcurrentBuilds()) {
             final String msg = Messages.BuildWrapper_param_not_concurrent(this.getName());
             throw new IllegalStateException(msg);
@@ -254,10 +256,9 @@ public class NodeParameterDefinition extends SimpleParameterDefinition
         // as String from script: {"name":"HOSTN","value":"built-in"}
         final String name = jo.getString("name");
         // JENKINS-28374 also respect 'labels' to allow rebuilds via rebuild plugin
-        final Object joValue =
-                jo.get("value") == null
-                        ? (jo.get("labels") == null ? jo.get("label") : jo.get("labels"))
-                        : jo.get("value");
+        final Object joValue = jo.get("value") == null
+                ? (jo.get("labels") == null ? jo.get("label") : jo.get("labels"))
+                : jo.get("value");
 
         List<String> nodes = new ArrayList<>();
         if (joValue instanceof String) {

@@ -17,15 +17,20 @@ public class NextLabelCause extends UpstreamCause {
 
     @Override
     public String getShortDescription() {
-        return org.jvnet.jenkins.plugins.nodelabelparameter.Messages.NextLabelCause_description(
-                label);
+        return org.jvnet.jenkins.plugins.nodelabelparameter.Messages.NextLabelCause_description(label);
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
 
         NextLabelCause that = (NextLabelCause) o;
 

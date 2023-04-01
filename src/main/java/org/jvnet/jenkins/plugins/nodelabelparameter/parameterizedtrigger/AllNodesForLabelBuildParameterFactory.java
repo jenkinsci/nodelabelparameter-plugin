@@ -27,26 +27,23 @@ public class AllNodesForLabelBuildParameterFactory extends AbstractBuildParamete
     public final String nodeLabel;
     public final boolean ignoreOfflineNodes;
 
-    private static final Function<Node, String> SELF_LABEL_FUNCTION =
-            new Function<Node, String>() {
-                public String apply(Node node) {
-                    return node != null && node.getSelfLabel() != null
-                            ? node.getSelfLabel().getName()
-                            : null;
-                }
-            };
+    private static final Function<Node, String> SELF_LABEL_FUNCTION = new Function<Node, String>() {
+        public String apply(Node node) {
+            return node != null && node.getSelfLabel() != null
+                    ? node.getSelfLabel().getName()
+                    : null;
+        }
+    };
 
     @DataBoundConstructor
-    public AllNodesForLabelBuildParameterFactory(
-            String name, String nodeLabel, boolean ignoreOfflineNodes) {
+    public AllNodesForLabelBuildParameterFactory(String name, String nodeLabel, boolean ignoreOfflineNodes) {
         this.name = name;
         this.nodeLabel = nodeLabel;
         this.ignoreOfflineNodes = ignoreOfflineNodes;
     }
 
     @Override
-    public List<AbstractBuildParameters> getParameters(
-            AbstractBuild<?, ?> build, TaskListener listener)
+    public List<AbstractBuildParameters> getParameters(AbstractBuild<?, ?> build, TaskListener listener)
             throws IOException, InterruptedException, AbstractBuildParameters.DontTriggerException {
         String labelExpanded = nodeLabel;
         try {
@@ -66,8 +63,7 @@ public class AllNodesForLabelBuildParameterFactory extends AbstractBuildParamete
             listener.getLogger().println("Found no nodes");
             params.add(new NodeLabelBuildParameter(name, labelExpanded));
         } else {
-            List<String> selfLabels =
-                    nodes.stream().map(SELF_LABEL_FUNCTION).collect(Collectors.toList());
+            List<String> selfLabels = nodes.stream().map(SELF_LABEL_FUNCTION).collect(Collectors.toList());
             listener.getLogger().println("Found nodes: " + selfLabels);
             for (Node node : nodes) {
                 final String nodeSelfLabel = node.getSelfLabel().getName();
@@ -76,9 +72,7 @@ public class AllNodesForLabelBuildParameterFactory extends AbstractBuildParamete
                         params.add(new NodeLabelBuildParameter(name, nodeSelfLabel));
                     } else {
                         listener.getLogger()
-                                .println(
-                                        Messages.NodeListBuildParameterFactory_skippOfflineNode(
-                                                nodeSelfLabel));
+                                .println(Messages.NodeListBuildParameterFactory_skippOfflineNode(nodeSelfLabel));
                     }
                 } else {
                     params.add(new NodeLabelBuildParameter(name, nodeSelfLabel));
@@ -86,10 +80,7 @@ public class AllNodesForLabelBuildParameterFactory extends AbstractBuildParamete
             }
             if (params.isEmpty()) {
                 params.add(new NodeLabelBuildParameter(name, labelExpanded));
-                listener.getLogger()
-                        .println(
-                                Messages.NodeListBuildParameterFactory_noOnlineNodeFound(
-                                        labelExpanded));
+                listener.getLogger().println(Messages.NodeListBuildParameterFactory_noOnlineNodeFound(labelExpanded));
             }
         }
 

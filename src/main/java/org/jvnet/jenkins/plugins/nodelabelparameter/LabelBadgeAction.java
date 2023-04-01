@@ -21,6 +21,7 @@ public class LabelBadgeAction implements BuildBadgeAction {
      * @see hudson.model.Action#getIconFileName()
      * @return <code>null</code> as badges icons are rendered by the jelly.
      */
+    @Override
     public String getIconFileName() {
         return null;
     }
@@ -28,6 +29,7 @@ public class LabelBadgeAction implements BuildBadgeAction {
     /**
      * @see hudson.model.Action#getDisplayName()
      */
+    @Override
     public String getDisplayName() {
         return null;
     }
@@ -36,6 +38,7 @@ public class LabelBadgeAction implements BuildBadgeAction {
      * @see hudson.model.Action#getUrlName()
      * @return <code>null</code> as this action object doesn't need to be bound to web.
      */
+    @Override
     public String getUrlName() {
         return null;
     }
