@@ -2,13 +2,12 @@ package org.jvnet.jenkins.plugins.nodelabelparameter.node;
 
 import hudson.DescriptorExtensionList;
 import hudson.ExtensionPoint;
-import hudson.model.Describable;
 import hudson.model.Computer;
+import hudson.model.Describable;
 import hudson.model.Descriptor;
 import hudson.model.Node;
-import jenkins.model.Jenkins;
-
 import java.io.Serializable;
+import jenkins.model.Jenkins;
 
 public abstract class NodeEligibility implements Describable<NodeEligibility>, ExtensionPoint, Serializable {
 
@@ -37,6 +36,7 @@ public abstract class NodeEligibility implements Describable<NodeEligibility>, E
         return c != null && c.isOnline() && c.getNumExecutors() > 0;
     }
 
+    @Override
     public NodeEligibilityDescriptor getDescriptor() {
         return (NodeEligibilityDescriptor) Jenkins.get().getDescriptor(getClass());
     }
@@ -45,6 +45,5 @@ public abstract class NodeEligibility implements Describable<NodeEligibility>, E
         return Jenkins.get().getDescriptorList(NodeEligibility.class);
     }
 
-    public static abstract class NodeEligibilityDescriptor extends Descriptor<NodeEligibility> {
-    }
+    public abstract static class NodeEligibilityDescriptor extends Descriptor<NodeEligibility> {}
 }

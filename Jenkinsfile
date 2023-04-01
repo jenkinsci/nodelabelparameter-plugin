@@ -1,11 +1,14 @@
 #!/usr/bin/env groovy
 
-buildPlugin(failFast: false,
-            // Opt-in to the Artifact Caching Proxy, to be removed when it will be in opt-out.
-            // See https://github.com/jenkins-infra/helpdesk/issues/2752 for more details and updates.
-            artifactCachingProxyEnabled: true,
-            configurations: [
-                [platform: 'linux',   jdk: '11', jenkins: '2.376'],
-                [platform: 'linux',   jdk: '11', jenkins: '2.361.3'],
-                [platform: 'windows', jdk: '8'],
-            ])
+/* `buildPlugin` step provided by: https://github.com/jenkins-infra/pipeline-library */
+buildPlugin(
+  // Container agents start faster and are easier to administer
+  useContainerAgent: true,
+  // Show failures on all configurations
+  failFast: false,
+  // Test Java 11 with minimum Jenkins version, Java 17 with a more recent version
+  configurations: [
+    [platform: 'linux',   jdk: '11'], // Linux first for coverage report on ci.jenkins.io
+    [platform: 'windows', jdk: '17', jenkins: '2.389'],
+  ]
+)

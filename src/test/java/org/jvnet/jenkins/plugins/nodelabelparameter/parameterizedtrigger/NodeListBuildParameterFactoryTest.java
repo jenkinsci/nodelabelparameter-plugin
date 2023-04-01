@@ -1,11 +1,11 @@
 package org.jvnet.jenkins.plugins.nodelabelparameter.parameterizedtrigger;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-
 
 public class NodeListBuildParameterFactoryTest {
 
@@ -22,7 +22,6 @@ public class NodeListBuildParameterFactoryTest {
     @Test
     void testIsListParameterBlank() {
 
-        String nodeListStringExpanded = "nodeListName";        
-
+        String nodeListStringExpanded = "nodeListName";
     }
 }

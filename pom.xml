@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>4.51</version>
+    <version>4.57</version>
     <relativePath />
   </parent>
 
@@ -44,19 +44,19 @@
     <url>https://github.com/${gitHubRepo}</url>
   </scm>
   <properties>
+    <changelist>-SNAPSHOT</changelist>
+    <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
+    <jenkins.version>2.361.4</jenkins.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <revision>1.11.1</revision>
-    <changelist>-SNAPSHOT</changelist>
-    <jenkins.version>2.346.3</jenkins.version>
-    <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
   </properties>
 
   <dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
-        <artifactId>bom-2.346.x</artifactId>
-        <version>1706.vc166d5f429f8</version>
+        <artifactId>bom-2.361.x</artifactId>
+        <version>1968.vb_14a_29e76128</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -65,20 +65,20 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>3.24.2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>parameterized-trigger</artifactId>
-      <version>2.36</version>
+      <version>2.44</version>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>token-macro</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.assertj</groupId>
-      <artifactId>assertj-core</artifactId>
-      <version>3.23.1</version>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 
@@ -102,19 +102,30 @@
         <plugin>
           <groupId>com.diffplug.spotless</groupId>
           <artifactId>spotless-maven-plugin</artifactId>
-          <version>2.27.2</version>
+          <version>2.35.0</version>
           <configuration>
             <!-- define a language-specific format -->
             <java>
               <!-- no need to specify files, inferred automatically -->
               <endWithNewline />
+              <palantirJavaFormat />
               <removeUnusedImports />
             </java>
             <pom>
+              <indent>
+                <spaces>true</spaces>
+              </indent>
+              <includes>
+                <include>pom.xml</include>
+              </includes>
               <sortPom>
-                <encoding>${project.build.sourceEncoding}</encoding>
-                <lineSeparator>\n</lineSeparator>
                 <expandEmptyElements>false</expandEmptyElements>
+                <sortDependencies>groupId,artifactId</sortDependencies>
+                <sortDependencyExclusions>groupId,artifactId</sortDependencyExclusions>
+                <sortExecutions>true</sortExecutions>
+                <sortModules>true</sortModules>
+                <sortPlugins>groupId,artifactId</sortPlugins>
+                <sortProperties>true</sortProperties>
                 <spaceBeforeCloseEmptyElement>true</spaceBeforeCloseEmptyElement>
               </sortPom>
             </pom>

@@ -32,7 +32,6 @@ import hudson.plugins.parameterizedtrigger.BuildTrigger;
 import hudson.plugins.parameterizedtrigger.BuildTriggerConfig;
 import hudson.plugins.parameterizedtrigger.ResultCondition;
 import hudson.slaves.DumbSlave;
-
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,8 +44,9 @@ public class NodeLabelBuildParameterTest {
     public JenkinsRule j = new JenkinsRule();
 
     /**
-     * Tests whether a job A is able to trigger job B to be executed on a specific node/slave. If it does not work, the timeout will stop/fail the test after 60 seconds.
-     * 
+     * Tests whether a job A is able to trigger job B to be executed on a specific node/slave. If it
+     * does not work, the timeout will stop/fail the test after 60 seconds.
+     *
      * @throws Exception
      */
     @Test
@@ -60,11 +60,14 @@ public class NodeLabelBuildParameterTest {
 
         // create projectA, which triggers projectB with a given label parameter
         Project<?, ?> projectA = j.createFreeStyleProject("projectA");
-        projectA.getPublishersList().add(new BuildTrigger(new BuildTriggerConfig("projectB", ResultCondition.SUCCESS, new NodeLabelBuildParameter(paramName, nodeName))));
+        projectA.getPublishersList()
+                .add(new BuildTrigger(new BuildTriggerConfig(
+                        "projectB", ResultCondition.SUCCESS, new NodeLabelBuildParameter(paramName, nodeName))));
 
         // create projectB, with a predefined parameter (same name as used in projectA!)
         FreeStyleProject projectB = j.createFreeStyleProject("projectB");
-        ParametersDefinitionProperty pdp = new ParametersDefinitionProperty(new LabelParameterDefinition(paramName, "some desc", "wrongNodeName"));
+        ParametersDefinitionProperty pdp =
+                new ParametersDefinitionProperty(new LabelParameterDefinition(paramName, "some desc", "wrongNodeName"));
         projectB.addProperty(pdp);
         // CaptureEnvironmentBuilder builder = new CaptureEnvironmentBuilder();
         // projectB.getBuildersList().add(builder);
@@ -82,6 +85,5 @@ public class NodeLabelBuildParameterTest {
         Assert.assertEquals(nodeName, foundNodeName);
 
         j.jenkins.removeNode(slave);
-
     }
 }

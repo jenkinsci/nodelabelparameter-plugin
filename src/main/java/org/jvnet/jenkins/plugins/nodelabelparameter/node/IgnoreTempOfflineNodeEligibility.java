@@ -3,25 +3,24 @@ package org.jvnet.jenkins.plugins.nodelabelparameter.node;
 import hudson.Extension;
 import hudson.model.Computer;
 import hudson.model.Node;
-
 import org.jvnet.jenkins.plugins.nodelabelparameter.Messages;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
- * NodeEligibility only skipping temporarly offline node - these nodes are usually taken manually taken offline by a user.
- * 
+ * NodeEligibility only skipping temporarly offline node - these nodes are usually taken manually
+ * taken offline by a user.
+ *
  * @author Dominik Bartholdi (imod)
  */
 public class IgnoreTempOfflineNodeEligibility extends NodeEligibility {
 
     @DataBoundConstructor
-    public IgnoreTempOfflineNodeEligibility() {
-    }
+    public IgnoreTempOfflineNodeEligibility() {}
 
     @Override
     @SuppressWarnings("deprecation")
     public boolean isEligible(Node node) {
-        if(node != null){
+        if (node != null) {
             final Computer c = getComputer(node);
             if (c != null) {
                 boolean isonline = !c.isTemporarilyOffline();
@@ -38,5 +37,4 @@ public class IgnoreTempOfflineNodeEligibility extends NodeEligibility {
             return Messages.NodeEligibility_ignoreTmpOffline();
         }
     }
-
 }
