@@ -24,14 +24,20 @@
 
   <developers>
     <developer>
+      <id>markewaite</id>
+      <name>Mark Waite</name>
+      <email>mark.earl.waite@gmail.com</email>
+      <roles>
+        <role>developer</role>
+      </roles>
+    </developer>
+    <developer>
       <id>imod</id>
       <name>Dominik Bartholdi</name>
       <email />
-    </developer>
-    <developer>
-      <id>MarkEWaite</id>
-      <name>Mark Waite</name>
-      <email>mark.earl.waite@gmail.com</email>
+      <roles>
+        <role>emeritus</role>
+      </roles>
     </developer>
   </developers>
 
