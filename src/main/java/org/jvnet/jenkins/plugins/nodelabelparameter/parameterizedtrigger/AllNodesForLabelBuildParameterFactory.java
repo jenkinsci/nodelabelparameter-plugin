@@ -29,9 +29,7 @@ public class AllNodesForLabelBuildParameterFactory extends AbstractBuildParamete
 
     private static final Function<Node, String> SELF_LABEL_FUNCTION = new Function<Node, String>() {
         public String apply(Node node) {
-            return node != null && node.getSelfLabel() != null
-                    ? node.getSelfLabel().getName()
-                    : null;
+            return node != null ? node.getSelfLabel().getName() : null;
         }
     };
 
