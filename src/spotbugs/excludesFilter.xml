@@ -5,12 +5,12 @@
     false positives.
   -->
   <Match>
-    <Bug pattern="SE_NO_SERIALVERSIONID"/>
+    <Bug pattern="SE_NO_SERIALVERSIONID" />
     <Or>
-      <Class name="org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterValue"/>
-      <Class name="org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility"/>
-      <Class name="org.jvnet.jenkins.plugins.nodelabelparameter.node.IgnoreOfflineNodeEligibility"/>
-      <Class name="org.jvnet.jenkins.plugins.nodelabelparameter.node.IgnoreTempOfflineNodeEligibility"/>
+      <Class name="org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterValue" />
+      <Class name="org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility" />
+      <Class name="org.jvnet.jenkins.plugins.nodelabelparameter.node.IgnoreOfflineNodeEligibility" />
+      <Class name="org.jvnet.jenkins.plugins.nodelabelparameter.node.IgnoreTempOfflineNodeEligibility" />
     </Or>
   </Match>
 
@@ -28,12 +28,12 @@
       exclusion from this section.
    -->
   <Match>
-    <Bug pattern="SE_COMPARATOR_SHOULD_BE_SERIALIZABLE"/>
-    <Class name="org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterDefinition$NodeNameComparator"/>
+    <Bug pattern="SE_COMPARATOR_SHOULD_BE_SERIALIZABLE" />
+    <Class name="org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterDefinition$NodeNameComparator" />
   </Match>
   <Match>
-    <Bug pattern="SE_TRANSIENT_FIELD_NOT_RESTORED"/>
-    <Class name="org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterDefinition"/>
-    <Field name="ignoreOfflineNodes"/>
+    <Bug pattern="SE_TRANSIENT_FIELD_NOT_RESTORED" />
+    <Class name="org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterDefinition" />
+    <Field name="ignoreOfflineNodes" />
   </Match>
 </FindBugsFilter>
