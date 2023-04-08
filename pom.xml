@@ -54,6 +54,8 @@
     <jenkins.version>2.375.4</jenkins.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <revision>1.12.0</revision>
+    <spotbugs.effort>Max</spotbugs.effort>
+    <spotbugs.threshold>Low</spotbugs.threshold>
   </properties>
 
   <dependencyManagement>

@@ -80,9 +80,6 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
                 LabelParameterValue origNodeParam = (LabelParameterValue) parameterValue;
                 parmaName = origNodeParam.getName();
                 List<String> nextNodes = origNodeParam.getNextLabels();
-                if (nextNodes == null) {
-                    continue;
-                }
                 newBuildNodes.addAll(nextNodes);
                 // Avoid to add the current node again
                 newBuildNodes.remove(initialBuildNode);
@@ -125,11 +122,7 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
             for (ParameterValue parameterValue : origParams) {
                 if (parameterValue instanceof LabelParameterValue) {
                     LabelParameterValue origNodePram = (LabelParameterValue) parameterValue;
-                    List<String> nextNodes = origNodePram.getNextLabels();
-                    if (nextNodes == null) {
-                        continue;
-                    }
-                    nextNodes = new ArrayList<>(nextNodes);
+                    List<String> nextNodes = new ArrayList<>(origNodePram.getNextLabels());
                     nextNodes.remove(initialBuildNode);
                     if (!nextNodes.isEmpty()
                             && shouldScheduleNextJob(build.getResult(), parameterDefinition.getTriggerIfResult())) {
