@@ -58,7 +58,7 @@ public class NodeListBuildParameterFactory extends AbstractBuildParameterFactory
         } else {
 
             String[] nodes = nodeListStringExpanded.trim().split(",");
-            if (nodes == null || nodes.length == 0) {
+            if (nodes.length == 0) {
                 params.add(new NodeLabelBuildParameter(name, nodeListStringExpanded));
             } else {
                 for (String node : nodes) {
