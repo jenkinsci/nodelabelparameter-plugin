@@ -23,6 +23,7 @@
  */
 package org.jvnet.jenkins.plugins.nodelabelparameter.parameterizedtrigger;
 
+import hudson.model.AutoCompletionCandidates;
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
 import hudson.model.ParametersDefinitionProperty;
@@ -32,11 +33,14 @@ import hudson.plugins.parameterizedtrigger.BuildTrigger;
 import hudson.plugins.parameterizedtrigger.BuildTriggerConfig;
 import hudson.plugins.parameterizedtrigger.ResultCondition;
 import hudson.slaves.DumbSlave;
+import hudson.util.FormValidation;
+import java.util.List;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterDefinition;
+import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterValue;
 
 public class NodeLabelBuildParameterTest {
 
@@ -53,6 +57,8 @@ public class NodeLabelBuildParameterTest {
     public void test() throws Exception {
 
         final String paramName = "node";
+        final String paramName2 = "node2";
+        final String paramName3 = "node3";
         final String nodeName = "someNode" + System.currentTimeMillis();
 
         // create a slave with a given label to execute projectB on
@@ -66,9 +72,20 @@ public class NodeLabelBuildParameterTest {
 
         // create projectB, with a predefined parameter (same name as used in projectA!)
         FreeStyleProject projectB = j.createFreeStyleProject("projectB");
-        ParametersDefinitionProperty pdp =
-                new ParametersDefinitionProperty(new LabelParameterDefinition(paramName, "some desc", "wrongNodeName"));
+
+        LabelParameterDefinition lb1 =
+                new LabelParameterDefinition(paramName, "some desc", "wrongNodeName", false, null, "");
+        LabelParameterDefinition lb2 =
+                new LabelParameterDefinition(paramName2, "some desc", "wrongNodeName", false, false, "");
+        LabelParameterDefinition lb3 = new LabelParameterDefinition(paramName3, "some desc", "wrongNodeName");
+
+        ParametersDefinitionProperty pdp = new ParametersDefinitionProperty(lb1);
+        ParametersDefinitionProperty pdp2 = new ParametersDefinitionProperty(lb2);
+        ParametersDefinitionProperty pdp3 = new ParametersDefinitionProperty(lb3);
+
         projectB.addProperty(pdp);
+        projectB.addProperty(pdp2);
+        projectB.addProperty(pdp3);
         // CaptureEnvironmentBuilder builder = new CaptureEnvironmentBuilder();
         // projectB.getBuildersList().add(builder);
         projectB.setQuietPeriod(1);
@@ -81,6 +98,27 @@ public class NodeLabelBuildParameterTest {
 
         FreeStyleBuild build = projectB.getLastCompletedBuild();
         String foundNodeName = build.getBuildVariables().get(paramName);
+        // Assert.assertEquals(j.jenkins.getLabels(), Collections.emptySet());
+        final LabelParameterDefinition.DescriptorImpl descriptor = new LabelParameterDefinition.DescriptorImpl();
+        final FormValidation okDefaultValue = descriptor.doCheckDefaultValue("node");
+        final FormValidation okDefaultValue2 = descriptor.doCheckDefaultValue(nodeName);
+        final FormValidation badDefaultValue = descriptor.doCheckDefaultValue("  ");
+        final FormValidation emptyDefaultValue = descriptor.doCheckDefaultValue("");
+
+        final AutoCompletionCandidates candidates = descriptor.doAutoCompleteDefaultValue(paramName);
+        final FormValidation doListNodesForLabel = descriptor.doListNodesForLabel(nodeName);
+
+        Assert.assertEquals(
+                lb1.copyWithDefaultValue(new LabelParameterValue("")).getName(), paramName);
+
+        Assert.assertEquals(lb1.copyWithDefaultValue(null).getName(), paramName);
+
+        Assert.assertEquals(doListNodesForLabel.kind, FormValidation.Kind.OK);
+        Assert.assertEquals(candidates.getValues(), List.of(nodeName));
+        Assert.assertEquals(okDefaultValue.kind, FormValidation.Kind.WARNING);
+        Assert.assertEquals(badDefaultValue.kind, FormValidation.Kind.ERROR);
+        Assert.assertEquals(emptyDefaultValue.kind, FormValidation.Kind.OK);
+        Assert.assertEquals(okDefaultValue2.kind, FormValidation.Kind.OK);
         Assert.assertNotNull("project should run on a specific node", foundNodeName);
         Assert.assertEquals(nodeName, foundNodeName);
 
