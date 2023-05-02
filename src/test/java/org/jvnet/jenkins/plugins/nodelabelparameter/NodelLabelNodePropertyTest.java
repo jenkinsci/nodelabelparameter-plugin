@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.IgnoreOfflineNodeEligibility;
+import org.jvnet.jenkins.plugins.nodelabelparameter.node.IgnoreTempOfflineNodeEligibility;
 
 /**
  * @author Dominik Bartholdi (imod)
@@ -62,6 +63,33 @@ public class NodelLabelNodePropertyTest {
     @Test
     public void jobMustRunOnAllRequestedSlaves_IgnoreTempOfflineNodes() throws Exception {
 
+        assertTrue(NodeUtil.isNodeOnline(onlineNode1.getNodeName()));
+        assertTrue(NodeUtil.isNodeOnline(onlineNode2.getNodeName()));
+        assertFalse(NodeUtil.isNodeOnline(offlineNode.getNodeName()));
+
+        final List<String> defaultNodeNames =
+                Arrays.asList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
+        runTest(
+                2,
+                0,
+                true,
+                new NodeParameterDefinition(
+                        "NODE",
+                        "desc",
+                        defaultNodeNames,
+                        Collections.singletonList(Constants.ALL_NODES),
+                        Constants.CASE_MULTISELECT_CONCURRENT_BUILDS,
+                        new IgnoreTempOfflineNodeEligibility()));
+    }
+
+    /**
+     * usescase: job is configured to be executed concurrent on three nodes per default, three nodes
+     * are online - but one of these is marked as temp offline
+     *
+     * @throws Exception
+     */
+    @Test
+    public void jobMustRunOnAllRequestedSlaves_IgnoreOfflineNodes() throws Exception {
         assertTrue(NodeUtil.isNodeOnline(onlineNode1.getNodeName()));
         assertTrue(NodeUtil.isNodeOnline(onlineNode2.getNodeName()));
         assertFalse(NodeUtil.isNodeOnline(offlineNode.getNodeName()));
