@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import jenkins.model.ParameterizedJobMixIn;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -171,17 +172,19 @@ public class TriggerJobsTest {
 
         final List<String> defaultNodeNames = Arrays.asList(
                 controllerLabel, onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
-        runTest(
-                3,
-                0,
-                false,
-                new NodeParameterDefinition(
-                        "NODE",
-                        "desc",
-                        defaultNodeNames,
-                        Collections.singletonList(Constants.ALL_NODES),
-                        Constants.ALL_CASES,
-                        true));
+
+        NodeParameterDefinition nodeParameterDefinition = new NodeParameterDefinition(
+                "NODE",
+                "desc",
+                defaultNodeNames,
+                Collections.singletonList(Constants.ALL_NODES),
+                Constants.ALL_CASES,
+                true);
+
+        Assert.assertEquals(
+                nodeParameterDefinition.getAllowedNodesOrAll(), List.of("built-in", "slave0", "slave1", "slave2"));
+
+        runTest(3, 0, false, nodeParameterDefinition);
     }
 
     protected void runTest(
