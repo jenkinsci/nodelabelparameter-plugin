@@ -97,6 +97,9 @@ public class AllNodesForLabelBuildParameterFactoryTest {
 
         assertNotNull(projectBInQueue);
         assertEquals(label, projectBInQueue.getAssignedLabel().getName());
+        // Cancel the job in the queue and wait for end of activity
+        j.jenkins.getQueue().cancel(projectBInQueue);
+        j.waitUntilNoActivity();
         assertThat("Full sleep time consumed", counter, is(lessThan(10)));
     }
 
