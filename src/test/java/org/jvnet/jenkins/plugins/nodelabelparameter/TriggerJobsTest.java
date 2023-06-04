@@ -6,9 +6,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import com.gargoylesoftware.htmlunit.HttpMethod;
-import com.gargoylesoftware.htmlunit.Page;
-import com.gargoylesoftware.htmlunit.WebRequest;
 import hudson.model.Cause;
 import hudson.model.FreeStyleProject;
 import hudson.model.Job;
@@ -23,6 +20,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import jenkins.model.ParameterizedJobMixIn;
+import org.htmlunit.HttpMethod;
+import org.htmlunit.Page;
+import org.htmlunit.WebRequest;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -321,9 +321,9 @@ public class TriggerJobsTest {
         // add security crumb (cannot modify the list after that, so we recreate the parameters
         // right away)
         wc.addCrumb(requestSettings);
-        List<com.gargoylesoftware.htmlunit.util.NameValuePair> requestParameters = new ArrayList<>();
-        requestParameters.add(new com.gargoylesoftware.htmlunit.util.NameValuePair("json", json));
-        requestParameters.add(new com.gargoylesoftware.htmlunit.util.NameValuePair("Submit", "Build"));
+        List<org.htmlunit.util.NameValuePair> requestParameters = new ArrayList<>();
+        requestParameters.add(new org.htmlunit.util.NameValuePair("json", json));
+        requestParameters.add(new org.htmlunit.util.NameValuePair("Submit", "Build"));
         requestParameters.addAll(requestSettings.getRequestParameters());
         requestSettings.setRequestParameters(requestParameters);
 
