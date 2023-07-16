@@ -15,6 +15,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
+import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.TestBuilder;
 
@@ -30,13 +31,14 @@ public class NodeListBuildParameterFactoryTest {
     }
 
     /**
-     * This test case is checks different behaviors of the {@link
-     * AllNodesForLabelBuildParameterFactory}, these are combined into one, otherwise
-     * #oMatchingNodeShouldYieldSameLabel would stuck in the queue and the test would never finish.
+     * Check {@link AllNodesForLabelBuildParameterFactory} behaviors.
+     * These are combined into one, otherwise
+     * #noMatchingNodeShouldYieldSameLabel would be stuck in the queue
+     * and the test would never finish.
      *
      * @throws Exception
      */
-    @org.junit.Test
+    @Test
     public void testNodeListBuildParameterFactoryConstructor() throws Exception {
 
         final AllNodesForLabelBuildParameterFactory twoNodesFactory =
