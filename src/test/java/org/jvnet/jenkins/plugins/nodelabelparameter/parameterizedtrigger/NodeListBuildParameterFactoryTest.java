@@ -1,6 +1,7 @@
 package org.jvnet.jenkins.plugins.nodelabelparameter.parameterizedtrigger;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 
 import hudson.EnvVars;
@@ -11,7 +12,6 @@ import hudson.slaves.DumbSlave;
 import hudson.util.FormValidation;
 import java.io.IOException;
 import java.util.*;
-import org.assertj.core.api.Assertions;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -75,7 +75,7 @@ public class NodeListBuildParameterFactoryTest {
                     final FormValidation okValue = descriptor.doCheckNodeListString(parent2, "node1");
 
                     Assert.assertEquals(errorValue.kind, FormValidation.Kind.ERROR);
-                    Assertions.assertThat(nodeNames).containsOnly("nodeListName");
+                    assertThat(nodeNames, contains("nodeListName"));
                     Assert.assertEquals(candidates.getValues(), List.of("node1", "node2", "node3"));
                     assertThat(factory.name, is("labelName"));
                     assertThat(factory.nodeListString, is("nodeListName"));
@@ -96,7 +96,7 @@ public class NodeListBuildParameterFactoryTest {
                 Result.SUCCESS,
                 projectA.scheduleBuild2(0, new Cause.UserIdCause()).get());
         // make sure the test was really executed
-        Assertions.assertThat(executed).containsOnly(Boolean.TRUE);
+        assertThat(executed, contains(Boolean.TRUE));
     }
 
     private TriggerBuilder createTriggerBuilder(AbstractProject<?, ?> project, AbstractBuildParameterFactory factory) {

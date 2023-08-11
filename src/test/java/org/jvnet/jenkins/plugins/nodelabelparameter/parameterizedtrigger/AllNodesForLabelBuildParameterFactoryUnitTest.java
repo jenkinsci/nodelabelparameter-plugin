@@ -1,6 +1,7 @@
 package org.jvnet.jenkins.plugins.nodelabelparameter.parameterizedtrigger;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 
 import hudson.EnvVars;
 import hudson.Launcher;
@@ -88,7 +89,7 @@ public class AllNodesForLabelBuildParameterFactoryUnitTest {
                 Result.SUCCESS,
                 projectA.scheduleBuild2(0, new Cause.UserIdCause()).get());
         // make sure the test was really executed
-        assertThat(executed).containsOnly(Boolean.TRUE);
+        assertThat(executed, contains(Boolean.TRUE));
     }
 
     public static void noMatchingNodeShouldYieldSameLabel(
@@ -101,7 +102,7 @@ public class AllNodesForLabelBuildParameterFactoryUnitTest {
         for (AbstractBuildParameters parameter : parameters) {
             nodeNames.add(((NodeLabelBuildParameter) parameter).nodeLabel);
         }
-        assertThat(nodeNames).containsOnly("dummy");
+        assertThat(nodeNames, contains("dummy"));
     }
 
     public static void shouldGetParameterForEachMatchingNode(
@@ -115,7 +116,7 @@ public class AllNodesForLabelBuildParameterFactoryUnitTest {
         for (AbstractBuildParameters parameter : parameters) {
             nodeNames.add(((NodeLabelBuildParameter) parameter).nodeLabel);
         }
-        assertThat(nodeNames).containsOnly("node2", "node3");
+        assertThat(nodeNames, contains("node2", "node3"));
     }
 
     private TriggerBuilder createTriggerBuilder(AbstractProject<?, ?> project, AbstractBuildParameterFactory factory) {
