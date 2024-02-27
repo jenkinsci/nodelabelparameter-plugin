@@ -1,7 +1,6 @@
 /** */
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
-import antlr.ANTLRException;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
@@ -163,7 +162,7 @@ public class LabelParameterDefinition extends SimpleParameterDefinition
                 return matchingNodeCount == 0
                         ? FormValidation.warning(Messages.NodeLabelParameterDefinition_noNodeMatched(value))
                         : FormValidation.ok();
-            } catch (ANTLRException e) {
+            } catch (IllegalArgumentException e) {
                 return FormValidation.error(
                         Messages.NodeLabelParameterDefinition_labelExpressionNotValid(value, e.getMessage()));
             }
@@ -194,13 +193,13 @@ public class LabelParameterDefinition extends SimpleParameterDefinition
                         + "</b><ul><li>"
                         + html
                         + "</li></ul>");
-            } catch (ANTLRException e) {
+            } catch (IllegalArgumentException e) {
                 return FormValidation.error(
                         Messages.NodeLabelParameterDefinition_labelExpressionNotValid(label, e.getMessage()));
             }
         }
 
-        private Set<Node> getNodesForLabel(String labelExp) throws ANTLRException {
+        private Set<Node> getNodesForLabel(String labelExp) {
             Label label = LabelExpression.parseExpression(labelExp);
             return label.getNodes();
         }

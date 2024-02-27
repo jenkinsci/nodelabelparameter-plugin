@@ -1,7 +1,6 @@
 /** */
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
-import antlr.ANTLRException;
 import hudson.EnvVars;
 import hudson.Util;
 import hudson.model.AbstractBuild;
@@ -128,7 +127,7 @@ public class LabelParameterValue extends ParameterValue {
             for (Node node : label.getNodes()) {
                 nodeNames.add(node.getSelfLabel().getName());
             }
-        } catch (ANTLRException e) {
+        } catch (IllegalArgumentException e) {
             LOGGER.log(Level.SEVERE, "failed to parse label [" + labelExp + "]", e);
         }
         return nodeNames;
