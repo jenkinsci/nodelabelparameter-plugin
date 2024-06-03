@@ -1,5 +1,6 @@
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
+import static hudson.Functions.isWindows;
 import static org.junit.Assert.*;
 
 import hudson.model.FreeStyleProject;
@@ -80,7 +81,7 @@ public class EnvironmentContributorTest {
         Assert.assertNull(projectB.getLastBuild());
 
         j.assertBuildStatusSuccess(projectA.scheduleBuild2(0));
-        j.waitUntilNoActivityUpTo(10000); // 10secs
+        j.waitUntilNoActivityUpTo(isWindows() ? 29000 : 10000); // 10secs on non-Windows, 29secs on Windows
 
         final String nodeName = j.jenkins.getSelfLabel().getName();
         Assert.assertEquals(nodeName, cA.getEnvVars().get("NODE_NAME"));
