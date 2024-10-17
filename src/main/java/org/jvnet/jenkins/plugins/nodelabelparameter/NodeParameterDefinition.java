@@ -20,7 +20,7 @@ import org.jvnet.jenkins.plugins.nodelabelparameter.node.IgnoreOfflineNodeEligib
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.NodeEligibility;
 import org.jvnet.jenkins.plugins.nodelabelparameter.wrapper.TriggerNextBuildWrapper;
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerRequest2;
 
 /**
  * Defines a build parameter used to select the node where a job should be executed. Although it is
@@ -250,7 +250,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition
     }
 
     @Override
-    public ParameterValue createValue(StaplerRequest req, JSONObject jo) {
+    public ParameterValue createValue(StaplerRequest2 req, JSONObject jo) {
         // as String from UI: {"labels":"built-in","name":"HOSTN"}
         // as JSONArray: {"name":"HOSTN","value":["built-in","host2"]}
         // as String from script: {"name":"HOSTN","value":"built-in"}
