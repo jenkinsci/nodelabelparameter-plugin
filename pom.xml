@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>nodelabelparameter</artifactId>
-  <version>1.13.0</version>
+  <version>${revision}${changelist}</version>
   <packaging>hpi</packaging>
   <name>Node and Label parameter plugin</name>
   <url>https://github.com/${gitHubRepo}</url>
@@ -44,7 +44,7 @@
   <scm>
     <connection>scm:git:https://github.com/${gitHubRepo}</connection>
     <developerConnection>scm:git:git@github.com:${gitHubRepo}.git</developerConnection>
-    <tag>nodelabelparameter-1.13.0</tag>
+    <tag>${scmTag}</tag>
     <url>https://github.com/${gitHubRepo}</url>
   </scm>
 
@@ -54,7 +54,7 @@
     <jenkins.baseline>2.452</jenkins.baseline>
     <jenkins.version>${jenkins.baseline}.4</jenkins.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <revision>1.13.0</revision>
+    <revision>1.13.1</revision>
     <spotbugs.effort>Max</spotbugs.effort>
     <spotbugs.threshold>Low</spotbugs.threshold>
     <spotless.check.skip>false</spotless.check.skip>
