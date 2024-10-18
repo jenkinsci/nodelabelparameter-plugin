@@ -57,7 +57,7 @@
     <!-- <jenkins.version>${jenkins.baseline}.1</jenkins.version> -->
     <jenkins.version>${jenkins.baseline}</jenkins.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <revision>1.13.0</revision>
+    <revision>1.13.1</revision>
     <spotbugs.effort>Max</spotbugs.effort>
     <spotbugs.threshold>Low</spotbugs.threshold>
     <spotless.check.skip>false</spotless.check.skip>
