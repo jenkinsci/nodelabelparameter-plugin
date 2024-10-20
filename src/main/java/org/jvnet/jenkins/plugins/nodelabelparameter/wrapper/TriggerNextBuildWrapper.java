@@ -76,8 +76,7 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
         final List<ParameterValue> origParams = origParamsAction.getParameters();
         final List<ParameterValue> newPrams = new ArrayList<>();
         for (ParameterValue parameterValue : origParams) {
-            if (parameterValue instanceof LabelParameterValue) {
-                LabelParameterValue origNodeParam = (LabelParameterValue) parameterValue;
+            if (parameterValue instanceof LabelParameterValue origNodeParam) {
                 parmaName = origNodeParam.getName();
                 List<String> nextNodes = origNodeParam.getNextLabels();
                 newBuildNodes.addAll(nextNodes);
@@ -120,8 +119,7 @@ public class TriggerNextBuildWrapper extends BuildWrapper {
             boolean triggerNewBuild = false;
             NextLabelCause nextLabelCause = null;
             for (ParameterValue parameterValue : origParams) {
-                if (parameterValue instanceof LabelParameterValue) {
-                    LabelParameterValue origNodePram = (LabelParameterValue) parameterValue;
+                if (parameterValue instanceof LabelParameterValue origNodePram) {
                     List<String> nextNodes = new ArrayList<>(origNodePram.getNextLabels());
                     nextNodes.remove(initialBuildNode);
                     if (!nextNodes.isEmpty()
