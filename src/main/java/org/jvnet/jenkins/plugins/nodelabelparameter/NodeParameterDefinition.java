@@ -8,6 +8,7 @@ import hudson.model.Node;
 import hudson.model.ParameterDefinition;
 import hudson.model.ParameterValue;
 import hudson.model.SimpleParameterDefinition;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -33,6 +34,7 @@ import org.kohsuke.stapler.StaplerRequest2;
 public class NodeParameterDefinition extends SimpleParameterDefinition
         implements MultipleNodeDescribingParameterDefinition {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public final List<String> allowedSlaves;
@@ -261,10 +263,9 @@ public class NodeParameterDefinition extends SimpleParameterDefinition
                 : jo.get("value");
 
         List<String> nodes = new ArrayList<>();
-        if (joValue instanceof String) {
-            nodes.add((String) joValue);
-        } else if (joValue instanceof JSONArray) {
-            JSONArray ja = (JSONArray) joValue;
+        if (joValue instanceof String string) {
+            nodes.add(string);
+        } else if (joValue instanceof JSONArray ja) {
             for (Object strObj : ja) {
                 nodes.add((String) strObj);
             }

@@ -334,7 +334,7 @@ public class TriggerJobsTest {
         ParametersDefinitionProperty pdp = new ParametersDefinitionProperty(parameterDefinition);
         project.addProperty(pdp);
         // URL triggered, see the plugin documentation for more information
-        String triggerUrl = String.format("%s%sbuild", j.getURL(), project.getUrl());
+        String triggerUrl = "%s%sbuild".formatted(j.getURL(), project.getUrl());
 
         JenkinsRule.WebClient wc = j.createWebClient();
         URL url = new URL(triggerUrl);
