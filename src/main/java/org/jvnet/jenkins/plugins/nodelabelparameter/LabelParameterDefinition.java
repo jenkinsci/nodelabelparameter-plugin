@@ -13,6 +13,7 @@ import hudson.model.SimpleParameterDefinition;
 import hudson.model.labels.LabelExpression;
 import hudson.util.FormValidation;
 import jakarta.servlet.ServletException;
+import java.io.Serial;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -37,6 +38,7 @@ import org.kohsuke.stapler.StaplerRequest2;
 public class LabelParameterDefinition extends SimpleParameterDefinition
         implements MultipleNodeDescribingParameterDefinition {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public final String defaultValue;
@@ -90,8 +92,7 @@ public class LabelParameterDefinition extends SimpleParameterDefinition
 
     @Override
     public SimpleParameterDefinition copyWithDefaultValue(ParameterValue defaultValueObj) {
-        if (defaultValueObj instanceof LabelParameterValue) {
-            LabelParameterValue value = (LabelParameterValue) defaultValueObj;
+        if (defaultValueObj instanceof LabelParameterValue value) {
             return new LabelParameterDefinition(
                     getName(),
                     getDescription(),
