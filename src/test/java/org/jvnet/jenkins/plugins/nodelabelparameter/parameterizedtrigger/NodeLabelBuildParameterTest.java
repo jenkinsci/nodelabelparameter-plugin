@@ -129,7 +129,7 @@ public class NodeLabelBuildParameterTest {
         Assert.assertFalse(lpv1.equals(null));
         Assert.assertFalse(lpv1.equals(lpv2));
         Assert.assertFalse(lpv1.equals(npv1));
-        //Assert.assertTrue(lpv3.equals(npv2));
+        // Assert.assertTrue(lpv3.equals(npv2));
 
         Assert.assertEquals(pv1.getName(), paramName);
         Assert.assertEquals(resultTrigger, "allCases");
