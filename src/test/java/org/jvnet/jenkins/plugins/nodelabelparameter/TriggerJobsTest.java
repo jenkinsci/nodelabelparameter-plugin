@@ -268,8 +268,26 @@ public class TriggerJobsTest {
         parameterDefinition.createValue("test");
         LabelParameterValue lpv = new LabelParameterValue("test");
         ParameterDefinition copy = parameterDefinition.copyWithDefaultValue(lpv);
+        assertThat(copy.getDescription(), is(parameterDefinition.getDescription()));
+        assertThat(copy.getType(), is(parameterDefinition.getType()));
+        assertThat(copy.getName(), is(parameterDefinition.getName()));
         final List<String> parameterNames = NodeParameterDefinition.getSlaveNamesForSelection();
+        assertThat(
+                parameterNames,
+                contains(
+                        Constants.ALL_NODES,
+                        controllerLabel,
+                        onlineNode1.getNodeName(),
+                        onlineNode2.getNodeName(),
+                        offlineNode.getNodeName()));
         final List<String> allNames = NodeParameterDefinition.getSlaveNames();
+        assertThat(
+                allNames,
+                contains(
+                        controllerLabel,
+                        onlineNode1.getNodeName(),
+                        onlineNode2.getNodeName(),
+                        offlineNode.getNodeName()));
         runTestViaCurl(projectA, parameterDefinition, json, 1, Result.SUCCESS);
     }
 
