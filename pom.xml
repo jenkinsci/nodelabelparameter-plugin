@@ -43,7 +43,7 @@
 
   <scm>
     <connection>scm:git:https://github.com/${gitHubRepo}</connection>
-    <developerConnection>scm:git:https://github.com/${gitHubRepo}</developerConnection>
+    <developerConnection>scm:git:git@github.com:${gitHubRepo}.git</developerConnection>
     <tag>${scmTag}</tag>
     <url>https://github.com/${gitHubRepo}</url>
   </scm>
@@ -54,7 +54,7 @@
     <jenkins.baseline>2.452</jenkins.baseline>
     <jenkins.version>${jenkins.baseline}.4</jenkins.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <revision>1.12.1</revision>
+    <revision>1.13.1</revision>
     <spotbugs.effort>Max</spotbugs.effort>
     <spotbugs.threshold>Low</spotbugs.threshold>
     <spotless.check.skip>false</spotless.check.skip>
@@ -65,7 +65,7 @@
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
         <artifactId>bom-${jenkins.baseline}.x</artifactId>
-        <version>3482.vc10d4f6da_28a_</version>
+        <version>3532.v8059503f6b_23</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>

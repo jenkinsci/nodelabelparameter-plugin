@@ -31,8 +31,6 @@ THE SOFTWARE.
     <st:once>
         <script type="text/javascript" src="${resURL}/plugin/nodelabelparameter/lib/nodelabel.js" />
     </st:once>
-    <script >
-    </script>    
     
     <f:entry title="${%Name}" >
 		<f:textbox name="parameter.name" value="${instance.name}" />
