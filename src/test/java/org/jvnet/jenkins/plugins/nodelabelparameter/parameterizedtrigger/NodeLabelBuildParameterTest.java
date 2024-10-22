@@ -26,6 +26,7 @@ package org.jvnet.jenkins.plugins.nodelabelparameter.parameterizedtrigger;
 import hudson.model.AutoCompletionCandidates;
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
+import hudson.model.ParameterValue;
 import hudson.model.ParametersDefinitionProperty;
 import hudson.model.Project;
 import hudson.model.labels.LabelAtom;
@@ -34,6 +35,7 @@ import hudson.plugins.parameterizedtrigger.BuildTriggerConfig;
 import hudson.plugins.parameterizedtrigger.ResultCondition;
 import hudson.slaves.DumbSlave;
 import hudson.util.FormValidation;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -41,6 +43,7 @@ import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterDefinition;
 import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterValue;
+import org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterValue;
 
 public class NodeLabelBuildParameterTest {
 
@@ -78,10 +81,23 @@ public class NodeLabelBuildParameterTest {
         LabelParameterDefinition lb2 =
                 new LabelParameterDefinition(paramName2, "some desc", "wrongNodeName", false, false, "");
         LabelParameterDefinition lb3 = new LabelParameterDefinition(paramName3, "some desc", "wrongNodeName");
+        LabelParameterDefinition lb4 =
+                new LabelParameterDefinition(paramName, "some desc", "wrongNodeName", true, null, "");
 
         ParametersDefinitionProperty pdp = new ParametersDefinitionProperty(lb1);
         ParametersDefinitionProperty pdp2 = new ParametersDefinitionProperty(lb2);
         ParametersDefinitionProperty pdp3 = new ParametersDefinitionProperty(lb3);
+        ParameterValue pv1 = lb4.createValue("test");
+        LabelParameterValue lpv1 = new LabelParameterValue("test");
+        LabelParameterValue lpv2 = new LabelParameterValue("test2");
+        List<String> labels = new ArrayList<>();
+        labels.add("wrongNodeName");
+        LabelParameterValue lpv3 = new LabelParameterValue("test", labels, lb1.getNodeEligibility());
+        NodeParameterValue npv1 = new NodeParameterValue("test", "description", "TestLabel");
+        NodeParameterValue npv2 = new NodeParameterValue("test", "description", "wrongNodeName");
+        String resultTrigger = lb1.getTriggerIfResult();
+        lb1.isTriggerConcurrentBuilds();
+        lb1.getNodeEligibility();
 
         projectB.addProperty(pdp);
         projectB.addProperty(pdp2);
@@ -98,6 +114,7 @@ public class NodeLabelBuildParameterTest {
 
         FreeStyleBuild build = projectB.getLastCompletedBuild();
         String foundNodeName = build.getBuildVariables().get(paramName);
+
         // Assert.assertEquals(j.jenkins.getLabels(), Collections.emptySet());
         final LabelParameterDefinition.DescriptorImpl descriptor = new LabelParameterDefinition.DescriptorImpl();
         final FormValidation okDefaultValue = descriptor.doCheckDefaultValue("node");
@@ -108,6 +125,14 @@ public class NodeLabelBuildParameterTest {
         final AutoCompletionCandidates candidates = descriptor.doAutoCompleteDefaultValue(paramName);
         final FormValidation doListNodesForLabel = descriptor.doListNodesForLabel(nodeName);
 
+        Assert.assertTrue(lpv1.equals(lpv1));
+        Assert.assertFalse(lpv1.equals(null));
+        Assert.assertFalse(lpv1.equals(lpv2));
+        Assert.assertFalse(lpv1.equals(npv1));
+        //Assert.assertTrue(lpv3.equals(npv2));
+
+        Assert.assertEquals(pv1.getName(), paramName);
+        Assert.assertEquals(resultTrigger, "allCases");
         Assert.assertEquals(
                 lb1.copyWithDefaultValue(new LabelParameterValue("")).getName(), paramName);
 
