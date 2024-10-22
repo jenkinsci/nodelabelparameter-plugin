@@ -271,18 +271,16 @@ public class TriggerJobsTest {
         assertThat(copy.getDescription(), is(parameterDefinition.getDescription()));
         assertThat(copy.getType(), is(parameterDefinition.getType()));
         assertThat(copy.getName(), is(parameterDefinition.getName()));
-        final List<String> parameterNames = NodeParameterDefinition.getSlaveNamesForSelection();
         assertThat(
-                parameterNames,
+                NodeParameterDefinition.getSlaveNamesForSelection(),
                 contains(
                         Constants.ALL_NODES,
                         controllerLabel,
                         onlineNode1.getNodeName(),
                         onlineNode2.getNodeName(),
                         offlineNode.getNodeName()));
-        final List<String> allNames = NodeParameterDefinition.getSlaveNames();
         assertThat(
-                allNames,
+                NodeParameterDefinition.getSlaveNames(),
                 contains(
                         controllerLabel,
                         onlineNode1.getNodeName(),
