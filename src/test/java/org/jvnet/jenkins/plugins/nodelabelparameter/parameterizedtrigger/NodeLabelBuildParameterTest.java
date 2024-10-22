@@ -44,6 +44,7 @@ import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterDefinition;
 import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterValue;
 import org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterValue;
+import org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility;
 
 public class NodeLabelBuildParameterTest {
 
@@ -78,11 +79,22 @@ public class NodeLabelBuildParameterTest {
 
         LabelParameterDefinition lb1 =
                 new LabelParameterDefinition(paramName, "some desc", "wrongNodeName", false, null, "");
+        Assert.assertTrue(lb1.isTriggerConcurrentBuilds());
+        Assert.assertTrue(lb1.getNodeEligibility() instanceof AllNodeEligibility);
+
         LabelParameterDefinition lb2 =
                 new LabelParameterDefinition(paramName2, "some desc", "wrongNodeName", false, false, "");
+        Assert.assertTrue(lb2.isTriggerConcurrentBuilds());
+        Assert.assertTrue(lb2.getNodeEligibility() instanceof AllNodeEligibility);
+
         LabelParameterDefinition lb3 = new LabelParameterDefinition(paramName3, "some desc", "wrongNodeName");
+        Assert.assertTrue(lb3.isTriggerConcurrentBuilds());
+        Assert.assertTrue(lb3.getNodeEligibility() instanceof AllNodeEligibility);
+
         LabelParameterDefinition lb4 =
                 new LabelParameterDefinition(paramName, "some desc", "wrongNodeName", true, null, "");
+        Assert.assertTrue(lb4.isTriggerConcurrentBuilds());
+        Assert.assertTrue(lb4.getNodeEligibility() instanceof AllNodeEligibility);
 
         ParametersDefinitionProperty pdp = new ParametersDefinitionProperty(lb1);
         ParametersDefinitionProperty pdp2 = new ParametersDefinitionProperty(lb2);
