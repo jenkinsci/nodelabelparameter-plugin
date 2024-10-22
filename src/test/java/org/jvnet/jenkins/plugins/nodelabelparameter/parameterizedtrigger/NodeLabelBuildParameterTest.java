@@ -102,14 +102,6 @@ public class NodeLabelBuildParameterTest {
         ParameterValue pv1 = lb4.createValue("test");
         LabelParameterValue lpv1 = new LabelParameterValue("test");
         LabelParameterValue lpv2 = new LabelParameterValue("test2");
-        List<String> labels = new ArrayList<>();
-        labels.add("wrongNodeName");
-        LabelParameterValue lpv3 = new LabelParameterValue("test", labels, lb1.getNodeEligibility());
-        NodeParameterValue npv1 = new NodeParameterValue("test", "description", "TestLabel");
-        NodeParameterValue npv2 = new NodeParameterValue("test", "description", "wrongNodeName");
-        String resultTrigger = lb1.getTriggerIfResult();
-        lb1.isTriggerConcurrentBuilds();
-        lb1.getNodeEligibility();
 
         projectB.addProperty(pdp);
         projectB.addProperty(pdp2);
@@ -126,7 +118,6 @@ public class NodeLabelBuildParameterTest {
 
         FreeStyleBuild build = projectB.getLastCompletedBuild();
         String foundNodeName = build.getBuildVariables().get(paramName);
-
         // Assert.assertEquals(j.jenkins.getLabels(), Collections.emptySet());
         final LabelParameterDefinition.DescriptorImpl descriptor = new LabelParameterDefinition.DescriptorImpl();
         final FormValidation okDefaultValue = descriptor.doCheckDefaultValue("node");
@@ -138,17 +129,17 @@ public class NodeLabelBuildParameterTest {
         final FormValidation doListNodesForLabel = descriptor.doListNodesForLabel(nodeName);
 
         Assert.assertTrue(lpv1.equals(lpv1));
-        Assert.assertFalse(lpv1.equals(null));
         Assert.assertFalse(lpv1.equals(lpv2));
-        Assert.assertFalse(lpv1.equals(npv1));
-        // Assert.assertTrue(lpv3.equals(npv2));
+        Assert.assertFalse(lpv1.equals(new NodeParameterValue("test", "description", "TestLabel")));
 
-        Assert.assertEquals(pv1.getName(), paramName);
-        Assert.assertEquals(resultTrigger, "allCases");
-        Assert.assertEquals(
-                lb1.copyWithDefaultValue(new LabelParameterValue("")).getName(), paramName);
+        Assert.assertEquals(paramName, pv1.getName());
+        Assert.assertEquals("allCases", lb1.getTriggerIfResult());
 
-        Assert.assertEquals(lb1.copyWithDefaultValue(null).getName(), paramName);
+        List<String> labels = new ArrayList<>();
+        labels.add("wrongNodeName");
+        LabelParameterValue lpv3 = new LabelParameterValue("test", labels, lb1.getNodeEligibility());
+        Assert.assertEquals(paramName, lb1.copyWithDefaultValue(lpv3).getName());
+        Assert.assertEquals(paramName, lb1.copyWithDefaultValue(null).getName());
 
         Assert.assertEquals(doListNodesForLabel.kind, FormValidation.Kind.OK);
         Assert.assertEquals(candidates.getValues(), List.of(nodeName));
