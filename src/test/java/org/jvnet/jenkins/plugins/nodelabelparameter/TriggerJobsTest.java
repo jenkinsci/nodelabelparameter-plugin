@@ -9,6 +9,7 @@ import static org.junit.Assert.assertTrue;
 import hudson.model.Cause;
 import hudson.model.FreeStyleProject;
 import hudson.model.Job;
+import hudson.model.ParameterDefinition;
 import hudson.model.ParametersDefinitionProperty;
 import hudson.model.Result;
 import hudson.model.Run;
@@ -264,6 +265,26 @@ public class TriggerJobsTest {
                 null,
                 new AllNodeEligibility());
         String json = "{\"parameter\":[{\"name\":\"NODE\",\"label\":[\"" + controllerLabel + "\"]}]}";
+        LabelParameterValue lpv = new LabelParameterValue("test");
+        ParameterDefinition copy = parameterDefinition.copyWithDefaultValue(lpv);
+        assertThat(copy.getDescription(), is(parameterDefinition.getDescription()));
+        assertThat(copy.getType(), is(parameterDefinition.getType()));
+        assertThat(copy.getName(), is(parameterDefinition.getName()));
+        assertThat(
+                NodeParameterDefinition.getSlaveNamesForSelection(),
+                contains(
+                        Constants.ALL_NODES,
+                        controllerLabel,
+                        onlineNode1.getNodeName(),
+                        onlineNode2.getNodeName(),
+                        offlineNode.getNodeName()));
+        assertThat(
+                NodeParameterDefinition.getSlaveNames(),
+                contains(
+                        controllerLabel,
+                        onlineNode1.getNodeName(),
+                        onlineNode2.getNodeName(),
+                        offlineNode.getNodeName()));
         runTestViaCurl(projectA, parameterDefinition, json, 1, Result.SUCCESS);
     }
 

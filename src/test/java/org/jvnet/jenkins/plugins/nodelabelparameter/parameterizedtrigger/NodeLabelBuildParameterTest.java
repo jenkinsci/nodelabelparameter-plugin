@@ -26,6 +26,7 @@ package org.jvnet.jenkins.plugins.nodelabelparameter.parameterizedtrigger;
 import hudson.model.AutoCompletionCandidates;
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
+import hudson.model.ParameterValue;
 import hudson.model.ParametersDefinitionProperty;
 import hudson.model.Project;
 import hudson.model.labels.LabelAtom;
@@ -34,6 +35,7 @@ import hudson.plugins.parameterizedtrigger.BuildTriggerConfig;
 import hudson.plugins.parameterizedtrigger.ResultCondition;
 import hudson.slaves.DumbSlave;
 import hudson.util.FormValidation;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -41,6 +43,8 @@ import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterDefinition;
 import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterValue;
+import org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterValue;
+import org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility;
 
 public class NodeLabelBuildParameterTest {
 
@@ -75,13 +79,29 @@ public class NodeLabelBuildParameterTest {
 
         LabelParameterDefinition lb1 =
                 new LabelParameterDefinition(paramName, "some desc", "wrongNodeName", false, null, "");
+        Assert.assertTrue(lb1.isTriggerConcurrentBuilds());
+        Assert.assertTrue(lb1.getNodeEligibility() instanceof AllNodeEligibility);
+
         LabelParameterDefinition lb2 =
                 new LabelParameterDefinition(paramName2, "some desc", "wrongNodeName", false, false, "");
+        Assert.assertTrue(lb2.isTriggerConcurrentBuilds());
+        Assert.assertTrue(lb2.getNodeEligibility() instanceof AllNodeEligibility);
+
         LabelParameterDefinition lb3 = new LabelParameterDefinition(paramName3, "some desc", "wrongNodeName");
+        Assert.assertTrue(lb3.isTriggerConcurrentBuilds());
+        Assert.assertTrue(lb3.getNodeEligibility() instanceof AllNodeEligibility);
+
+        LabelParameterDefinition lb4 =
+                new LabelParameterDefinition(paramName, "some desc", "wrongNodeName", true, null, "");
+        Assert.assertTrue(lb4.isTriggerConcurrentBuilds());
+        Assert.assertTrue(lb4.getNodeEligibility() instanceof AllNodeEligibility);
 
         ParametersDefinitionProperty pdp = new ParametersDefinitionProperty(lb1);
         ParametersDefinitionProperty pdp2 = new ParametersDefinitionProperty(lb2);
         ParametersDefinitionProperty pdp3 = new ParametersDefinitionProperty(lb3);
+        ParameterValue pv1 = lb4.createValue("test");
+        LabelParameterValue lpv1 = new LabelParameterValue("test");
+        LabelParameterValue lpv2 = new LabelParameterValue("test2");
 
         projectB.addProperty(pdp);
         projectB.addProperty(pdp2);
@@ -108,10 +128,18 @@ public class NodeLabelBuildParameterTest {
         final AutoCompletionCandidates candidates = descriptor.doAutoCompleteDefaultValue(paramName);
         final FormValidation doListNodesForLabel = descriptor.doListNodesForLabel(nodeName);
 
-        Assert.assertEquals(
-                lb1.copyWithDefaultValue(new LabelParameterValue("")).getName(), paramName);
+        Assert.assertTrue(lpv1.equals(lpv1));
+        Assert.assertFalse(lpv1.equals(lpv2));
+        Assert.assertFalse(lpv1.equals(new NodeParameterValue("test", "description", "TestLabel")));
 
-        Assert.assertEquals(lb1.copyWithDefaultValue(null).getName(), paramName);
+        Assert.assertEquals(paramName, pv1.getName());
+        Assert.assertEquals("allCases", lb1.getTriggerIfResult());
+
+        List<String> labels = new ArrayList<>();
+        labels.add("wrongNodeName");
+        LabelParameterValue lpv3 = new LabelParameterValue("test", labels, lb1.getNodeEligibility());
+        Assert.assertEquals(paramName, lb1.copyWithDefaultValue(lpv3).getName());
+        Assert.assertEquals(paramName, lb1.copyWithDefaultValue(null).getName());
 
         Assert.assertEquals(doListNodesForLabel.kind, FormValidation.Kind.OK);
         Assert.assertEquals(candidates.getValues(), List.of(nodeName));
