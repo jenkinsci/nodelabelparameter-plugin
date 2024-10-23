@@ -265,7 +265,6 @@ public class TriggerJobsTest {
                 null,
                 new AllNodeEligibility());
         String json = "{\"parameter\":[{\"name\":\"NODE\",\"label\":[\"" + controllerLabel + "\"]}]}";
-        parameterDefinition.createValue("test");
         LabelParameterValue lpv = new LabelParameterValue("test");
         ParameterDefinition copy = parameterDefinition.copyWithDefaultValue(lpv);
         assertThat(copy.getDescription(), is(parameterDefinition.getDescription()));
