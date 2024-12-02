@@ -225,7 +225,44 @@ public class NodeLabelBuildParameterTest {
         Assert.assertTrue(buildWrapper instanceof TriggerNextBuildWrapper);
         Assert.assertEquals(
                 BuildStepMonitor.BUILD, ((TriggerNextBuildWrapper) buildWrapper).getRequiredMonitorService());
-        Assert.assertThrows(IllegalStateException.class, () -> labelParam.validateBuild(build, null, null));
+
+        IllegalStateException e =
+                Assert.assertThrows(IllegalStateException.class, () -> labelParam.validateBuild(build, null, null));
+        Assert.assertEquals(
+                "The project is configured to run builds concurrent, but the node parameter [node] is configured to trigger new builds depending on the state of the last build only!",
+                e.getMessage());
+
+        j.jenkins.removeNode(slave);
+    }
+
+    @Test
+    public void testValidateBuildNoExceptionIfConcurrentBuildsAllowed() throws Exception {
+        String paramName = "node";
+        String label = "label-" + System.currentTimeMillis();
+
+        DumbSlave slave = j.createOnlineSlave(new LabelAtom(label));
+
+        FreeStyleProject projectA = j.createFreeStyleProject("projectA");
+        // If concurrent builds are allowed, then ALL_CASES is
+        // required to avoid IllegalStateException from validateBuild
+        projectA.setConcurrentBuild(true);
+        LabelParameterDefinition labelParam = new LabelParameterDefinition(
+                paramName,
+                "label parameter description",
+                "default label parameter value",
+                true,
+                false,
+                Constants.ALL_CASES);
+        projectA.addProperty(new ParametersDefinitionProperty(labelParam));
+
+        LabelParameterValue lpv = new LabelParameterValue(paramName, label, true, new AllNodeEligibility());
+        FreeStyleBuild build =
+                projectA.scheduleBuild2(0, new ParametersAction(lpv)).get();
+
+        j.assertBuildStatusSuccess(build);
+
+        // Confirm exception is not thrown wwhen triggerIfResult is ALL_CASES and concurrent builds are allowed
+        labelParam.validateBuild(build, null, null);
 
         j.jenkins.removeNode(slave);
     }
