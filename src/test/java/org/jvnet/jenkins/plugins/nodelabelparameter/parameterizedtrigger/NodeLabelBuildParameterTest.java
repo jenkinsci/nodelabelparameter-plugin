@@ -27,13 +27,17 @@ import hudson.model.AutoCompletionCandidates;
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
 import hudson.model.ParameterValue;
+import hudson.model.ParametersAction;
 import hudson.model.ParametersDefinitionProperty;
 import hudson.model.Project;
+import hudson.model.Result;
 import hudson.model.labels.LabelAtom;
 import hudson.plugins.parameterizedtrigger.BuildTrigger;
 import hudson.plugins.parameterizedtrigger.BuildTriggerConfig;
 import hudson.plugins.parameterizedtrigger.ResultCondition;
 import hudson.slaves.DumbSlave;
+import hudson.tasks.BuildStepMonitor;
+import hudson.tasks.BuildWrapper;
 import hudson.util.FormValidation;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,10 +45,14 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.jenkins.plugins.nodelabelparameter.Constants;
+import org.jvnet.jenkins.plugins.nodelabelparameter.LabelBadgeAction;
 import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterDefinition;
 import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterValue;
+import org.jvnet.jenkins.plugins.nodelabelparameter.Messages;
 import org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterValue;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility;
+import org.jvnet.jenkins.plugins.nodelabelparameter.wrapper.TriggerNextBuildWrapper;
 
 public class NodeLabelBuildParameterTest {
 
@@ -127,10 +135,13 @@ public class NodeLabelBuildParameterTest {
 
         final AutoCompletionCandidates candidates = descriptor.doAutoCompleteDefaultValue(paramName);
         final FormValidation doListNodesForLabel = descriptor.doListNodesForLabel(nodeName);
+        String helpFile = descriptor.getHelpFile();
 
+        Assert.assertNotNull(helpFile);
         Assert.assertTrue(lpv1.equals(lpv1));
         Assert.assertFalse(lpv1.equals(lpv2));
         Assert.assertFalse(lpv1.equals(new NodeParameterValue("test", "description", "TestLabel")));
+        Assert.assertTrue(descriptor.getDefaultNodeEligibility() instanceof AllNodeEligibility);
 
         Assert.assertEquals(paramName, pv1.getName());
         Assert.assertEquals("allCases", lb1.getTriggerIfResult());
@@ -149,6 +160,109 @@ public class NodeLabelBuildParameterTest {
         Assert.assertEquals(okDefaultValue2.kind, FormValidation.Kind.OK);
         Assert.assertNotNull("project should run on a specific node", foundNodeName);
         Assert.assertEquals(nodeName, foundNodeName);
+
+        j.jenkins.removeNode(slave);
+    }
+
+    @Test
+    public void testLabelBadgeAction() throws Exception {
+        String paramName = "node";
+        String label = "label-" + System.currentTimeMillis();
+
+        DumbSlave slave = j.createOnlineSlave(new LabelAtom(label));
+
+        FreeStyleProject projectA = j.createFreeStyleProject("projectA");
+        LabelParameterDefinition labelParam = new LabelParameterDefinition(
+                paramName, "label parameter description", "default label parameter value", true, false, "trigger");
+        projectA.addProperty(new ParametersDefinitionProperty(labelParam));
+
+        LabelParameterValue lpv = new LabelParameterValue(paramName, label, true, new AllNodeEligibility());
+        FreeStyleBuild build =
+                projectA.scheduleBuild2(0, new ParametersAction(lpv)).get();
+
+        j.assertBuildStatusSuccess(build);
+
+        LabelBadgeAction badgeAction = build.getAction(LabelBadgeAction.class);
+        Assert.assertNotNull("LabelBadgeAction should be added to the build", badgeAction);
+        String toolTipText = Messages.LabelBadgeAction_label_tooltip_node(
+                label, slave.getComputer().getName());
+        Assert.assertEquals(label, badgeAction.getLabel());
+        Assert.assertNull(badgeAction.getIconFileName());
+        Assert.assertNull(badgeAction.getUrlName());
+        Assert.assertNull(badgeAction.getDisplayName());
+        Assert.assertEquals(toolTipText, badgeAction.getTooltip());
+
+        j.jenkins.removeNode(slave);
+    }
+
+    @Test
+    public void testValidateBuildException() throws Exception {
+        String paramName = "node";
+        String label = "label-" + System.currentTimeMillis();
+
+        DumbSlave slave = j.createOnlineSlave(new LabelAtom(label));
+
+        FreeStyleProject projectA = j.createFreeStyleProject("projectA");
+        // When concurrent builds are allowed and the triggerIfResult parameter is not ALL_CASES,
+        // then job will fail and validateBuild will throw IllegalStateException
+        projectA.setConcurrentBuild(true);
+        LabelParameterDefinition labelParam = new LabelParameterDefinition(
+                paramName, "label parameter description", "default label parameter value", true, false, "trigger");
+        projectA.addProperty(new ParametersDefinitionProperty(labelParam));
+
+        LabelParameterValue lpv = new LabelParameterValue(paramName, label, true, new AllNodeEligibility());
+        FreeStyleBuild build =
+                projectA.scheduleBuild2(0, new ParametersAction(lpv)).get();
+
+        // Increase coverage by testing NodeParameterValue equals method
+        NodeParameterValue npv = new NodeParameterValue(paramName, "node parameter value description", label);
+        Assert.assertFalse(npv.equals(lpv));
+
+        // Build is expected to fail - see failure message in validateBuild message assertion
+        j.assertBuildStatus(Result.FAILURE, build);
+
+        BuildWrapper buildWrapper = lpv.createBuildWrapper(build);
+        Assert.assertTrue(buildWrapper instanceof TriggerNextBuildWrapper);
+        Assert.assertEquals(
+                BuildStepMonitor.BUILD, ((TriggerNextBuildWrapper) buildWrapper).getRequiredMonitorService());
+
+        IllegalStateException e =
+                Assert.assertThrows(IllegalStateException.class, () -> labelParam.validateBuild(build, null, null));
+        Assert.assertEquals(
+                "The project is configured to run builds concurrent, but the node parameter [node] is configured to trigger new builds depending on the state of the last build only!",
+                e.getMessage());
+
+        j.jenkins.removeNode(slave);
+    }
+
+    @Test
+    public void testValidateBuildNoExceptionIfConcurrentBuildsAllowed() throws Exception {
+        String paramName = "node";
+        String label = "label-" + System.currentTimeMillis();
+
+        DumbSlave slave = j.createOnlineSlave(new LabelAtom(label));
+
+        FreeStyleProject projectA = j.createFreeStyleProject("projectA");
+        // If concurrent builds are allowed, then ALL_CASES is
+        // required to avoid IllegalStateException from validateBuild
+        projectA.setConcurrentBuild(true);
+        LabelParameterDefinition labelParam = new LabelParameterDefinition(
+                paramName,
+                "label parameter description",
+                "default label parameter value",
+                true,
+                false,
+                Constants.ALL_CASES);
+        projectA.addProperty(new ParametersDefinitionProperty(labelParam));
+
+        LabelParameterValue lpv = new LabelParameterValue(paramName, label, true, new AllNodeEligibility());
+        FreeStyleBuild build =
+                projectA.scheduleBuild2(0, new ParametersAction(lpv)).get();
+
+        j.assertBuildStatusSuccess(build);
+
+        // Confirm exception is not thrown wwhen triggerIfResult is ALL_CASES and concurrent builds are allowed
+        labelParam.validateBuild(build, null, null);
 
         j.jenkins.removeNode(slave);
     }
