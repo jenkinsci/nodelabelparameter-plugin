@@ -40,19 +40,21 @@ import hudson.tasks.BuildWrapper;
 import hudson.util.FormValidation;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
+import org.jvnet.jenkins.plugins.nodelabelparameter.Messages;
 
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
-import org.jvnet.jenkins.plugins.nodelabelparameter.*;
+import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterDefinition;
+import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterValue;
+import org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterValue;
+import org.jvnet.jenkins.plugins.nodelabelparameter.LabelBadgeAction;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility;
 import org.jvnet.jenkins.plugins.nodelabelparameter.wrapper.TriggerNextBuildWrapper;
 
 public class NodeLabelBuildParameterTest {
 
-    private static final Logger LOGGER = Logger.getLogger(NodeLabelBuildParameterTest.class.getName());
 
     @Rule
     public JenkinsRule j = new JenkinsRule();
