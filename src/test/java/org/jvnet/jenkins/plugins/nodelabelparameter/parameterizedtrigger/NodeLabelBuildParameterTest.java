@@ -30,6 +30,7 @@ import hudson.model.ParameterValue;
 import hudson.model.ParametersAction;
 import hudson.model.ParametersDefinitionProperty;
 import hudson.model.Project;
+import hudson.model.Result;
 import hudson.model.labels.LabelAtom;
 import hudson.plugins.parameterizedtrigger.BuildTrigger;
 import hudson.plugins.parameterizedtrigger.BuildTriggerConfig;
@@ -44,6 +45,7 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.jenkins.plugins.nodelabelparameter.Constants;
 import org.jvnet.jenkins.plugins.nodelabelparameter.LabelBadgeAction;
 import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterDefinition;
 import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterValue;
@@ -201,16 +203,23 @@ public class NodeLabelBuildParameterTest {
         DumbSlave slave = j.createOnlineSlave(new LabelAtom(label));
 
         FreeStyleProject projectA = j.createFreeStyleProject("projectA");
+        // When concurrent builds are allowed and the triggerIfResult parameter is not ALL_CASES,
+        // then job will fail and validateBuild will throw IllegalStateException
         projectA.setConcurrentBuild(true);
         LabelParameterDefinition labelParam = new LabelParameterDefinition(
                 paramName, "label parameter description", "default label parameter value", true, false, "trigger");
         projectA.addProperty(new ParametersDefinitionProperty(labelParam));
 
         LabelParameterValue lpv = new LabelParameterValue(paramName, label, true, new AllNodeEligibility());
-        NodeParameterValue npv = new NodeParameterValue(paramName, "description", label);
-        Assert.assertFalse(npv.equals(lpv));
         FreeStyleBuild build =
                 projectA.scheduleBuild2(0, new ParametersAction(lpv)).get();
+
+        // Increase coverage by testing NodeParameterValue equals method
+        NodeParameterValue npv = new NodeParameterValue(paramName, "node parameter value description", label);
+        Assert.assertFalse(npv.equals(lpv));
+
+        // Build is expected to fail - see failure message in validateBuild message assertion
+        j.assertBuildStatus(Result.FAILURE, build);
 
         BuildWrapper buildWrapper = lpv.createBuildWrapper(build);
         Assert.assertTrue(buildWrapper instanceof TriggerNextBuildWrapper);
