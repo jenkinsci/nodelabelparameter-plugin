@@ -165,13 +165,13 @@ public class NodeLabelBuildParameterTest {
     @Test
     public void testLabelBadgeAction() throws Exception {
         String paramName = "node";
-        String label = "label";
+        String label = "label-" + System.currentTimeMillis();
 
         DumbSlave slave = j.createOnlineSlave(new LabelAtom(label));
 
         FreeStyleProject projectA = j.createFreeStyleProject("projectA");
-        LabelParameterDefinition labelParam =
-                new LabelParameterDefinition(paramName, "description", "default", true, false, "trigger");
+        LabelParameterDefinition labelParam = new LabelParameterDefinition(
+                paramName, "label parameter description", "default label parameter value", true, false, "trigger");
         projectA.addProperty(new ParametersDefinitionProperty(labelParam));
 
         LabelParameterValue lpv = new LabelParameterValue(paramName, label, true, new AllNodeEligibility());
@@ -196,14 +196,14 @@ public class NodeLabelBuildParameterTest {
     @Test
     public void testValidateBuildException() throws Exception {
         String paramName = "node";
-        String label = "label";
+        String label = "label-" + System.currentTimeMillis();
 
         DumbSlave slave = j.createOnlineSlave(new LabelAtom(label));
 
         FreeStyleProject projectA = j.createFreeStyleProject("projectA");
         projectA.setConcurrentBuild(true);
-        LabelParameterDefinition labelParam =
-                new LabelParameterDefinition(paramName, "description", "default", true, false, "trigger");
+        LabelParameterDefinition labelParam = new LabelParameterDefinition(
+                paramName, "label parameter description", "default label parameter value", true, false, "trigger");
         projectA.addProperty(new ParametersDefinitionProperty(labelParam));
 
         LabelParameterValue lpv = new LabelParameterValue(paramName, label, true, new AllNodeEligibility());
