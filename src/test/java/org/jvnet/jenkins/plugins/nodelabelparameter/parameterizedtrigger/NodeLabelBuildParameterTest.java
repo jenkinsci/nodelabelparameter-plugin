@@ -27,9 +27,9 @@ import hudson.model.AutoCompletionCandidates;
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
 import hudson.model.ParameterValue;
+import hudson.model.ParametersAction;
 import hudson.model.ParametersDefinitionProperty;
 import hudson.model.Project;
-import hudson.model.ParametersAction;
 import hudson.model.labels.LabelAtom;
 import hudson.plugins.parameterizedtrigger.BuildTrigger;
 import hudson.plugins.parameterizedtrigger.BuildTriggerConfig;
@@ -40,21 +40,19 @@ import hudson.tasks.BuildWrapper;
 import hudson.util.FormValidation;
 import java.util.ArrayList;
 import java.util.List;
-import org.jvnet.jenkins.plugins.nodelabelparameter.Messages;
-
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.jenkins.plugins.nodelabelparameter.LabelBadgeAction;
 import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterDefinition;
 import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterValue;
+import org.jvnet.jenkins.plugins.nodelabelparameter.Messages;
 import org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterValue;
-import org.jvnet.jenkins.plugins.nodelabelparameter.LabelBadgeAction;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility;
 import org.jvnet.jenkins.plugins.nodelabelparameter.wrapper.TriggerNextBuildWrapper;
 
 public class NodeLabelBuildParameterTest {
-
 
     @Rule
     public JenkinsRule j = new JenkinsRule();
@@ -168,24 +166,24 @@ public class NodeLabelBuildParameterTest {
     public void testLabelBadgeAction() throws Exception {
         String paramName = "node";
         String label = "label";
-        // Create a node with a specific label
+
         DumbSlave slave = j.createOnlineSlave(new LabelAtom(label));
 
-        // Define a project with a Label Parameter
         FreeStyleProject projectA = j.createFreeStyleProject("projectA");
-        LabelParameterDefinition labelParam = new LabelParameterDefinition(paramName, "description", "default", true, false, "trigger");
+        LabelParameterDefinition labelParam =
+                new LabelParameterDefinition(paramName, "description", "default", true, false, "trigger");
         projectA.addProperty(new ParametersDefinitionProperty(labelParam));
 
-        // Trigger the build with the specific label
         LabelParameterValue lpv = new LabelParameterValue(paramName, label, true, new AllNodeEligibility());
-        FreeStyleBuild build = projectA.scheduleBuild2(0, new ParametersAction(lpv)).get();
+        FreeStyleBuild build =
+                projectA.scheduleBuild2(0, new ParametersAction(lpv)).get();
 
         j.assertBuildStatusSuccess(build);
 
-        // Validate that the build has a LabelBadgeAction
         LabelBadgeAction badgeAction = build.getAction(LabelBadgeAction.class);
         Assert.assertNotNull("LabelBadgeAction should be added to the build", badgeAction);
-        String toolTipText = Messages.LabelBadgeAction_label_tooltip_node(label, slave.getComputer().getName());
+        String toolTipText = Messages.LabelBadgeAction_label_tooltip_node(
+                label, slave.getComputer().getName());
         Assert.assertEquals(label, badgeAction.getLabel());
         Assert.assertNull(badgeAction.getIconFileName());
         Assert.assertNull(badgeAction.getUrlName());
@@ -199,27 +197,26 @@ public class NodeLabelBuildParameterTest {
     public void testValidateBuildException() throws Exception {
         String paramName = "node";
         String label = "label";
-        // Create a node with a specific label
+
         DumbSlave slave = j.createOnlineSlave(new LabelAtom(label));
 
-        // Define a project with a Label Parameter
         FreeStyleProject projectA = j.createFreeStyleProject("projectA");
         projectA.setConcurrentBuild(true);
-        LabelParameterDefinition labelParam = new LabelParameterDefinition(paramName, "description", "default", true, false, "trigger");
+        LabelParameterDefinition labelParam =
+                new LabelParameterDefinition(paramName, "description", "default", true, false, "trigger");
         projectA.addProperty(new ParametersDefinitionProperty(labelParam));
 
-        // Trigger the build with the specific label
         LabelParameterValue lpv = new LabelParameterValue(paramName, label, true, new AllNodeEligibility());
         NodeParameterValue npv = new NodeParameterValue(paramName, "description", label);
         Assert.assertFalse(npv.equals(lpv));
-        FreeStyleBuild build = projectA.scheduleBuild2(0, new ParametersAction(lpv)).get();
+        FreeStyleBuild build =
+                projectA.scheduleBuild2(0, new ParametersAction(lpv)).get();
 
         BuildWrapper buildWrapper = lpv.createBuildWrapper(build);
         Assert.assertTrue(buildWrapper instanceof TriggerNextBuildWrapper);
-        Assert.assertEquals(BuildStepMonitor.BUILD,
-                ((TriggerNextBuildWrapper) buildWrapper).getRequiredMonitorService());
-        Assert.assertThrows(IllegalStateException.class,
-                () -> labelParam.validateBuild(build, null, null));
+        Assert.assertEquals(
+                BuildStepMonitor.BUILD, ((TriggerNextBuildWrapper) buildWrapper).getRequiredMonitorService());
+        Assert.assertThrows(IllegalStateException.class, () -> labelParam.validateBuild(build, null, null));
 
         j.jenkins.removeNode(slave);
     }
