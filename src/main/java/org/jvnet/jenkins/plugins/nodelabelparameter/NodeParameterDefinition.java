@@ -8,6 +8,7 @@ import hudson.model.Node;
 import hudson.model.ParameterDefinition;
 import hudson.model.ParameterValue;
 import hudson.model.SimpleParameterDefinition;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -20,7 +21,7 @@ import org.jvnet.jenkins.plugins.nodelabelparameter.node.IgnoreOfflineNodeEligib
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.NodeEligibility;
 import org.jvnet.jenkins.plugins.nodelabelparameter.wrapper.TriggerNextBuildWrapper;
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerRequest2;
 
 /**
  * Defines a build parameter used to select the node where a job should be executed. Although it is
@@ -33,6 +34,7 @@ import org.kohsuke.stapler.StaplerRequest;
 public class NodeParameterDefinition extends SimpleParameterDefinition
         implements MultipleNodeDescribingParameterDefinition {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public final List<String> allowedSlaves;
@@ -250,7 +252,7 @@ public class NodeParameterDefinition extends SimpleParameterDefinition
     }
 
     @Override
-    public ParameterValue createValue(StaplerRequest req, JSONObject jo) {
+    public ParameterValue createValue(StaplerRequest2 req, JSONObject jo) {
         // as String from UI: {"labels":"built-in","name":"HOSTN"}
         // as JSONArray: {"name":"HOSTN","value":["built-in","host2"]}
         // as String from script: {"name":"HOSTN","value":"built-in"}
@@ -261,10 +263,9 @@ public class NodeParameterDefinition extends SimpleParameterDefinition
                 : jo.get("value");
 
         List<String> nodes = new ArrayList<>();
-        if (joValue instanceof String) {
-            nodes.add((String) joValue);
-        } else if (joValue instanceof JSONArray) {
-            JSONArray ja = (JSONArray) joValue;
+        if (joValue instanceof String string) {
+            nodes.add(string);
+        } else if (joValue instanceof JSONArray ja) {
             for (Object strObj : ja) {
                 nodes.add((String) strObj);
             }

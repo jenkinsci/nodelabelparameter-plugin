@@ -214,8 +214,8 @@ public class LabelParameterValue extends ParameterValue {
         if (property != null) {
             final List<ParameterDefinition> parameterDefinitions = property.getParameterDefinitions();
             for (ParameterDefinition paramDef : parameterDefinitions) {
-                if (paramDef instanceof MultipleNodeDescribingParameterDefinition) {
-                    return ((MultipleNodeDescribingParameterDefinition) paramDef).createBuildWrapper();
+                if (paramDef instanceof MultipleNodeDescribingParameterDefinition definition) {
+                    return definition.createBuildWrapper();
                 }
             }
         }
