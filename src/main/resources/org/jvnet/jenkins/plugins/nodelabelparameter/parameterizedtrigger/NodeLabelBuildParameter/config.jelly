@@ -7,5 +7,5 @@
   <f:entry field="nodeLabel" title="Node">
     <f:textbox />
   </f:entry>
-  
+
 </j:jelly>
