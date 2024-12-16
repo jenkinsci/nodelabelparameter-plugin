@@ -2,6 +2,7 @@ package org.jvnet.jenkins.plugins.nodelabelparameter.parameterizedtrigger;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.junit.Assert.assertEquals;
 
 import hudson.EnvVars;
 import hudson.Launcher;
@@ -90,6 +91,28 @@ public class AllNodesForLabelBuildParameterFactoryUnitTest {
                 projectA.scheduleBuild2(0, new Cause.UserIdCause()).get());
         // make sure the test was really executed
         assertThat(executed, contains(Boolean.TRUE));
+    }
+
+    @Test
+    public void testGetDisplayName() {
+        AllNodesForLabelBuildParameterFactory.DescriptorImpl descriptor =
+                new AllNodesForLabelBuildParameterFactory.DescriptorImpl();
+
+        assertEquals("All Nodes for Label Factory", descriptor.getDisplayName());
+    }
+
+    @Test
+    public void testIsIgnoreOfflineNodes() {
+        AllNodesForLabelBuildParameterFactory factory =
+                new AllNodesForLabelBuildParameterFactory("name", "label", true);
+
+        // Assert that the ignoreOfflineNodes flag is set to true
+        assertEquals(true, factory.isIgnoreOfflineNodes());
+
+        factory = new AllNodesForLabelBuildParameterFactory("name", "label", false);
+
+        // Assert that the ignoreOfflineNodes flag is set to false
+        assertEquals(false, factory.isIgnoreOfflineNodes());
     }
 
     public static void noMatchingNodeShouldYieldSameLabel(

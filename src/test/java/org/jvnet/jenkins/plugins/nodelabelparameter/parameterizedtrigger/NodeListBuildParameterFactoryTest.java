@@ -99,6 +99,26 @@ public class NodeListBuildParameterFactoryTest {
         assertThat(executed, contains(Boolean.TRUE));
     }
 
+    @Test
+    public void testDoCheckNodeListString() throws Exception {
+        NodeListBuildParameterFactory.DescriptorImpl descriptor = new NodeListBuildParameterFactory.DescriptorImpl();
+
+        FreeStyleProject projectA = j.createFreeStyleProject("projectA");
+
+        Item parent1 = j.jenkins.getItem("projectA");
+        Item parent2 = projectA.asItem();
+
+        // Validate the FormValidation.ok() case
+        FormValidation okValidation = descriptor.doCheckNodeListString(parent2, "node1");
+
+        Assert.assertEquals(okValidation.kind, FormValidation.Kind.OK);
+
+        // Validate the FormValidation.error() case if node is null
+        FormValidation errorValidation = descriptor.doCheckNodeListString(parent1, null);
+
+        Assert.assertEquals(errorValidation.kind, FormValidation.Kind.ERROR);
+    }
+
     private TriggerBuilder createTriggerBuilder(AbstractProject<?, ?> project, AbstractBuildParameterFactory factory) {
         TriggerBuilder tBuilder = new TriggerBuilder(new BlockableBuildTriggerConfig(
                 project.getName(),
