@@ -266,4 +266,11 @@ public class NodeLabelBuildParameterTest {
 
         j.jenkins.removeNode(slave);
     }
+
+    @Test
+    public void testGetDisplayName() {
+        NodeLabelBuildParameter.DescriptorImpl descriptor = new NodeLabelBuildParameter.DescriptorImpl();
+
+        Assert.assertEquals("NodeLabel parameter", descriptor.getDisplayName());
+    }
 }
