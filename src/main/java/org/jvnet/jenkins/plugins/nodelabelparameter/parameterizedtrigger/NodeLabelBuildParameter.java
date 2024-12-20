@@ -38,12 +38,12 @@ public class NodeLabelBuildParameter extends AbstractBuildParameters {
             labelExpanded = TokenMacro.expandAll(build, listener, labelExpanded);
         } catch (MacroEvaluationException e) {
             labelExpanded = nodeLabel;
+            listener.getLogger().println("Token expansion failed.");
             e.printStackTrace(listener.getLogger());
         }
         LabelParameterValue parameterValue =
                 new LabelParameterValue(name, labelExpanded, false, new AllNodeEligibility());
         listener.getLogger().println("define: " + parameterValue);
-
         return new ParametersAction(parameterValue);
     }
 
