@@ -23,7 +23,11 @@
  */
 package org.jvnet.jenkins.plugins.nodelabelparameter.parameterizedtrigger;
 
-import hudson.model.AbstractBuild;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+
 import hudson.model.Action;
 import hudson.model.AutoCompletionCandidates;
 import hudson.model.FreeStyleBuild;
@@ -286,12 +290,14 @@ public class NodeLabelBuildParameterTest {
         FreeStyleProject project = j.createFreeStyleProject("projectB");
         FreeStyleBuild build = j.buildAndAssertSuccess(project);
 
-        Action result = nodeLabelBuildParameter.getAction(abstractBuild, listener);
+        Action result = nodeLabelBuildParameter.getAction(build, listener);
+        Assert.assertNotNull("Expected a parameter action result", result);
+        assertThat(result, is(instanceOf(ParametersAction.class)));
 
-        Assert.assertNotNull("The result action should not be null.", result);
+        // MacroEvaluationException is logged due to error processing tokens
         String loggedOutput = logStream.toString();
-        Assert.assertTrue(
-                loggedOutput, loggedOutput.contains("org.jenkinsci.plugins.tokenmacro.MacroEvaluationException"));
+        assertThat(loggedOutput, containsString("org.jenkinsci.plugins.tokenmacro.MacroEvaluationException"));
+        assertThat(loggedOutput, containsString("Error processing tokens"));
     }
 
     @Test
