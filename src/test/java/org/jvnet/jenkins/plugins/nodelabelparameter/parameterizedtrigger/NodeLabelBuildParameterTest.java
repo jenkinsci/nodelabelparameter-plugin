@@ -23,9 +23,6 @@
  */
 package org.jvnet.jenkins.plugins.nodelabelparameter.parameterizedtrigger;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 import hudson.model.AbstractBuild;
 import hudson.model.Action;
 import hudson.model.AutoCompletionCandidates;
@@ -45,11 +42,11 @@ import hudson.slaves.DumbSlave;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.BuildWrapper;
 import hudson.util.FormValidation;
+import hudson.util.StreamTaskListener;
+import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
-import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
-import org.jenkinsci.plugins.tokenmacro.TokenMacro;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -62,7 +59,6 @@ import org.jvnet.jenkins.plugins.nodelabelparameter.Messages;
 import org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterValue;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility;
 import org.jvnet.jenkins.plugins.nodelabelparameter.wrapper.TriggerNextBuildWrapper;
-import org.mockito.Mockito;
 
 public class NodeLabelBuildParameterTest {
 
@@ -279,26 +275,24 @@ public class NodeLabelBuildParameterTest {
 
     @Test
     public void testMacroEvaluationExceptionHandling() throws Exception {
-        String name = "TestName";
-        String nodeLabel = "DefaultLabel";
+        String name = "Dummy";
+        String nodeLabel = "${TEST, arg = \"a \n b  \r\n c\"}\n";
+        // nodeLabel string causes the MacroEvaluationException to occur
         NodeLabelBuildParameter nodeLabelBuildParameter = new NodeLabelBuildParameter(name, nodeLabel);
-        // Mock the AbstractBuild, TaskListener and its logger
-        AbstractBuild<?, ?> build = mock(AbstractBuild.class);
-        TaskListener listener = mock(TaskListener.class);
-        PrintStream logger = mock(PrintStream.class);
-        when(listener.getLogger()).thenReturn(logger);
 
-        // Mock TokenMacro to throw MacroEvaluationException
-        Mockito.mockStatic(TokenMacro.class);
-        when(TokenMacro.expandAll(build, listener, nodeLabel))
-                .thenThrow(new MacroEvaluationException("Token expansion failed."));
+        ByteArrayOutputStream logStream = new ByteArrayOutputStream();
+        TaskListener listener = new StreamTaskListener(new PrintStream(logStream));
 
-        Action result = nodeLabelBuildParameter.getAction(build, listener);
+        FreeStyleProject project = j.createFreeStyleProject("projectB");
+        FreeStyleBuild build = new FreeStyleBuild(project);
+        AbstractBuild<?, ?> abstractBuild = build;
 
-        // Verify
-        assertNotNull(result, "The result action should not be null.");
-        verify(listener.getLogger(), times(1)).println(contains("define:"));
-        verify(logger, atLeastOnce()).println(contains("Token expansion failed."));
+        Action result = nodeLabelBuildParameter.getAction(abstractBuild, listener);
+
+        Assert.assertNotNull("The result action should not be null.", result);
+        String loggedOutput = logStream.toString();
+        Assert.assertTrue(
+                loggedOutput, loggedOutput.contains("org.jenkinsci.plugins.tokenmacro.MacroEvaluationException"));
     }
 
     @Test
