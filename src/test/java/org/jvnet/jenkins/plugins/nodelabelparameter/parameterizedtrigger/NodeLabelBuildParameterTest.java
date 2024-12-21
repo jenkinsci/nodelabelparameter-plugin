@@ -276,8 +276,7 @@ public class NodeLabelBuildParameterTest {
     @Test
     public void testMacroEvaluationExceptionHandling() throws Exception {
         String name = "Dummy";
-        String nodeLabel = "${TEST, arg = \"a \n b  \r\n c\"}\n";
-        // nodeLabel string causes the MacroEvaluationException to occur
+        String nodeLabel = "${TEST, arg = 'a'}";
         NodeLabelBuildParameter nodeLabelBuildParameter = new NodeLabelBuildParameter(name, nodeLabel);
 
         ByteArrayOutputStream logStream = new ByteArrayOutputStream();
