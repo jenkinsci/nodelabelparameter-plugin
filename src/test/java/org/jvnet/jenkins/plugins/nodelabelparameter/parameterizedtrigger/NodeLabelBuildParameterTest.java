@@ -284,8 +284,7 @@ public class NodeLabelBuildParameterTest {
         TaskListener listener = new StreamTaskListener(new PrintStream(logStream), StandardCharsets.UTF_8);
 
         FreeStyleProject project = j.createFreeStyleProject("projectB");
-        FreeStyleBuild build = new FreeStyleBuild(project);
-        AbstractBuild<?, ?> abstractBuild = build;
+        FreeStyleBuild build = j.buildAndAssertSuccess(project);
 
         Action result = nodeLabelBuildParameter.getAction(abstractBuild, listener);
 
