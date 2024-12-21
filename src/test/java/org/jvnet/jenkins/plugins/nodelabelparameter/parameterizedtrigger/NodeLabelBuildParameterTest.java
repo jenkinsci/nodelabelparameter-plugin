@@ -45,6 +45,7 @@ import hudson.util.FormValidation;
 import hudson.util.StreamTaskListener;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Assert;
@@ -280,7 +281,7 @@ public class NodeLabelBuildParameterTest {
         NodeLabelBuildParameter nodeLabelBuildParameter = new NodeLabelBuildParameter(name, nodeLabel);
 
         ByteArrayOutputStream logStream = new ByteArrayOutputStream();
-        TaskListener listener = new StreamTaskListener(new PrintStream(logStream));
+        TaskListener listener = new StreamTaskListener(new PrintStream(logStream), StandardCharsets.UTF_8);
 
         FreeStyleProject project = j.createFreeStyleProject("projectB");
         FreeStyleBuild build = new FreeStyleBuild(project);
