@@ -13,7 +13,12 @@ public class NextLabelCauseTest {
 
     @Rule
     public JenkinsRule j = new JenkinsRule();
-
+    /**
+     * Tests whether a job A is able to trigger job B to be executed on a specific node/slave. If it
+     * does not work, the timeout will stop/fail the test after 60 seconds.
+     *
+     * @throws Exception
+     */
     @Test
     public void testGetShortDescription() throws Exception {
         FreeStyleProject project = j.createFreeStyleProject("projectB");
