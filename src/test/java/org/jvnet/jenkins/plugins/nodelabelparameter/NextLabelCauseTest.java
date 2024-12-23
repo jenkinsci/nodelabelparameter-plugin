@@ -2,6 +2,8 @@ package org.jvnet.jenkins.plugins.nodelabelparameter;
 
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
+import nl.jqno.equalsverifier.EqualsVerifier;
+import nl.jqno.equalsverifier.Warning;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -34,17 +36,11 @@ public class NextLabelCauseTest {
     }
 
     @Test
-    public void testEquals() {
-
-        NextLabelCause cause1 = new NextLabelCause("samelabel", build);
-        NextLabelCause cause2 = new NextLabelCause("samelabel", build);
-        NextLabelCause cause3 = new NextLabelCause("differentlabel", build);
-
-        // cause1 and cause2 are equal while cause3 is not.
-        // None of them are null.
-        Assert.assertTrue("The same NextLabelCause should be equal to itself", cause1.equals(cause1));
-        Assert.assertFalse("Null should not be equal to NextLabelCause", cause1.equals(null));
-        Assert.assertTrue("NextLabelCauses with the same label and run should be equal", cause1.equals(cause2));
-        Assert.assertFalse("NextLabelCauses with different labels should not be equal", cause1.equals(cause3));
+    public void testEqualsContract() {
+        EqualsVerifier.forClass(LabelParameterValue.class)
+                .usingGetClass()
+                .suppress(Warning.NONFINAL_FIELDS)
+                .withIgnoredFields("description", "nextLabels")
+                .verify();
     }
 }
