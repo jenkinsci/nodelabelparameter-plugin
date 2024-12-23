@@ -5,7 +5,6 @@ import hudson.model.FreeStyleProject;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
@@ -20,16 +19,10 @@ public class NextLabelCauseTest {
      *
      * @throws Exception
      */
-    private FreeStyleBuild build;
-
-    @Before
-    public void setup() throws Exception {
-        FreeStyleProject project = j.createFreeStyleProject("projectB");
-        build = j.buildAndAssertSuccess(project);
-    }
-
     @Test
-    public void testGetShortDescription() {
+    public void testGetShortDescription() throws Exception {
+        FreeStyleProject project = j.createFreeStyleProject("projectB");
+        FreeStyleBuild build = j.buildAndAssertSuccess(project);
         NextLabelCause cause = new NextLabelCause("dummylabel", build);
         String description = cause.getShortDescription();
         Assert.assertEquals(description, "A build with label/node [dummylabel] was requested");
