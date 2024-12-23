@@ -23,6 +23,12 @@
  */
 package org.jvnet.jenkins.plugins.nodelabelparameter.parameterizedtrigger;
 
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+
+import hudson.model.Action;
 import hudson.model.AutoCompletionCandidates;
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
@@ -31,6 +37,7 @@ import hudson.model.ParametersAction;
 import hudson.model.ParametersDefinitionProperty;
 import hudson.model.Project;
 import hudson.model.Result;
+import hudson.model.TaskListener;
 import hudson.model.labels.LabelAtom;
 import hudson.plugins.parameterizedtrigger.BuildTrigger;
 import hudson.plugins.parameterizedtrigger.BuildTriggerConfig;
@@ -39,6 +46,10 @@ import hudson.slaves.DumbSlave;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.BuildWrapper;
 import hudson.util.FormValidation;
+import hudson.util.StreamTaskListener;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Assert;
@@ -265,6 +276,28 @@ public class NodeLabelBuildParameterTest {
         labelParam.validateBuild(build, null, null);
 
         j.jenkins.removeNode(slave);
+    }
+
+    @Test
+    public void testMacroEvaluationExceptionHandling() throws Exception {
+        String name = "Dummy";
+        String nodeLabel = "${TEST, arg = 'a'}";
+        NodeLabelBuildParameter nodeLabelBuildParameter = new NodeLabelBuildParameter(name, nodeLabel);
+
+        ByteArrayOutputStream logStream = new ByteArrayOutputStream();
+        TaskListener listener = new StreamTaskListener(new PrintStream(logStream), StandardCharsets.UTF_8);
+
+        FreeStyleProject project = j.createFreeStyleProject("projectB");
+        FreeStyleBuild build = j.buildAndAssertSuccess(project);
+
+        Action result = nodeLabelBuildParameter.getAction(build, listener);
+        Assert.assertNotNull("Expected a parameter action result", result);
+        assertThat(result, is(instanceOf(ParametersAction.class)));
+
+        // MacroEvaluationException is logged due to error processing tokens
+        String loggedOutput = logStream.toString();
+        assertThat(loggedOutput, containsString("org.jenkinsci.plugins.tokenmacro.MacroEvaluationException"));
+        assertThat(loggedOutput, containsString("Error processing tokens"));
     }
 
     @Test

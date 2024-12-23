@@ -25,7 +25,7 @@ package org.jvnet.jenkins.plugins.nodelabelparameter;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 public class LabelParameterValueTest {
 
