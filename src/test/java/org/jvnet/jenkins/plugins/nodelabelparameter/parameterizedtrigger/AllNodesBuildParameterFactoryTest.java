@@ -8,6 +8,7 @@ import hudson.slaves.DumbSlave;
 import java.util.List;
 import java.util.Objects;
 import jenkins.model.Jenkins;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,6 +26,13 @@ public class AllNodesBuildParameterFactoryTest {
         factory = new AllNodesBuildParameterFactory();
     }
 
+    @After
+    public void tearDown() throws Exception {
+        Computer[] computers = Jenkins.get().getComputers();
+        for (Computer computer : computers) {
+            computer.setTemporarilyOffline(false, null);
+        }
+    }
     @Test
     public void getParameters_withAllNodesOnline() throws Exception {
         DumbSlave node1 = j.createOnlineSlave();
