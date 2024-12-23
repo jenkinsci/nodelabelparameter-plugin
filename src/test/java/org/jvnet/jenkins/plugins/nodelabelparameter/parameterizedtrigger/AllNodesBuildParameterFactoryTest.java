@@ -33,6 +33,7 @@ public class AllNodesBuildParameterFactoryTest {
             computer.setTemporarilyOffline(false, null);
         }
     }
+
     @Test
     public void getParameters_withAllNodesOnline() throws Exception {
         DumbSlave node1 = j.createOnlineSlave();
