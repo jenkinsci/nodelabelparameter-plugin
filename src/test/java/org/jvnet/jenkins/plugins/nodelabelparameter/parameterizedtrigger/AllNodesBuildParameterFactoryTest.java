@@ -3,8 +3,10 @@ package org.jvnet.jenkins.plugins.nodelabelparameter.parameterizedtrigger;
 import static org.junit.Assert.*;
 
 import hudson.model.Computer;
+import hudson.model.Node;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameters;
 import hudson.slaves.DumbSlave;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import jenkins.model.Jenkins;
@@ -41,7 +43,7 @@ public class AllNodesBuildParameterFactoryTest {
 
         List<AbstractBuildParameters> params = factory.getParameters(null, j.createTaskListener());
 
-        // trigger build on Jenkins (built-in) included in params.size() so added 1 in expected
+        // Parameters should include 2 agents and the Jenkins controller (built-in)
         assertEquals(3, params.size());
     }
 
@@ -54,7 +56,8 @@ public class AllNodesBuildParameterFactoryTest {
         Objects.requireNonNull(node2.toComputer()).disconnect(null);
 
         List<AbstractBuildParameters> params = factory.getParameters(null, j.createTaskListener());
-        //    trigger build on Jenkins (built-in)
+        // Parameters should only include the controller, since 2 agents are offline
+        // AllNodes factory only returns online agents with 1 or more executors
         assertEquals(1, params.size());
     }
 
@@ -66,7 +69,7 @@ public class AllNodesBuildParameterFactoryTest {
         Objects.requireNonNull(node2.toComputer()).disconnect(null);
 
         List<AbstractBuildParameters> params = factory.getParameters(null, j.createTaskListener());
-        //    trigger build on Jenkins (built-in)
+        // Parameters should include the controller and the 1 online agent
         assertEquals(2, params.size());
     }
 
@@ -80,5 +83,29 @@ public class AllNodesBuildParameterFactoryTest {
         List<AbstractBuildParameters> params = factory.getParameters(null, j.createTaskListener());
 
         assertTrue(params.isEmpty());
+    }
+
+    @Test
+    public void getParameters_setOneExecutorAgentToZero() throws Exception {
+        DumbSlave node1 = j.createOnlineSlave();
+        DumbSlave node2 = j.createOnlineSlave();
+
+        node1.setNumExecutors(0);
+
+        List<AbstractBuildParameters> params = factory.getParameters(null, j.createTaskListener());
+
+        //    node1 will not be able to execute any builds but it will be included in the list of nodes
+        assertEquals(3, params.size());
+
+        // Create a list of nodes that can execute builds
+        List<Node> buildableNodes = new ArrayList<>();
+        for (Computer c : Jenkins.get().getComputers()) {
+            Node n = c.getNode();
+            if (n != null && c.isOnline() && c.getNumExecutors() > 0) {
+                buildableNodes.add(n);
+            }
+        }
+        // Check that the number of buildable nodes is equal to the number of parameters
+        assertEquals(buildableNodes.size(), params.size());
     }
 }
