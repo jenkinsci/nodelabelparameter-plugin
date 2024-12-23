@@ -19,7 +19,6 @@ public class AllNodesBuildParameterFactoryTest {
     public JenkinsRule j = new JenkinsRule();
 
     private AllNodesBuildParameterFactory factory;
-    private String nodeName;
 
     @Before
     public void setUp() throws Exception {
