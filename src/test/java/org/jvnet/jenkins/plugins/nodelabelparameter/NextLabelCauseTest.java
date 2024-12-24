@@ -21,6 +21,13 @@ public class NextLabelCauseTest {
         NextLabelCause cause = new NextLabelCause("dummylabel", build);
         String description = cause.getShortDescription();
         Assert.assertEquals(description, "A build with label/node [dummylabel] was requested");
+
+        NextLabelCause causeA = new NextLabelCause(null, build);
+        NextLabelCause causeB = new NextLabelCause(null, build);
+        /* Temporary check that hashCode does not NPE on null label */
+        Assert.assertEquals(causeA.hashCode(), causeB.hashCode());
+        /* Temporary check that equals does not NPE on null label */
+        Assert.assertTrue(causeA.equals(causeB));
     }
 
     @Test
