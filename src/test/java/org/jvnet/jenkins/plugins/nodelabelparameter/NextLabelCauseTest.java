@@ -3,7 +3,6 @@ package org.jvnet.jenkins.plugins.nodelabelparameter;
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
 import nl.jqno.equalsverifier.EqualsVerifier;
-import nl.jqno.equalsverifier.Warning;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,10 +24,8 @@ public class NextLabelCauseTest {
 
     @Test
     public void testEqualsContract() {
-        EqualsVerifier.forClass(LabelParameterValue.class)
-                .usingGetClass()
-                .suppress(Warning.NONFINAL_FIELDS)
-                .withIgnoredFields("description", "nextLabels")
-                .verify();
+        // The UpstreamCause base class of NextLabelCause complicates the equals contract.
+        // Intentionally use the simple() verifier.
+        EqualsVerifier.simple().forClass(NextLabelCause.class).verify();
     }
 }

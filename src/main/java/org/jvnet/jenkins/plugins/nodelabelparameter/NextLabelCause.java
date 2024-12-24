@@ -2,6 +2,7 @@ package org.jvnet.jenkins.plugins.nodelabelparameter;
 
 import hudson.model.Cause.UpstreamCause;
 import hudson.model.Run;
+import java.util.Objects;
 
 /**
  * @author domi
@@ -34,13 +35,16 @@ public class NextLabelCause extends UpstreamCause {
 
         NextLabelCause that = (NextLabelCause) o;
 
-        return label.equals(that.label);
+        return Objects.equals(label, that.label);
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + label.hashCode();
+        result = 31 * result;
+        if (label != null) {
+            result = result + label.hashCode();
+        }
         return result;
     }
 }
