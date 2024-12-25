@@ -117,7 +117,12 @@ public class LabelParameterDefinitionTest {
         assertThat(nodeParameterDefinition.getDefaultNodeEligibility(), is(instanceOf(AllNodeEligibility.class)));
         FormValidation validation = nodeParameterDefinition.doListNodesForLabel(badLabel);
         String msg = validation.getMessage();
-        assertThat(msg, allOf(containsString("The label expression"), containsString(badLabel)));
+        assertThat(
+                msg,
+                allOf(
+                        containsString("The label expression"),
+                        containsString(badLabel),
+                        containsString("does not match any node")));
     }
 
     @Test
