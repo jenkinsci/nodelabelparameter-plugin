@@ -23,6 +23,8 @@
  */
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
+import static org.junit.Assert.assertNotNull;
+
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 import org.junit.Test;
@@ -38,5 +40,17 @@ public class LabelParameterValueTest {
                 .suppress(Warning.NONFINAL_FIELDS)
                 .withIgnoredFields("description", "nextLabels")
                 .verify();
+    }
+
+    @Test
+    public void testLabelParameterValue() {
+        LabelParameterValue labelParameterValue = new LabelParameterValue("name", "label");
+        assertNotNull(labelParameterValue);
+    }
+
+    @Test
+    public void testGetNextLabels() {
+        LabelParameterValue labelParameterValue = new LabelParameterValue("name", "label");
+        assertNotNull(labelParameterValue.getNextLabels());
     }
 }
