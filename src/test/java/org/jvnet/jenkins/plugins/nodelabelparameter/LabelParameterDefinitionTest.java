@@ -1,56 +1,113 @@
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import hudson.model.labels.LabelAtom;
 import hudson.slaves.DumbSlave;
 import hudson.util.FormValidation;
-import java.util.ArrayList;
-import java.util.List;
-import org.junit.Before;
-import org.junit.Rule;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 
 public class LabelParameterDefinitionTest {
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
 
-    @Before
-    public void setUp() throws Exception {
-        final DumbSlave node = j.createOnlineSlave(new LabelAtom("node"));
+    @ClassRule
+    public static JenkinsRule j = new JenkinsRule();
+
+    private static DumbSlave agent;
+
+    private static final String LABEL_NAME = "my-agent-label";
+    private static final LabelAtom label = new LabelAtom(LABEL_NAME);
+
+    @BeforeClass
+    public static void createAgent() throws Exception {
+        agent = j.createOnlineSlave(label);
+    }
+
+    @Test
+    @Deprecated
+    public void testNodeParameterDefinitionDeprecated() {
+        String name = "name";
+        String description = "The description";
+        String defaultValue = "built-in || master";
+        String triggerIfResult = "The triggerIfResult value";
+
+        LabelParameterDefinition nodeParameterDefinition =
+                new LabelParameterDefinition(name, description, defaultValue, true, true, triggerIfResult);
+
+        assertThat(nodeParameterDefinition.defaultValue, is(defaultValue));
+        assertThat(nodeParameterDefinition.getName(), is(name));
+        assertThat(nodeParameterDefinition.getDescription(), is(description));
+        assertThat(nodeParameterDefinition.getDefaultParameterValue().getLabel(), is(defaultValue));
+        assertThat(nodeParameterDefinition.getTriggerIfResult(), is(triggerIfResult));
+        assertTrue(nodeParameterDefinition.isAllNodesMatchingLabel());
+    }
+
+    @Test
+    @Deprecated
+    public void testNodeParameterDefinitionDeprecated3Arg() {
+        String name = "name";
+        String description = "The description";
+        String defaultValue = "built-in || master";
+
+        LabelParameterDefinition nodeParameterDefinition =
+                new LabelParameterDefinition(name, description, defaultValue);
+
+        assertThat(nodeParameterDefinition.defaultValue, is(defaultValue));
+        assertThat(nodeParameterDefinition.getName(), is(name));
+        assertThat(nodeParameterDefinition.getDescription(), is(description));
+        assertThat(nodeParameterDefinition.getDefaultParameterValue().getLabel(), is(defaultValue));
+        assertThat(nodeParameterDefinition.getTriggerIfResult(), is("allCases"));
+        assertFalse(nodeParameterDefinition.isAllNodesMatchingLabel());
     }
 
     @Test
     public void testNodeParameterDefinition() {
         String name = "name";
-        String description = "description";
-        String defaultValue = "defaultValue";
-        List<String> defaultSlaves = new ArrayList<>();
-        List<String> allowedSlaves = new ArrayList<>();
-        allowedSlaves.add("defaultValue");
-        String triggerIfResult = "triggerIfResult";
+        String description = "The description";
+        String defaultValue = "built-in || master";
+        String triggerIfResult = "The triggerIfResult value";
 
-        LabelParameterDefinition nodeParameterDefinition1 =
-                new LabelParameterDefinition(name, description, defaultValue, true, true, triggerIfResult);
+        LabelParameterDefinition nodeParameterDefinition =
+                new LabelParameterDefinition(name, description, defaultValue, false, null, triggerIfResult);
 
-        assertEquals(nodeParameterDefinition1.defaultValue, defaultValue);
-
-        LabelParameterDefinition nodeParameterDefinition2 =
-                new LabelParameterDefinition(name, description, defaultValue, true, null, triggerIfResult);
-
-        assertEquals(nodeParameterDefinition1.defaultValue, defaultValue);
+        assertThat(nodeParameterDefinition.defaultValue, is(defaultValue));
+        assertThat(nodeParameterDefinition.getName(), is(name));
+        assertThat(nodeParameterDefinition.getDescription(), is(description));
+        assertThat(nodeParameterDefinition.getDefaultParameterValue().getLabel(), is(defaultValue));
+        assertThat(nodeParameterDefinition.getTriggerIfResult(), is(triggerIfResult));
+        assertFalse(nodeParameterDefinition.isAllNodesMatchingLabel());
     }
 
     @Test
-    public void testDoListNodesForLabel() throws Exception {
+    public void testDoListNodesForAgentLabel() throws Exception {
         LabelParameterDefinition.DescriptorImpl nodeParameterDefinition = new LabelParameterDefinition.DescriptorImpl();
+        FormValidation validation = nodeParameterDefinition.doListNodesForLabel(LABEL_NAME);
+        String msg = validation.getMessage();
+        assertThat(msg, allOf(containsString("Matching nodes"), containsString(agent.getNodeName())));
+    }
 
-        String label = "node";
+    @Test
+    public void testDoListNodesForControllerLabel() throws Exception {
+        String controllerLabel = "built-in";
+        LabelParameterDefinition.DescriptorImpl nodeParameterDefinition = new LabelParameterDefinition.DescriptorImpl();
+        FormValidation validation = nodeParameterDefinition.doListNodesForLabel(controllerLabel);
+        String msg = validation.getMessage();
+        assertThat(msg, allOf(containsString("Matching nodes"), containsString(controllerLabel)));
+    }
 
-        FormValidation validation = nodeParameterDefinition.doListNodesForLabel(label);
-
-        assertNotNull(validation);
+    @Test
+    public void testDoListNodesForNonExistentLabel() throws Exception {
+        String badLabel = "this-label-does-not-exist";
+        LabelParameterDefinition.DescriptorImpl nodeParameterDefinition = new LabelParameterDefinition.DescriptorImpl();
+        FormValidation validation = nodeParameterDefinition.doListNodesForLabel(badLabel);
+        String msg = validation.getMessage();
+        assertThat(msg, allOf(containsString("The label expression"), containsString(badLabel)));
     }
 }
