@@ -1,6 +1,7 @@
 /** */
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
+import java.io.Serial;
 import java.util.List;
 import java.util.Objects;
 import org.apache.commons.lang.StringUtils;
@@ -12,6 +13,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
  */
 public class NodeParameterValue extends LabelParameterValue {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
