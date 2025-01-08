@@ -37,7 +37,7 @@ THE SOFTWARE.
 	</f:entry>
 	
     <f:entry name="defaultSlaves" title="Default nodes" description="${%defaultNodes}">
-        <select name="defaultSlaves" multiple="multiple" size="5">
+        <select class="jenkins-select__input" name="defaultSlaves" multiple="multiple" size="5">
             <j:invokeStatic className="org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterDefinition" method="getSlaveNames" var="allNodes" />
             <j:forEach var="aNode" items="${allNodes}" varStatus="loop">
                 <j:choose>
@@ -53,7 +53,7 @@ THE SOFTWARE.
     </f:entry>
 		
 	<f:entry name="allowedSlaves" title="Possible nodes" description="${%selectableNodes}">
-		<select name="allowedSlaves" multiple="multiple" size="5">
+		<select class="jenkins-select__input" name="allowedSlaves" multiple="multiple" size="5">
 			<j:invokeStatic className="org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterDefinition" method="getSlaveNamesForSelection" var="allNodes" />
 			<j:forEach var="aNode" items="${allNodes}" varStatus="loop">
 				<j:choose>
