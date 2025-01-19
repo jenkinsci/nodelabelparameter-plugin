@@ -27,6 +27,7 @@ THE SOFTWARE.
 	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form"
 	xmlns:i="jelly:fmt" xmlns:p="/lib/hudson/project">
 	<j:set var="escapeEntryTitleAndDescription" value="false"/>
+	<st:adjunct includes="org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterDefinition.style"/>
 	<f:entry title="${h.escape(it.name)}" description="${it.formattedDescription}">
 		<!-- this div is required because of ParametersDefinitionProperty.java#117 -->
 		<div name="parameter" description="${it.description}">
@@ -34,7 +35,7 @@ THE SOFTWARE.
 			
 			<j:choose>
 				<j:when test="${it.allowMultiNodeSelection == true}">
-					<select name="value" multiple="multiple" size="${it.allowedNodesOrAll.size()}">
+					<select class="jenkins-select__input nlp-no-scroll" name="value" multiple="multiple" size="${it.allowedNodesOrAll.size()}">
 						<j:forEach var="aNode" items="${it.allowedNodesOrAll}"
 							varStatus="loop">
 							<j:choose>
@@ -49,18 +50,20 @@ THE SOFTWARE.
 					</select>
 				</j:when>
 				<j:otherwise>
-					<select name="value">
-						<j:forEach var="aNode" items="${it.allowedNodesOrAll}" varStatus="loop">
-							<j:choose>
-								<j:when test="${it.defaultSlaves.contains(aNode)}">
-									<option value="${aNode}" selected="selected">${aNode}</option>
-								</j:when>
-								<j:otherwise>
-									<option value="${aNode}">${aNode}</option>
-								</j:otherwise>
-							</j:choose>
-						</j:forEach>
-					</select>
+					<div class="jenkins-select">
+						<select class="jenkins-select__input" name="value">
+							<j:forEach var="aNode" items="${it.allowedNodesOrAll}" varStatus="loop">
+								<j:choose>
+									<j:when test="${it.defaultSlaves.contains(aNode)}">
+										<option value="${aNode}" selected="selected">${aNode}</option>
+									</j:when>
+									<j:otherwise>
+										<option value="${aNode}">${aNode}</option>
+									</j:otherwise>
+								</j:choose>
+							</j:forEach>
+						</select>
+					</div>
 				</j:otherwise>
 			</j:choose>
 		</div>

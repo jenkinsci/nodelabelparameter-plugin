@@ -1,4 +1,4 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:l="/lib/layout">
-	<l:icon class="icon-computer icon-sm" title="${it.tooltip}"/>
+	<l:icon src="symbol-computer" class="icon-sm" title="${it.tooltip}"/>
 </j:jelly>
