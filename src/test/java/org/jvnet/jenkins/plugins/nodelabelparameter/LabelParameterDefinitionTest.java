@@ -5,37 +5,38 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import hudson.model.labels.LabelAtom;
 import hudson.slaves.DumbSlave;
 import hudson.util.FormValidation;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.IgnoreOfflineNodeEligibility;
 
-public class LabelParameterDefinitionTest {
+@WithJenkins
+class LabelParameterDefinitionTest {
 
-    @ClassRule
-    public static JenkinsRule j = new JenkinsRule();
+    private static JenkinsRule j;
 
     private static DumbSlave agent;
 
     private static final String LABEL_NAME = "my-agent-label";
     private static final LabelAtom label = new LabelAtom(LABEL_NAME);
 
-    @BeforeClass
-    public static void createAgent() throws Exception {
+    @BeforeAll
+    static void setUp(JenkinsRule rule) throws Exception {
+        j = rule;
         agent = j.createOnlineSlave(label);
     }
 
     @Test
     @Deprecated
-    public void testNodeParameterDefinitionDeprecated() {
+    void testNodeParameterDefinitionDeprecated() {
         String name = "name";
         String description = "The description";
         String defaultValue = "built-in || master";
@@ -55,7 +56,7 @@ public class LabelParameterDefinitionTest {
 
     @Test
     @Deprecated
-    public void testNodeParameterDefinitionDeprecated3Arg() {
+    void testNodeParameterDefinitionDeprecated3Arg() {
         String name = "name";
         String description = "The description";
         String defaultValue = "built-in || master";
@@ -73,7 +74,7 @@ public class LabelParameterDefinitionTest {
     }
 
     @Test
-    public void testNodeParameterDefinition() {
+    void testNodeParameterDefinition() {
         String name = "name";
         String description = "The description";
         String defaultValue = "built-in || master";
@@ -92,7 +93,7 @@ public class LabelParameterDefinitionTest {
     }
 
     @Test
-    public void testDoListNodesForAgentLabel() throws Exception {
+    void testDoListNodesForAgentLabel() throws Exception {
         LabelParameterDefinition.DescriptorImpl nodeParameterDefinition = new LabelParameterDefinition.DescriptorImpl();
         assertThat(nodeParameterDefinition.getDefaultNodeEligibility(), is(instanceOf(AllNodeEligibility.class)));
         FormValidation validation = nodeParameterDefinition.doListNodesForLabel(LABEL_NAME);
@@ -101,7 +102,7 @@ public class LabelParameterDefinitionTest {
     }
 
     @Test
-    public void testDoListNodesForControllerLabel() throws Exception {
+    void testDoListNodesForControllerLabel() throws Exception {
         String controllerLabel = "built-in";
         LabelParameterDefinition.DescriptorImpl nodeParameterDefinition = new LabelParameterDefinition.DescriptorImpl();
         assertThat(nodeParameterDefinition.getDefaultNodeEligibility(), is(instanceOf(AllNodeEligibility.class)));
@@ -111,7 +112,7 @@ public class LabelParameterDefinitionTest {
     }
 
     @Test
-    public void testDoListNodesForNonExistentLabel() throws Exception {
+    void testDoListNodesForNonExistentLabel() throws Exception {
         String badLabel = "this-label-does-not-exist";
         LabelParameterDefinition.DescriptorImpl nodeParameterDefinition = new LabelParameterDefinition.DescriptorImpl();
         assertThat(nodeParameterDefinition.getDefaultNodeEligibility(), is(instanceOf(AllNodeEligibility.class)));
@@ -126,7 +127,7 @@ public class LabelParameterDefinitionTest {
     }
 
     @Test
-    public void testDoListNodesForBlankLabel() throws Exception {
+    void testDoListNodesForBlankLabel() throws Exception {
         String blankLabel = "";
         LabelParameterDefinition.DescriptorImpl nodeParameterDefinition = new LabelParameterDefinition.DescriptorImpl();
         FormValidation validation = nodeParameterDefinition.doListNodesForLabel(blankLabel);
@@ -135,7 +136,7 @@ public class LabelParameterDefinitionTest {
     }
 
     @Test
-    public void testDoListNodesForInvalidLabelExpression() throws Exception {
+    void testDoListNodesForInvalidLabelExpression() throws Exception {
         String invalidLabel = "a||";
         LabelParameterDefinition.DescriptorImpl nodeParameterDefinition = new LabelParameterDefinition.DescriptorImpl();
         assertThat(nodeParameterDefinition.getDefaultNodeEligibility(), is(instanceOf(AllNodeEligibility.class)));

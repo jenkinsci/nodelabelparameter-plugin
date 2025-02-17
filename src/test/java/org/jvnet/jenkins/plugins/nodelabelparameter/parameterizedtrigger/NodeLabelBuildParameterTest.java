@@ -27,6 +27,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.*;
 
 import hudson.model.Action;
 import hudson.model.AutoCompletionCandidates;
@@ -52,10 +53,9 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 import org.jvnet.jenkins.plugins.nodelabelparameter.Constants;
 import org.jvnet.jenkins.plugins.nodelabelparameter.LabelBadgeAction;
 import org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterDefinition;
@@ -65,10 +65,8 @@ import org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterValue;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility;
 import org.jvnet.jenkins.plugins.nodelabelparameter.wrapper.TriggerNextBuildWrapper;
 
-public class NodeLabelBuildParameterTest {
-
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+@WithJenkins
+class NodeLabelBuildParameterTest {
 
     /**
      * Tests whether a job A is able to trigger job B to be executed on a specific node/slave. If it
@@ -77,7 +75,7 @@ public class NodeLabelBuildParameterTest {
      * @throws Exception
      */
     @Test
-    public void test() throws Exception {
+    void test(JenkinsRule j) throws Exception {
 
         final String paramName = "node";
         final String paramName2 = "node2";
@@ -98,22 +96,22 @@ public class NodeLabelBuildParameterTest {
 
         LabelParameterDefinition lb1 =
                 new LabelParameterDefinition(paramName, "some desc", "wrongNodeName", false, null, "");
-        Assert.assertTrue(lb1.isTriggerConcurrentBuilds());
-        Assert.assertTrue(lb1.getNodeEligibility() instanceof AllNodeEligibility);
+        assertTrue(lb1.isTriggerConcurrentBuilds());
+        assertInstanceOf(AllNodeEligibility.class, lb1.getNodeEligibility());
 
         LabelParameterDefinition lb2 =
                 new LabelParameterDefinition(paramName2, "some desc", "wrongNodeName", false, false, "");
-        Assert.assertTrue(lb2.isTriggerConcurrentBuilds());
-        Assert.assertTrue(lb2.getNodeEligibility() instanceof AllNodeEligibility);
+        assertTrue(lb2.isTriggerConcurrentBuilds());
+        assertInstanceOf(AllNodeEligibility.class, lb2.getNodeEligibility());
 
         LabelParameterDefinition lb3 = new LabelParameterDefinition(paramName3, "some desc", "wrongNodeName");
-        Assert.assertTrue(lb3.isTriggerConcurrentBuilds());
-        Assert.assertTrue(lb3.getNodeEligibility() instanceof AllNodeEligibility);
+        assertTrue(lb3.isTriggerConcurrentBuilds());
+        assertInstanceOf(AllNodeEligibility.class, lb3.getNodeEligibility());
 
         LabelParameterDefinition lb4 =
                 new LabelParameterDefinition(paramName, "some desc", "wrongNodeName", true, null, "");
-        Assert.assertTrue(lb4.isTriggerConcurrentBuilds());
-        Assert.assertTrue(lb4.getNodeEligibility() instanceof AllNodeEligibility);
+        assertTrue(lb4.isTriggerConcurrentBuilds());
+        assertInstanceOf(AllNodeEligibility.class, lb4.getNodeEligibility());
 
         ParametersDefinitionProperty pdp = new ParametersDefinitionProperty(lb1);
         ParametersDefinitionProperty pdp2 = new ParametersDefinitionProperty(lb2);
@@ -148,35 +146,35 @@ public class NodeLabelBuildParameterTest {
         final FormValidation doListNodesForLabel = descriptor.doListNodesForLabel(nodeName);
         String helpFile = descriptor.getHelpFile();
 
-        Assert.assertNotNull(helpFile);
-        Assert.assertTrue(lpv1.equals(lpv1));
-        Assert.assertFalse(lpv1.equals(lpv2));
-        Assert.assertFalse(lpv1.equals(new NodeParameterValue("test", "description", "TestLabel")));
-        Assert.assertTrue(descriptor.getDefaultNodeEligibility() instanceof AllNodeEligibility);
+        assertNotNull(helpFile);
+        assertEquals(lpv1, lpv1);
+        assertNotEquals(lpv1, lpv2);
+        assertNotEquals(new NodeParameterValue("test", "description", "TestLabel"), lpv1);
+        assertInstanceOf(AllNodeEligibility.class, descriptor.getDefaultNodeEligibility());
 
-        Assert.assertEquals(paramName, pv1.getName());
-        Assert.assertEquals("allCases", lb1.getTriggerIfResult());
+        assertEquals(paramName, pv1.getName());
+        assertEquals("allCases", lb1.getTriggerIfResult());
 
         List<String> labels = new ArrayList<>();
         labels.add("wrongNodeName");
         LabelParameterValue lpv3 = new LabelParameterValue("test", labels, lb1.getNodeEligibility());
-        Assert.assertEquals(paramName, lb1.copyWithDefaultValue(lpv3).getName());
-        Assert.assertEquals(paramName, lb1.copyWithDefaultValue(null).getName());
+        assertEquals(paramName, lb1.copyWithDefaultValue(lpv3).getName());
+        assertEquals(paramName, lb1.copyWithDefaultValue(null).getName());
 
-        Assert.assertEquals(doListNodesForLabel.kind, FormValidation.Kind.OK);
-        Assert.assertEquals(candidates.getValues(), List.of(nodeName));
-        Assert.assertEquals(okDefaultValue.kind, FormValidation.Kind.WARNING);
-        Assert.assertEquals(badDefaultValue.kind, FormValidation.Kind.ERROR);
-        Assert.assertEquals(emptyDefaultValue.kind, FormValidation.Kind.OK);
-        Assert.assertEquals(okDefaultValue2.kind, FormValidation.Kind.OK);
-        Assert.assertNotNull("project should run on a specific node", foundNodeName);
-        Assert.assertEquals(nodeName, foundNodeName);
+        assertEquals(FormValidation.Kind.OK, doListNodesForLabel.kind);
+        assertEquals(candidates.getValues(), List.of(nodeName));
+        assertEquals(FormValidation.Kind.WARNING, okDefaultValue.kind);
+        assertEquals(FormValidation.Kind.ERROR, badDefaultValue.kind);
+        assertEquals(FormValidation.Kind.OK, emptyDefaultValue.kind);
+        assertEquals(FormValidation.Kind.OK, okDefaultValue2.kind);
+        assertNotNull(foundNodeName, "project should run on a specific node");
+        assertEquals(nodeName, foundNodeName);
 
         j.jenkins.removeNode(slave);
     }
 
     @Test
-    public void testLabelBadgeAction() throws Exception {
+    void testLabelBadgeAction(JenkinsRule j) throws Exception {
         String paramName = "node";
         String label = "label-" + System.currentTimeMillis();
 
@@ -194,20 +192,20 @@ public class NodeLabelBuildParameterTest {
         j.assertBuildStatusSuccess(build);
 
         LabelBadgeAction badgeAction = build.getAction(LabelBadgeAction.class);
-        Assert.assertNotNull("LabelBadgeAction should be added to the build", badgeAction);
+        assertNotNull(badgeAction, "LabelBadgeAction should be added to the build");
         String toolTipText = Messages.LabelBadgeAction_label_tooltip_node(
                 label, slave.getComputer().getName());
-        Assert.assertEquals(label, badgeAction.getLabel());
-        Assert.assertNull(badgeAction.getIconFileName());
-        Assert.assertNull(badgeAction.getUrlName());
-        Assert.assertNull(badgeAction.getDisplayName());
-        Assert.assertEquals(toolTipText, badgeAction.getTooltip());
+        assertEquals(label, badgeAction.getLabel());
+        assertNull(badgeAction.getIconFileName());
+        assertNull(badgeAction.getUrlName());
+        assertNull(badgeAction.getDisplayName());
+        assertEquals(toolTipText, badgeAction.getTooltip());
 
         j.jenkins.removeNode(slave);
     }
 
     @Test
-    public void testValidateBuildException() throws Exception {
+    void testValidateBuildException(JenkinsRule j) throws Exception {
         String paramName = "node";
         String label = "label-" + System.currentTimeMillis();
 
@@ -227,19 +225,18 @@ public class NodeLabelBuildParameterTest {
 
         // Increase coverage by testing NodeParameterValue equals method
         NodeParameterValue npv = new NodeParameterValue(paramName, "node parameter value description", label);
-        Assert.assertFalse(npv.equals(lpv));
+        assertNotEquals(npv, lpv);
 
         // Build is expected to fail - see failure message in validateBuild message assertion
         j.assertBuildStatus(Result.FAILURE, build);
 
         BuildWrapper buildWrapper = lpv.createBuildWrapper(build);
-        Assert.assertTrue(buildWrapper instanceof TriggerNextBuildWrapper);
-        Assert.assertEquals(
-                BuildStepMonitor.BUILD, ((TriggerNextBuildWrapper) buildWrapper).getRequiredMonitorService());
+        assertInstanceOf(TriggerNextBuildWrapper.class, buildWrapper);
+        assertEquals(BuildStepMonitor.BUILD, ((TriggerNextBuildWrapper) buildWrapper).getRequiredMonitorService());
 
         IllegalStateException e =
-                Assert.assertThrows(IllegalStateException.class, () -> labelParam.validateBuild(build, null, null));
-        Assert.assertEquals(
+                assertThrows(IllegalStateException.class, () -> labelParam.validateBuild(build, null, null));
+        assertEquals(
                 "The project is configured to run builds concurrent, but the node parameter [node] is configured to trigger new builds depending on the state of the last build only!",
                 e.getMessage());
 
@@ -247,7 +244,7 @@ public class NodeLabelBuildParameterTest {
     }
 
     @Test
-    public void testValidateBuildNoExceptionIfConcurrentBuildsAllowed() throws Exception {
+    void testValidateBuildNoExceptionIfConcurrentBuildsAllowed(JenkinsRule j) throws Exception {
         String paramName = "node";
         String label = "label-" + System.currentTimeMillis();
 
@@ -279,7 +276,7 @@ public class NodeLabelBuildParameterTest {
     }
 
     @Test
-    public void testMacroEvaluationExceptionHandling() throws Exception {
+    void testMacroEvaluationExceptionHandling(JenkinsRule j) throws Exception {
         String name = "Dummy";
         String nodeLabel = "${TEST, arg = 'a'}";
         NodeLabelBuildParameter nodeLabelBuildParameter = new NodeLabelBuildParameter(name, nodeLabel);
@@ -291,7 +288,7 @@ public class NodeLabelBuildParameterTest {
         FreeStyleBuild build = j.buildAndAssertSuccess(project);
 
         Action result = nodeLabelBuildParameter.getAction(build, listener);
-        Assert.assertNotNull("Expected a parameter action result", result);
+        assertNotNull(result, "Expected a parameter action result");
         assertThat(result, is(instanceOf(ParametersAction.class)));
 
         // MacroEvaluationException is logged due to error processing tokens
@@ -301,9 +298,9 @@ public class NodeLabelBuildParameterTest {
     }
 
     @Test
-    public void testGetDisplayName() {
+    void testGetDisplayName(JenkinsRule j) {
         NodeLabelBuildParameter.DescriptorImpl descriptor = new NodeLabelBuildParameter.DescriptorImpl();
 
-        Assert.assertEquals("NodeLabel parameter", descriptor.getDisplayName());
+        assertEquals("NodeLabel parameter", descriptor.getDisplayName());
     }
 }

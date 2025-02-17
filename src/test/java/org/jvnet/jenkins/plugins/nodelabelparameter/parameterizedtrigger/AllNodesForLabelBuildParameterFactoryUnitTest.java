@@ -2,7 +2,10 @@ package org.jvnet.jenkins.plugins.nodelabelparameter.parameterizedtrigger;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import hudson.EnvVars;
 import hudson.Launcher;
@@ -25,20 +28,20 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.TestBuilder;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
-public class AllNodesForLabelBuildParameterFactoryUnitTest {
+@WithJenkins
+class AllNodesForLabelBuildParameterFactoryUnitTest {
 
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+    private JenkinsRule j;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp(JenkinsRule j) throws Exception {
+        this.j = j;
         j.createSlave("node1", "otherlabel", new EnvVars());
         j.createSlave("node2", "label", new EnvVars());
         final DumbSlave n3 = j.createSlave("node3", "label", new EnvVars());
@@ -53,7 +56,7 @@ public class AllNodesForLabelBuildParameterFactoryUnitTest {
      * @throws Exception
      */
     @Test
-    public void labelParameterFactoriesMustOnlyCreateValidParameters() throws Exception {
+    void labelParameterFactoriesMustOnlyCreateValidParameters() throws Exception {
 
         final AllNodesForLabelBuildParameterFactory twoNodesFactory =
                 new AllNodesForLabelBuildParameterFactory("LABEL", "label", false);
@@ -76,8 +79,7 @@ public class AllNodesForLabelBuildParameterFactoryUnitTest {
 
                 } catch (DontTriggerException e) {
                     e.printStackTrace();
-                    Assert.fail(e.getMessage());
-                    return false;
+                    return fail(e.getMessage());
                 }
 
                 executed.add(Boolean.TRUE);
@@ -94,7 +96,7 @@ public class AllNodesForLabelBuildParameterFactoryUnitTest {
     }
 
     @Test
-    public void testGetDisplayName() {
+    void testGetDisplayName() {
         AllNodesForLabelBuildParameterFactory.DescriptorImpl descriptor =
                 new AllNodesForLabelBuildParameterFactory.DescriptorImpl();
 
@@ -102,20 +104,20 @@ public class AllNodesForLabelBuildParameterFactoryUnitTest {
     }
 
     @Test
-    public void testIsIgnoreOfflineNodes() {
+    void testIsIgnoreOfflineNodes() {
         AllNodesForLabelBuildParameterFactory factory =
                 new AllNodesForLabelBuildParameterFactory("name", "label", true);
 
         // Assert that the ignoreOfflineNodes flag is set to true
-        assertEquals(true, factory.isIgnoreOfflineNodes());
+        assertTrue(factory.isIgnoreOfflineNodes());
 
         factory = new AllNodesForLabelBuildParameterFactory("name", "label", false);
 
         // Assert that the ignoreOfflineNodes flag is set to false
-        assertEquals(false, factory.isIgnoreOfflineNodes());
+        assertFalse(factory.isIgnoreOfflineNodes());
     }
 
-    public static void noMatchingNodeShouldYieldSameLabel(
+    private static void noMatchingNodeShouldYieldSameLabel(
             final AllNodesForLabelBuildParameterFactory dummyNodesFactory,
             AbstractBuild<?, ?> build,
             BuildListener listener)
@@ -128,7 +130,7 @@ public class AllNodesForLabelBuildParameterFactoryUnitTest {
         assertThat(nodeNames, contains("dummy"));
     }
 
-    public static void shouldGetParameterForEachMatchingNode(
+    private static void shouldGetParameterForEachMatchingNode(
             final AllNodesForLabelBuildParameterFactory twoNodesFactory,
             AbstractBuild<?, ?> build,
             BuildListener listener)
@@ -142,12 +144,12 @@ public class AllNodesForLabelBuildParameterFactoryUnitTest {
         assertThat(nodeNames, contains("node2", "node3"));
     }
 
-    private TriggerBuilder createTriggerBuilder(AbstractProject<?, ?> project, AbstractBuildParameterFactory factory) {
-        TriggerBuilder tBuilder = new TriggerBuilder(new BlockableBuildTriggerConfig(
+    private static TriggerBuilder createTriggerBuilder(
+            AbstractProject<?, ?> project, AbstractBuildParameterFactory factory) {
+        return new TriggerBuilder(new BlockableBuildTriggerConfig(
                 project.getName(),
                 new BlockingBehaviour(Result.FAILURE, Result.UNSTABLE, Result.FAILURE),
                 Collections.singletonList(factory),
                 Collections.emptyList()));
-        return tBuilder;
     }
 }

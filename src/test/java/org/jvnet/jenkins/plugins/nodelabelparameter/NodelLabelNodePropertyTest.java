@@ -2,9 +2,7 @@ package org.jvnet.jenkins.plugins.nodelabelparameter;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import hudson.model.Cause;
 import hudson.model.FreeStyleProject;
@@ -15,11 +13,11 @@ import hudson.slaves.DumbSlave;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.IgnoreOfflineNodeEligibility;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.IgnoreTempOfflineNodeEligibility;
@@ -27,10 +25,10 @@ import org.jvnet.jenkins.plugins.nodelabelparameter.node.IgnoreTempOfflineNodeEl
 /**
  * @author Dominik Bartholdi (imod)
  */
-public class NodelLabelNodePropertyTest {
+@WithJenkins
+class NodelLabelNodePropertyTest {
 
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+    private JenkinsRule j;
 
     private String controllerLabel = null;
 
@@ -38,8 +36,9 @@ public class NodelLabelNodePropertyTest {
     private DumbSlave onlineNode2;
     private DumbSlave offlineNode;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp(JenkinsRule j) throws Exception {
+        this.j = j;
         onlineNode1 = j.createOnlineSlave(new LabelAtom("mylabel1"));
         onlineNode2 = j.createOnlineSlave(new LabelAtom("mylabel2"));
         offlineNode = j.createOnlineSlave(new LabelAtom("mylabel3"));
@@ -47,8 +46,8 @@ public class NodelLabelNodePropertyTest {
         controllerLabel = j.jenkins.getSelfLabel().getName();
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() throws Exception {
         j.jenkins.removeNode(onlineNode1);
         j.jenkins.removeNode(onlineNode2);
         j.jenkins.removeNode(offlineNode);
@@ -61,7 +60,7 @@ public class NodelLabelNodePropertyTest {
      * @throws Exception
      */
     @Test
-    public void jobMustRunOnAllRequestedSlaves_IgnoreTempOfflineNodes() throws Exception {
+    void jobMustRunOnAllRequestedSlaves_IgnoreTempOfflineNodes() throws Exception {
 
         assertTrue(NodeUtil.isNodeOnline(onlineNode1.getNodeName()));
         assertTrue(NodeUtil.isNodeOnline(onlineNode2.getNodeName()));
@@ -89,7 +88,7 @@ public class NodelLabelNodePropertyTest {
      * @throws Exception
      */
     @Test
-    public void jobMustRunOnAllRequestedSlaves_IgnoreOfflineNodes() throws Exception {
+    void jobMustRunOnAllRequestedSlaves_IgnoreOfflineNodes() throws Exception {
         assertTrue(NodeUtil.isNodeOnline(onlineNode1.getNodeName()));
         assertTrue(NodeUtil.isNodeOnline(onlineNode2.getNodeName()));
         assertFalse(NodeUtil.isNodeOnline(offlineNode.getNodeName()));
@@ -116,7 +115,7 @@ public class NodelLabelNodePropertyTest {
      * @throws Exception
      */
     @Test
-    public void jobMustRunOnAllRequestedSlaves_DontIgnoreTempOfflineNodes() throws Exception {
+    void jobMustRunOnAllRequestedSlaves_DontIgnoreTempOfflineNodes() throws Exception {
 
         assertTrue(NodeUtil.isNodeOnline(onlineNode1.getNodeName()));
         assertTrue(NodeUtil.isNodeOnline(onlineNode2.getNodeName()));
@@ -161,11 +160,11 @@ public class NodelLabelNodePropertyTest {
         do {
             Thread.sleep(1003); // give async triggered jobs some time to finish (1 second)
         } while (++counter < 10 && projectA.getLastBuild().number < expectedNumberOfExecutedRuns);
-        assertEquals("expcted number of runs", expectedNumberOfExecutedRuns, projectA.getLastBuild().number);
+        assertEquals(expectedNumberOfExecutedRuns, projectA.getLastBuild().number, "expcted number of runs");
         assertEquals(
-                "expected number of items in the queue",
                 expectedNumberOfItemsInTheQueue,
-                j.jenkins.getQueue().getBuildableItems().size());
+                j.jenkins.getQueue().getBuildableItems().size(),
+                "expected number of items in the queue");
         assertThat("Full sleep time consumed", counter, is(lessThan(10)));
     }
 }

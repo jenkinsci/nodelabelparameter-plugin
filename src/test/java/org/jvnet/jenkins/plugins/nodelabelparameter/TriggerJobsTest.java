@@ -2,10 +2,10 @@ package org.jvnet.jenkins.plugins.nodelabelparameter;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
+import hudson.Functions;
 import hudson.model.Cause;
 import hudson.model.FreeStyleProject;
 import hudson.model.Job;
@@ -24,21 +24,20 @@ import jenkins.model.ParameterizedJobMixIn;
 import org.htmlunit.HttpMethod;
 import org.htmlunit.Page;
 import org.htmlunit.WebRequest;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility;
 
 /**
  * @author Dominik Bartholdi (imod)
  */
-public class TriggerJobsTest {
+@WithJenkins
+class TriggerJobsTest {
 
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+    private JenkinsRule j;
 
     private String controllerLabel = null;
 
@@ -46,8 +45,9 @@ public class TriggerJobsTest {
     private DumbSlave onlineNode2;
     private DumbSlave offlineNode;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp(JenkinsRule j) throws Exception {
+        this.j = j;
         onlineNode1 = j.createOnlineSlave(new LabelAtom("mylabel1"));
         onlineNode2 = j.createOnlineSlave(new LabelAtom("mylabel2"));
         offlineNode = j.createOnlineSlave(new LabelAtom("mylabel3"));
@@ -55,8 +55,8 @@ public class TriggerJobsTest {
         controllerLabel = j.jenkins.getSelfLabel().getName();
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() throws Exception {
         j.jenkins.removeNode(onlineNode1);
         j.jenkins.removeNode(onlineNode2);
         j.jenkins.removeNode(offlineNode);
@@ -69,7 +69,7 @@ public class TriggerJobsTest {
      * @throws Exception
      */
     @Test
-    public void jobMustRunOnAllRequestedAgents_IgnoreOfflineNodes() throws Exception {
+    void jobMustRunOnAllRequestedAgents_IgnoreOfflineNodes() throws Exception {
 
         final List<String> defaultNodeNames =
                 Arrays.asList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
@@ -93,12 +93,11 @@ public class TriggerJobsTest {
      * @throws Exception
      */
     @Test
-    public void jobMustRunOnAllRequestedAgents_NotIgnoringOfflineNodes() throws Exception {
+    void jobMustRunOnAllRequestedAgents_NotIgnoringOfflineNodes() throws Exception {
 
         /* Test is unreliable on Windows since inclusive naming support was added */
-        if (isWindows()) {
-            return;
-        }
+        assumeFalse(Functions.isWindows());
+
         final List<String> defaultNodeNames =
                 Arrays.asList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
         runTest(
@@ -121,7 +120,7 @@ public class TriggerJobsTest {
      * @throws Exception
      */
     @Test
-    public void jobMustRunOnAllRequestedAgents_Concurrent_NotIgnoringOfflineNodes() throws Exception {
+    void jobMustRunOnAllRequestedAgents_Concurrent_NotIgnoringOfflineNodes() throws Exception {
 
         final List<String> defaultNodeNames =
                 Arrays.asList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
@@ -145,7 +144,7 @@ public class TriggerJobsTest {
      * @throws Exception
      */
     @Test
-    public void jobMustRunOnAllRequestedAgents_Concurrent_IgnoreOfflineNodes() throws Exception {
+    void jobMustRunOnAllRequestedAgents_Concurrent_IgnoreOfflineNodes() throws Exception {
 
         final List<String> defaultNodeNames =
                 Arrays.asList(onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
@@ -169,7 +168,7 @@ public class TriggerJobsTest {
      * @throws Exception
      */
     @Test
-    public void jobMustRunOnAllRequestedAgents_including_Node_on_Controller_IgnoreOfflineNodes() throws Exception {
+    void jobMustRunOnAllRequestedAgents_including_Node_on_Controller_IgnoreOfflineNodes() throws Exception {
 
         final List<String> defaultNodeNames = Arrays.asList(
                 controllerLabel, onlineNode1.getNodeName(), offlineNode.getNodeName(), onlineNode2.getNodeName());
@@ -182,13 +181,12 @@ public class TriggerJobsTest {
                 Constants.ALL_CASES,
                 true);
 
-        Assert.assertEquals(
-                nodeParameterDefinition.getAllowedNodesOrAll(), List.of("built-in", "slave0", "slave1", "slave2"));
+        assertEquals(nodeParameterDefinition.getAllowedNodesOrAll(), List.of("built-in", "slave0", "slave1", "slave2"));
 
         runTest(3, 0, false, nodeParameterDefinition);
     }
 
-    protected void runTest(
+    private void runTest(
             int expectedNumberOfExecutedRuns,
             int expectedNumberOfItemsInTheQueue,
             boolean configureProjectForConcurrentBuilds,
@@ -216,16 +214,13 @@ public class TriggerJobsTest {
         do {
             Thread.sleep(1003); // give async triggered jobs some time to finish (1 second)
         } while (++counter < 10 && projectA.getLastBuild().number < expectedNumberOfExecutedRuns);
-        assertEquals("Number of builds", expectedNumberOfExecutedRuns, projectA.getLastBuild().number);
+        assertEquals(expectedNumberOfExecutedRuns, projectA.getLastBuild().number, "Number of builds");
         assertEquals(
-                "Pending items: " + j.jenkins.getQueue().getPendingItems(),
                 0,
-                j.jenkins.getQueue().getPendingItems().size());
+                j.jenkins.getQueue().getPendingItems().size(),
+                "Pending items: " + j.jenkins.getQueue().getPendingItems());
         assertThat("Full sleep time consumed", counter, is(lessThan(10)));
-        assertEquals(
-                "Queued build count",
-                expectedNumberOfItemsInTheQueue,
-                j.jenkins.getQueue().countBuildableItems());
+        assertEquals(expectedNumberOfItemsInTheQueue, j.jenkins.getQueue().countBuildableItems(), "Queued build count");
     }
 
     /**
@@ -235,7 +230,7 @@ public class TriggerJobsTest {
      * @see https://issues.jenkins-ci.org/browse/JENKINS-28374
      */
     @Test
-    public void testTriggerViaCurlWithValue() throws Exception {
+    void testTriggerViaCurlWithValue() throws Exception {
         FreeStyleProject projectA = j.createFreeStyleProject("projectA");
         NodeParameterDefinition parameterDefinition = new NodeParameterDefinition(
                 "NODE",
@@ -255,7 +250,7 @@ public class TriggerJobsTest {
      * @see https://issues.jenkins-ci.org/browse/JENKINS-28374
      */
     @Test
-    public void testTriggerViaCurlWithLabel() throws Exception {
+    void testTriggerViaCurlWithLabel() throws Exception {
         FreeStyleProject projectA = j.createFreeStyleProject("projectA");
         NodeParameterDefinition parameterDefinition = new NodeParameterDefinition(
                 "NODE",
@@ -295,7 +290,7 @@ public class TriggerJobsTest {
      * @see https://issues.jenkins-ci.org/browse/JENKINS-28374
      */
     @Test
-    public void testTriggerViaCurlWithLabels() throws Exception {
+    void testTriggerViaCurlWithLabels() throws Exception {
         FreeStyleProject projectA = j.createFreeStyleProject("projectA");
         NodeParameterDefinition parameterDefinition = new NodeParameterDefinition(
                 "NODE",
@@ -356,9 +351,5 @@ public class TriggerJobsTest {
         // assert we got it right
         assertEquals(expectedBuildNumber, b.number);
         assertEquals(expectedResult, b.getResult());
-    }
-
-    private boolean isWindows() {
-        return java.io.File.pathSeparatorChar == ';';
     }
 }

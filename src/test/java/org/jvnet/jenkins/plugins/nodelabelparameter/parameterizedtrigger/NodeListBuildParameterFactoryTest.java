@@ -3,31 +3,33 @@ package org.jvnet.jenkins.plugins.nodelabelparameter.parameterizedtrigger;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import hudson.EnvVars;
 import hudson.Launcher;
 import hudson.model.*;
 import hudson.plugins.parameterizedtrigger.*;
-import hudson.slaves.DumbSlave;
 import hudson.util.FormValidation;
 import java.io.IOException;
 import java.util.*;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.TestBuilder;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
-public class NodeListBuildParameterFactoryTest {
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+@WithJenkins
+class NodeListBuildParameterFactoryTest {
 
-    @Before
-    public void setUp() throws Exception {
+    private JenkinsRule j;
+
+    @BeforeEach
+    void setUp(JenkinsRule j) throws Exception {
+        this.j = j;
         j.createSlave("node1", "otherlabel", new EnvVars());
         j.createSlave("node2", "label", new EnvVars());
-        final DumbSlave n3 = j.createSlave("node3", "label", new EnvVars());
+        j.createSlave("node3", "label", new EnvVars());
     }
 
     /**
@@ -39,7 +41,7 @@ public class NodeListBuildParameterFactoryTest {
      * @throws Exception
      */
     @Test
-    public void testNodeListBuildParameterFactoryConstructor() throws Exception {
+    void testNodeListBuildParameterFactoryConstructor() throws Exception {
 
         final AllNodesForLabelBuildParameterFactory twoNodesFactory =
                 new AllNodesForLabelBuildParameterFactory("LABEL", "label", false);
@@ -74,16 +76,15 @@ public class NodeListBuildParameterFactoryTest {
                     final FormValidation errorValue = descriptor.doCheckNodeListString(parent1, "");
                     final FormValidation okValue = descriptor.doCheckNodeListString(parent2, "node1");
 
-                    Assert.assertEquals(errorValue.kind, FormValidation.Kind.ERROR);
+                    assertEquals(FormValidation.Kind.ERROR, errorValue.kind);
                     assertThat(nodeNames, contains("nodeListName"));
-                    Assert.assertEquals(candidates.getValues(), List.of("node1", "node2", "node3"));
+                    assertEquals(candidates.getValues(), List.of("node1", "node2", "node3"));
                     assertThat(factory.name, is("labelName"));
                     assertThat(factory.nodeListString, is("nodeListName"));
 
                 } catch (AbstractBuildParameters.DontTriggerException e) {
                     e.printStackTrace();
-                    Assert.fail(e.getMessage());
-                    return false;
+                    return fail(e.getMessage());
                 }
 
                 executed.add(Boolean.TRUE);
@@ -100,7 +101,7 @@ public class NodeListBuildParameterFactoryTest {
     }
 
     @Test
-    public void testDoCheckNodeListString() throws Exception {
+    void testDoCheckNodeListString() throws Exception {
         NodeListBuildParameterFactory.DescriptorImpl descriptor = new NodeListBuildParameterFactory.DescriptorImpl();
 
         FreeStyleProject projectA = j.createFreeStyleProject("projectA");
@@ -111,20 +112,20 @@ public class NodeListBuildParameterFactoryTest {
         // Validate the FormValidation.ok() case
         FormValidation okValidation = descriptor.doCheckNodeListString(parent2, "node1");
 
-        Assert.assertEquals(okValidation.kind, FormValidation.Kind.OK);
+        assertEquals(FormValidation.Kind.OK, okValidation.kind);
 
         // Validate the FormValidation.error() case if node is null
         FormValidation errorValidation = descriptor.doCheckNodeListString(parent1, null);
 
-        Assert.assertEquals(errorValidation.kind, FormValidation.Kind.ERROR);
+        assertEquals(FormValidation.Kind.ERROR, errorValidation.kind);
     }
 
-    private TriggerBuilder createTriggerBuilder(AbstractProject<?, ?> project, AbstractBuildParameterFactory factory) {
-        TriggerBuilder tBuilder = new TriggerBuilder(new BlockableBuildTriggerConfig(
+    private static TriggerBuilder createTriggerBuilder(
+            AbstractProject<?, ?> project, AbstractBuildParameterFactory factory) {
+        return new TriggerBuilder(new BlockableBuildTriggerConfig(
                 project.getName(),
                 new BlockingBehaviour(Result.FAILURE, Result.UNSTABLE, Result.FAILURE),
                 Collections.singletonList(factory),
                 Collections.emptyList()));
-        return tBuilder;
     }
 }

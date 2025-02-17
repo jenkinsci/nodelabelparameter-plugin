@@ -1,36 +1,36 @@
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
 import static hudson.Functions.isWindows;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import hudson.model.FreeStyleProject;
 import hudson.model.ParametersDefinitionProperty;
 import hudson.model.Result;
 import hudson.slaves.DumbSlave;
 import java.util.List;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.CaptureEnvironmentBuilder;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility;
 
-public class EnvironmentContributorTest {
+@WithJenkins
+class EnvironmentContributorTest {
 
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+    private JenkinsRule j;
 
     private DumbSlave onlineNode1;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp(JenkinsRule j) throws Exception {
+        this.j = j;
         onlineNode1 = j.createOnlineSlave();
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() throws Exception {
         j.jenkins.removeNode(onlineNode1);
     }
 
@@ -38,7 +38,7 @@ public class EnvironmentContributorTest {
      * Makes sure 'NODE_NAME=built-in' is still available on the controller.
      */
     @Test
-    public void testProjectScoped() throws Exception {
+    void testProjectScoped() throws Exception {
 
         final String nodeName = j.jenkins.getSelfLabel().getName();
         final List<String> defaultNodeNames = List.of(nodeName);
@@ -59,11 +59,11 @@ public class EnvironmentContributorTest {
 
         j.assertBuildStatusSuccess(p.scheduleBuild2(0));
 
-        Assert.assertEquals(c.getEnvVars().get("NODE_NAME"), nodeName);
+        assertEquals(c.getEnvVars().get("NODE_NAME"), nodeName);
     }
 
     @Test
-    public void jenkins19222() throws Exception {
+    void jenkins19222() throws Exception {
 
         // set label 'clearcase' on controller
         j.jenkins.getComputer("").getNode().setLabelString("clearcase");
@@ -78,15 +78,15 @@ public class EnvironmentContributorTest {
         final CaptureEnvironmentBuilder cB = new CaptureEnvironmentBuilder();
         projectA.getBuildersList().add(cB);
 
-        Assert.assertNull(projectB.getLastBuild());
+        assertNull(projectB.getLastBuild());
 
         j.assertBuildStatusSuccess(projectA.scheduleBuild2(0));
         j.waitUntilNoActivityUpTo(isWindows() ? 29000 : 10000); // 10secs on non-Windows, 29secs on Windows
 
         final String nodeName = j.jenkins.getSelfLabel().getName();
-        Assert.assertEquals(nodeName, cA.getEnvVars().get("NODE_NAME"));
-        Assert.assertEquals(nodeName, cB.getEnvVars().get("NODE_NAME"));
-        Assert.assertNotNull(projectB.getLastBuild());
-        Assert.assertEquals(Result.SUCCESS, projectB.getLastBuild().getResult());
+        assertEquals(nodeName, cA.getEnvVars().get("NODE_NAME"));
+        assertEquals(nodeName, cB.getEnvVars().get("NODE_NAME"));
+        assertNotNull(projectB.getLastBuild());
+        assertEquals(Result.SUCCESS, projectB.getLastBuild().getResult());
     }
 }
