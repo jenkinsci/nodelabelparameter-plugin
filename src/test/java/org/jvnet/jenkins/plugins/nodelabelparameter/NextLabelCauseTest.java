@@ -1,29 +1,28 @@
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
 import nl.jqno.equalsverifier.EqualsVerifier;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
-public class NextLabelCauseTest {
-
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+@WithJenkins
+class NextLabelCauseTest {
 
     @Test
-    public void testGetShortDescription() throws Exception {
+    void testGetShortDescription(JenkinsRule j) throws Exception {
         FreeStyleProject project = j.createFreeStyleProject("projectB");
         FreeStyleBuild build = j.buildAndAssertSuccess(project);
         NextLabelCause cause = new NextLabelCause("dummylabel", build);
         String description = cause.getShortDescription();
-        Assert.assertEquals(description, "A build with label/node [dummylabel] was requested");
+        assertEquals("A build with label/node [dummylabel] was requested", description);
     }
 
     @Test
-    public void testEqualsContract() {
+    void testEqualsContract(JenkinsRule j) {
         // The UpstreamCause base class of NextLabelCause complicates the equals contract.
         // Intentionally use the simple() verifier.
         EqualsVerifier.simple().forClass(NextLabelCause.class).verify();

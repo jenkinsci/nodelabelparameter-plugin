@@ -35,31 +35,30 @@ import java.util.List;
 import java.util.Random;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.NodeEligibility;
 
-public class LabelParameterValueTest {
-
-    @ClassRule
-    public static JenkinsRule j = new JenkinsRule();
-
-    private static DumbSlave agent;
-
-    @BeforeClass
-    public static void createAgent() throws Exception {
-        agent = j.createOnlineSlave();
-    }
+@WithJenkins
+class LabelParameterValueTest {
 
     private final Random random = new Random();
 
-    public LabelParameterValueTest() {}
+    private static JenkinsRule j;
+
+    private static DumbSlave agent;
+
+    @BeforeAll
+    static void setUp(JenkinsRule rule) throws Exception {
+        j = rule;
+        agent = j.createOnlineSlave();
+    }
 
     @Test
-    public void testEqualsContract() {
+    void testEqualsContract() {
         EqualsVerifier.forClass(LabelParameterValue.class)
                 .usingGetClass()
                 .suppress(Warning.NONFINAL_FIELDS)
@@ -69,7 +68,7 @@ public class LabelParameterValueTest {
 
     @Test
     @Deprecated
-    public void testLabelParameterValueDeprecated2ArgConstructor() {
+    void testLabelParameterValueDeprecated2ArgConstructor() {
         String value = " my-label "; // Intentionally has leading and trailing spaces
         String trimmedValue = value.trim();
         // Use either value or trimmedValue randomly, does not change any assertion
@@ -83,7 +82,7 @@ public class LabelParameterValueTest {
 
     @Test
     @Deprecated
-    public void testLabelParameterValueDeprecated2ArgConstructorNullName() {
+    void testLabelParameterValueDeprecated2ArgConstructorNullName() {
         String value = " my-label "; // Intentionally has leading and trailing spaces
         String trimmedValue = value.trim();
         // Use either value or trimmedValue randomly, does not change any assertion
@@ -97,7 +96,7 @@ public class LabelParameterValueTest {
 
     @Test
     @Deprecated
-    public void testLabelParameterValueDeprecated3ArgConstructor() {
+    void testLabelParameterValueDeprecated3ArgConstructor() {
         String value = " my-label "; // Intentionally has leading and trailing spaces
         String trimmedValue = value.trim();
         String name = "my-name";
@@ -112,7 +111,7 @@ public class LabelParameterValueTest {
     }
 
     @Test
-    public void testGetNextLabels() {
+    void testGetNextLabels() {
         String name = "my-name";
         List<String> extraNodeNames = Arrays.asList("built-in", "not-a-valid-node-name");
         List<String> nodeNames = new ArrayList<>();

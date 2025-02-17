@@ -4,38 +4,40 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import hudson.DescriptorExtensionList;
 import hudson.model.Node;
 import hudson.slaves.DumbSlave;
 import java.util.Random;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.IgnoreTempOfflineNodeEligibility;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.NodeEligibility;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.NodeEligibility.NodeEligibilityDescriptor;
 
-public class IgnoreTempOfflineNodeEligibilityTest {
-    @ClassRule
-    public static JenkinsRule j = new JenkinsRule();
-
-    private static DumbSlave onlineNode1;
-
-    @BeforeClass
-    public static void createAgent() throws Exception {
-        onlineNode1 = j.createOnlineSlave();
-    }
+@WithJenkins
+class IgnoreTempOfflineNodeEligibilityTest {
 
     private final IgnoreTempOfflineNodeEligibility ignoreTempOfflineNodeEligibility =
             new IgnoreTempOfflineNodeEligibility();
     private final Random random = new Random();
 
+    private static JenkinsRule j;
+
+    private static DumbSlave onlineNode1;
+
+    @BeforeAll
+    static void setUp(JenkinsRule rule) throws Exception {
+        j = rule;
+        onlineNode1 = j.createOnlineSlave();
+    }
+
     @Test
-    public void testGetComputer() throws Exception {
+    void testGetComputer() throws Exception {
         // Does not matter if executors on the Jenkins controller are enabled
         j.jenkins.setNumExecutors(random.nextBoolean() ? 1 : 0);
 
@@ -52,7 +54,7 @@ public class IgnoreTempOfflineNodeEligibilityTest {
     }
 
     @Test
-    public void testGetComputerWithControllerExecutor() throws Exception {
+    void testGetComputerWithControllerExecutor() throws Exception {
         // Enable executors on the Jenkins controller
         j.jenkins.setNumExecutors(1);
 
@@ -65,7 +67,7 @@ public class IgnoreTempOfflineNodeEligibilityTest {
     }
 
     @Test
-    public void testGetComputerWithoutControllerExecutor() throws Exception {
+    void testGetComputerWithoutControllerExecutor() throws Exception {
         // Disable executors on the Jenkins controller
         j.jenkins.setNumExecutors(0);
 
@@ -78,13 +80,13 @@ public class IgnoreTempOfflineNodeEligibilityTest {
     }
 
     @Test
-    public void testGetDescriptor() {
+    void testGetDescriptor() {
         NodeEligibilityDescriptor descriptor = ignoreTempOfflineNodeEligibility.getDescriptor();
         assertThat(descriptor.getDisplayName(), is("Ignore Temp Offline Nodes"));
     }
 
     @Test
-    public void testAll() {
+    void testAll() {
         DescriptorExtensionList<NodeEligibility, NodeEligibilityDescriptor> descriptors = NodeEligibility.all();
         assertThat(descriptors, hasItem(hasProperty("displayName", is("All Nodes"))));
         assertThat(descriptors, hasItem(hasProperty("displayName", is("Ignore Offline Nodes"))));

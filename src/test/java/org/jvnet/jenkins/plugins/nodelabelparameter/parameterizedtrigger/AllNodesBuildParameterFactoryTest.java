@@ -1,6 +1,7 @@
 package org.jvnet.jenkins.plugins.nodelabelparameter.parameterizedtrigger;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import hudson.model.Computer;
 import hudson.model.Node;
@@ -10,26 +11,27 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import jenkins.model.Jenkins;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
-public class AllNodesBuildParameterFactoryTest {
+@WithJenkins
+class AllNodesBuildParameterFactoryTest {
 
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+    private JenkinsRule j;
 
     private AllNodesBuildParameterFactory factory;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp(JenkinsRule j) {
+        this.j = j;
         factory = new AllNodesBuildParameterFactory();
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() {
         Computer[] computers = Jenkins.get().getComputers();
         for (Computer computer : computers) {
             computer.setTemporarilyOffline(false, null);
@@ -37,7 +39,7 @@ public class AllNodesBuildParameterFactoryTest {
     }
 
     @Test
-    public void getParameters_withAllNodesOnline() throws Exception {
+    void getParameters_withAllNodesOnline() throws Exception {
         DumbSlave node1 = j.createOnlineSlave();
         DumbSlave node2 = j.createOnlineSlave();
 
@@ -48,7 +50,7 @@ public class AllNodesBuildParameterFactoryTest {
     }
 
     @Test
-    public void getParameters_withAllNodesOffline() throws Exception {
+    void getParameters_withAllNodesOffline() throws Exception {
         DumbSlave node1 = j.createSlave();
         DumbSlave node2 = j.createSlave();
 
@@ -62,7 +64,7 @@ public class AllNodesBuildParameterFactoryTest {
     }
 
     @Test
-    public void getParameters_withMixedNodeStates() throws Exception {
+    void getParameters_withMixedNodeStates() throws Exception {
         DumbSlave node1 = j.createOnlineSlave();
         DumbSlave node2 = j.createSlave();
 
@@ -74,7 +76,7 @@ public class AllNodesBuildParameterFactoryTest {
     }
 
     @Test
-    public void getParameters_withNoNodes() throws Exception {
+    void getParameters_withNoNodes() {
         Computer[] computers = Jenkins.get().getComputers();
         for (Computer computer : computers) {
             computer.setTemporarilyOffline(true, null);
@@ -86,7 +88,7 @@ public class AllNodesBuildParameterFactoryTest {
     }
 
     @Test
-    public void getParameters_setOneExecutorAgentToZero() throws Exception {
+    void getParameters_setOneExecutorAgentToZero() throws Exception {
         DumbSlave node1 = j.createOnlineSlave();
         DumbSlave node2 = j.createOnlineSlave();
 

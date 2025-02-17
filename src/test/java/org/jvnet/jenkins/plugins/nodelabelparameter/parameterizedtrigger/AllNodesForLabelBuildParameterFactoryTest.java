@@ -2,9 +2,7 @@ package org.jvnet.jenkins.plugins.nodelabelparameter.parameterizedtrigger;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
@@ -23,23 +21,21 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
 /**
  * @author wolfs
  */
-public class AllNodesForLabelBuildParameterFactoryTest {
-
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+@WithJenkins
+class AllNodesForLabelBuildParameterFactoryTest {
 
     @Test
-    public void testLabelFactoryNonBlocking() throws Exception {
+    void testLabelFactoryNonBlocking(JenkinsRule j) throws Exception {
         // create a slave with a given label to execute projectB on
         String label = "label";
-        List<DumbSlave> slaves = createSlaves(label, 3);
+        List<DumbSlave> slaves = createSlaves(j, label, 3);
 
         FreeStyleProject projectB = j.createFreeStyleProject();
         projectB.setQuietPeriod(1);
@@ -56,10 +52,10 @@ public class AllNodesForLabelBuildParameterFactoryTest {
     }
 
     @Test
-    public void testLabelFactoryBlocking() throws Exception {
+    void testLabelFactoryBlocking(JenkinsRule j) throws Exception {
         // create a slave with a given label to execute projectB on
         String label = "label";
-        List<DumbSlave> slaves = createSlaves(label, 2);
+        List<DumbSlave> slaves = createSlaves(j, label, 2);
 
         FreeStyleProject projectB = j.createFreeStyleProject();
         projectB.setQuietPeriod(1);
@@ -76,7 +72,7 @@ public class AllNodesForLabelBuildParameterFactoryTest {
     }
 
     @Test
-    public void testNoSlavesWithLabel() throws Exception {
+    void testNoSlavesWithLabel(JenkinsRule j) throws Exception {
         Project<?, ?> projectA = j.createFreeStyleProject();
         FreeStyleProject projectB = j.createFreeStyleProject();
         projectB.setQuietPeriod(0);
@@ -103,7 +99,7 @@ public class AllNodesForLabelBuildParameterFactoryTest {
         assertThat("Full sleep time consumed", counter, is(lessThan(10)));
     }
 
-    private void assertBuiltOnEachSlave(FreeStyleProject projectB, List<DumbSlave> slaves) {
+    private static void assertBuiltOnEachSlave(FreeStyleProject projectB, List<DumbSlave> slaves) {
         RunList<FreeStyleBuild> builds = projectB.getBuilds();
         assertEquals(slaves.size(), builds.size());
 
@@ -118,16 +114,17 @@ public class AllNodesForLabelBuildParameterFactoryTest {
         }
     }
 
-    private void addLabelParameterFactory(Project<?, ?> projectA, FreeStyleProject projectB, String label) {
+    private static void addLabelParameterFactory(Project<?, ?> projectA, FreeStyleProject projectB, String label) {
         addLabelParameterFactory(projectA, projectB, null, label);
     }
 
-    private void addBlockingLabelParameterFactory(Project<?, ?> projectA, FreeStyleProject projectB, String label) {
+    private static void addBlockingLabelParameterFactory(
+            Project<?, ?> projectA, FreeStyleProject projectB, String label) {
         addLabelParameterFactory(
                 projectA, projectB, new BlockingBehaviour(Result.FAILURE, Result.UNSTABLE, Result.FAILURE), label);
     }
 
-    private void addLabelParameterFactory(
+    private static void addLabelParameterFactory(
             Project<?, ?> projectA, FreeStyleProject projectB, BlockingBehaviour blockingBehaviour, String label) {
         projectA.getBuildersList()
                 .add(new TriggerBuilder(new BlockableBuildTriggerConfig(
@@ -137,7 +134,7 @@ public class AllNodesForLabelBuildParameterFactoryTest {
                         Collections.emptyList())));
     }
 
-    private List<DumbSlave> createSlaves(String label, int num) throws Exception {
+    private static List<DumbSlave> createSlaves(JenkinsRule j, String label, int num) throws Exception {
         List<DumbSlave> slaves = new ArrayList<>(num);
         for (int i = 0; i < num; i++) {
             DumbSlave slave = j.createSlave(new LabelAtom(label));

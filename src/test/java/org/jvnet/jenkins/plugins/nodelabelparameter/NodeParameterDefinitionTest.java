@@ -4,8 +4,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import hudson.model.ParameterValue;
 import hudson.model.labels.LabelAtom;
@@ -13,27 +13,28 @@ import hudson.slaves.DumbSlave;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility;
 
-public class NodeParameterDefinitionTest {
+@WithJenkins
+class NodeParameterDefinitionTest {
 
-    @ClassRule
-    public static JenkinsRule j = new JenkinsRule();
+    private static JenkinsRule j;
 
     private static DumbSlave agent;
 
-    @BeforeClass
-    public static void createAgent() throws Exception {
+    @BeforeAll
+    static void setUp(JenkinsRule rule) throws Exception {
+        j = rule;
         agent = j.createOnlineSlave(new LabelAtom("my-agent-label"));
     }
 
     @Test
     @Deprecated
-    public void testNodeParameterDefinitionDeprecatedReordersAllowedAgents() {
+    void testNodeParameterDefinitionDeprecatedReordersAllowedAgents() {
         String name = "name";
         String description = "description";
         List<String> allowedAgents = new ArrayList<>();
@@ -54,7 +55,7 @@ public class NodeParameterDefinitionTest {
     }
 
     @Test
-    public void testNodeParameterDefinition() {
+    void testNodeParameterDefinition() {
         String name = "name";
         String description = "description";
         List<String> defaultAgents = Arrays.asList("built-in");
@@ -75,7 +76,7 @@ public class NodeParameterDefinitionTest {
     }
 
     @Test
-    public void testCreateValue_String() {
+    void testCreateValue_String() {
         String name = "name";
         String description = "description";
         List<String> defaultAgents = new ArrayList<>();
@@ -106,7 +107,7 @@ public class NodeParameterDefinitionTest {
     }
 
     @Test
-    public void testGetAllowedNodesOrAll() {
+    void testGetAllowedNodesOrAll() {
         String name = "name";
         String description = "description";
         List<String> defaultAgents = new ArrayList<>();
@@ -121,7 +122,7 @@ public class NodeParameterDefinitionTest {
     }
 
     @Test
-    public void testGetAllowedNodesOrAllWithBuiltIn() {
+    void testGetAllowedNodesOrAllWithBuiltIn() {
         String name = "name";
         String description = "description";
         List<String> defaultAgents = new ArrayList<>();
@@ -136,14 +137,14 @@ public class NodeParameterDefinitionTest {
     }
 
     @Test
-    public void testGetHelpFile() {
+    void testGetHelpFile() {
         NodeParameterDefinition.DescriptorImpl descriptorImpl = new NodeParameterDefinition.DescriptorImpl();
 
         assertThat(descriptorImpl.getHelpFile(), is("/plugin/nodelabelparameter/nodeparam.html"));
     }
 
     @Test
-    public void testGetDefaultNodeEligibility() {
+    void testGetDefaultNodeEligibility() {
         NodeParameterDefinition.DescriptorImpl descriptorImpl = new NodeParameterDefinition.DescriptorImpl();
 
         assertThat(descriptorImpl.getDefaultNodeEligibility(), instanceOf(AllNodeEligibility.class));
