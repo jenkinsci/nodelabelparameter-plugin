@@ -15,6 +15,7 @@ import hudson.model.BuildListener;
 import hudson.model.Cause;
 import hudson.model.FreeStyleProject;
 import hudson.model.Result;
+import hudson.model.StreamBuildListener;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameterFactory;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameters;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameters.DontTriggerException;
@@ -22,7 +23,9 @@ import hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig;
 import hudson.plugins.parameterizedtrigger.BlockingBehaviour;
 import hudson.plugins.parameterizedtrigger.TriggerBuilder;
 import hudson.slaves.DumbSlave;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -115,6 +118,46 @@ class AllNodesForLabelBuildParameterFactoryUnitTest {
 
         // Assert that the ignoreOfflineNodes flag is set to false
         assertFalse(factory.isIgnoreOfflineNodes());
+    }
+
+    @Test
+    void testMacroEvaluationExceptionHandling() throws Exception {
+        FreeStyleProject projectA = j.createFreeStyleProject("projectA");
+        AbstractBuild<?, ?> build = projectA.scheduleBuild2(0).get();
+
+        // Setup log capture
+        String malformedMacro = "${UNCLOSED_MACRO";
+        AllNodesForLabelBuildParameterFactory factory =
+                new AllNodesForLabelBuildParameterFactory("LABEL", malformedMacro, false);
+
+        // Setup log capture to verify exception handling
+        ByteArrayOutputStream logOutput = new ByteArrayOutputStream();
+        BuildListener listener = new StreamBuildListener(logOutput, StandardCharsets.UTF_8);
+
+        List<AbstractBuildParameters> parameters = factory.getParameters(build, listener);
+
+        // Setup log capture to verify exception handling
+        String log = logOutput.toString(StandardCharsets.UTF_8);
+
+        // Verify the exception was caught and handled:
+
+        assertTrue(
+                log.contains("MacroEvaluationException") || log.contains("Exception"),
+                "Log should contain exception information");
+
+        // 2. Verify the original label was used (as set in the catch block)
+        assertTrue(
+                log.contains("Getting all nodes with label: " + malformedMacro),
+                "Log should show the original label was used");
+
+        // 3. Verify the parameters contain a NodeLabelBuildParameter with the original label
+        assertEquals(1, parameters.size(), "Should return exactly one parameter");
+        assertTrue(
+                parameters.get(0) instanceof NodeLabelBuildParameter, "Parameter should be a NodeLabelBuildParameter");
+        assertEquals(
+                malformedMacro,
+                ((NodeLabelBuildParameter) parameters.get(0)).nodeLabel,
+                "Parameter should contain the original label");
     }
 
     private static void noMatchingNodeShouldYieldSameLabel(
