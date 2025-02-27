@@ -2,6 +2,7 @@ package org.jvnet.jenkins.plugins.nodelabelparameter.parameterizedtrigger;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -15,6 +16,7 @@ import hudson.model.BuildListener;
 import hudson.model.Cause;
 import hudson.model.FreeStyleProject;
 import hudson.model.Result;
+import hudson.model.StreamBuildListener;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameterFactory;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameters;
 import hudson.plugins.parameterizedtrigger.AbstractBuildParameters.DontTriggerException;
@@ -22,7 +24,9 @@ import hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig;
 import hudson.plugins.parameterizedtrigger.BlockingBehaviour;
 import hudson.plugins.parameterizedtrigger.TriggerBuilder;
 import hudson.slaves.DumbSlave;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -33,6 +37,7 @@ import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.TestBuilder;
 import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
+import org.jvnet.jenkins.plugins.nodelabelparameter.Messages;
 
 @WithJenkins
 class AllNodesForLabelBuildParameterFactoryUnitTest {
@@ -115,6 +120,115 @@ class AllNodesForLabelBuildParameterFactoryUnitTest {
 
         // Assert that the ignoreOfflineNodes flag is set to false
         assertFalse(factory.isIgnoreOfflineNodes());
+    }
+
+    @Test
+    void testMacroEvaluationExceptionHandling() throws Exception {
+        FreeStyleProject projectA = j.createFreeStyleProject("projectA");
+        AbstractBuild<?, ?> build = projectA.scheduleBuild2(0).get();
+
+        // Setup log capture
+        String malformedMacro = "${UNCLOSED_MACRO";
+        AllNodesForLabelBuildParameterFactory factory =
+                new AllNodesForLabelBuildParameterFactory("LABEL", malformedMacro, false);
+
+        // Setup log capture to verify exception handling
+        ByteArrayOutputStream logOutput = new ByteArrayOutputStream();
+        BuildListener listener = new StreamBuildListener(logOutput, StandardCharsets.UTF_8);
+
+        factory.getParameters(build, listener);
+
+        String log = logOutput.toString(StandardCharsets.UTF_8);
+
+        // Verify the exception was caught and handled:
+        assertThat(log, containsString("MacroEvaluationException: Error processing tokens"));
+
+        // 2. Verify the original label was used (as set in the catch block)
+        assertThat(log, containsString("Getting all nodes with label: " + malformedMacro));
+    }
+
+    @Test
+    void testGetParametersWithOfflineNode() throws Exception {
+        FreeStyleProject project = j.createFreeStyleProject("projectWithOfflineNode");
+
+        // Setup log capture to verify exception handling
+        String nodeName = "offlineNode";
+        String nodeLabel = "offlineLabel";
+        createDumbSlaveNode(nodeName, nodeLabel, true);
+
+        ByteArrayOutputStream logOutput = new ByteArrayOutputStream();
+        BuildListener listener = new StreamBuildListener(logOutput, StandardCharsets.UTF_8);
+
+        AllNodesForLabelBuildParameterFactory factory =
+                new AllNodesForLabelBuildParameterFactory("LABEL", nodeLabel, true);
+        AbstractBuild<?, ?> build = project.scheduleBuild2(0).get();
+
+        List<AbstractBuildParameters> parameters = factory.getParameters(build, listener);
+
+        // Verify results
+        assertFalse(parameters.isEmpty(), "Parameters list should not be empty");
+
+        String log = logOutput.toString(StandardCharsets.UTF_8);
+
+        // assert skipping offline
+        assertThat(log, containsString(Messages.NodeListBuildParameterFactory_skippOfflineNode(nodeName)));
+        // assert no online nodes found -> indicates params were empty
+        assertThat(log, containsString(Messages.NodeListBuildParameterFactory_noOnlineNodeFound(factory.nodeLabel)));
+    }
+
+    @Test
+    void testGetParametersWithOnlineNode() throws Exception {
+        // Create a test project
+        FreeStyleProject project = j.createFreeStyleProject("projectWithOnlineNode");
+
+        // Create a slave node that will remain online
+        String onlineNodeName = "onlineNode";
+        String onlineNodeLabel = "onlineLabel";
+        DumbSlave node = createDumbSlaveNode(onlineNodeName, onlineNodeLabel, false);
+
+        // Verify the node is online
+        assertTrue(node.toComputer().isOnline(), "Node should be online for this test");
+
+        AllNodesForLabelBuildParameterFactory factory =
+                new AllNodesForLabelBuildParameterFactory("LABEL", onlineNodeLabel, true);
+
+        AbstractBuild<?, ?> build = project.scheduleBuild2(0).get();
+        ByteArrayOutputStream logOutput = new ByteArrayOutputStream();
+        BuildListener listener = new StreamBuildListener(logOutput, StandardCharsets.UTF_8);
+
+        // Get parameters
+        List<AbstractBuildParameters> parameters = factory.getParameters(build, listener);
+
+        // Verify results
+        assertFalse(parameters.isEmpty(), "Parameters list should not be empty");
+
+        // Check if the online node is included in parameters
+        boolean foundOnlineNode = false;
+        for (AbstractBuildParameters param : parameters) {
+            if (param instanceof NodeLabelBuildParameter) {
+                String nodeLabel = ((NodeLabelBuildParameter) param).nodeLabel;
+                if (nodeLabel.equals(onlineNodeName)) {
+                    foundOnlineNode = true;
+                    break;
+                }
+            }
+        }
+
+        assertTrue(foundOnlineNode, "Online node should be included in parameters");
+
+        // Get the log to verify messaging
+        String log = logOutput.toString(StandardCharsets.UTF_8);
+
+        assertThat(log, containsString("Found nodes:"));
+    }
+
+    private DumbSlave createDumbSlaveNode(String nodeName, String nodeLabel, Boolean isOffline) throws Exception {
+        DumbSlave node = j.createSlave(nodeName, nodeLabel, new EnvVars());
+        node.toComputer().setTemporarilyOffline(isOffline, null);
+        if (!isOffline) {
+            j.waitOnline(node);
+        }
+        return node;
     }
 
     private static void noMatchingNodeShouldYieldSameLabel(
