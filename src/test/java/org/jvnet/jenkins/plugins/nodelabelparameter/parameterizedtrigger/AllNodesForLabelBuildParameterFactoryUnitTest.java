@@ -2,6 +2,7 @@ package org.jvnet.jenkins.plugins.nodelabelparameter.parameterizedtrigger;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -140,14 +141,10 @@ class AllNodesForLabelBuildParameterFactoryUnitTest {
         String log = logOutput.toString(StandardCharsets.UTF_8);
 
         // Verify the exception was caught and handled:
-        assertTrue(
-                log.contains("MacroEvaluationException") || log.contains("Exception"),
-                "Log should contain exception information");
+        assertThat(log, containsString("MacroEvaluationException: Error processing tokens"));
 
         // 2. Verify the original label was used (as set in the catch block)
-        assertTrue(
-                log.contains("Getting all nodes with label: " + malformedMacro),
-                "Log should show the original label was used");
+        assertThat(log, containsString("Getting all nodes with label: " + malformedMacro));
     }
 
     @Test
@@ -174,11 +171,9 @@ class AllNodesForLabelBuildParameterFactoryUnitTest {
         String log = logOutput.toString(StandardCharsets.UTF_8);
 
         // assert skipping offline
-        assertTrue(
-                log.contains(Messages.NodeListBuildParameterFactory_skippOfflineNode(nodeName)),
-                "Log should contain message about skipping offline node");
+        assertThat(log, containsString(Messages.NodeListBuildParameterFactory_skippOfflineNode(nodeName)));
         // assert no online nodes found -> indicates params were empty
-        assertTrue(log.contains(Messages.NodeListBuildParameterFactory_noOnlineNodeFound(factory.nodeLabel)));
+        assertThat(log, containsString(Messages.NodeListBuildParameterFactory_noOnlineNodeFound(factory.nodeLabel)));
     }
 
     @Test
@@ -224,7 +219,7 @@ class AllNodesForLabelBuildParameterFactoryUnitTest {
         // Get the log to verify messaging
         String log = logOutput.toString(StandardCharsets.UTF_8);
 
-        assertTrue(log.contains("Found nodes:"), "Log should indicate nodes were found");
+        assertThat(log, containsString("Found nodes:"));
     }
 
     private DumbSlave createDumbSlaveNode(String nodeName, String nodeLabel, Boolean isOffline) throws Exception {
