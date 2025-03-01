@@ -205,8 +205,8 @@ class AllNodesForLabelBuildParameterFactoryUnitTest {
         // Check if the online node is included in parameters
         boolean foundOnlineNode = false;
         for (AbstractBuildParameters param : parameters) {
-            if (param instanceof NodeLabelBuildParameter) {
-                String nodeLabel = ((NodeLabelBuildParameter) param).nodeLabel;
+            if (param instanceof NodeLabelBuildParameter parameter) {
+                String nodeLabel = parameter.nodeLabel;
                 if (nodeLabel.equals(onlineNodeName)) {
                     foundOnlineNode = true;
                     break;
