@@ -35,7 +35,7 @@ public class NodeUtilTest {
         j.waitOnline(slave);
 
         // The node should be considered online
-        assertTrue(NodeUtil.isNodeOnline(nodeName, j.jenkins));
+        assertTrue(NodeUtil.isNodeOnline(nodeName));
     }
 
     @Test
@@ -57,13 +57,13 @@ public class NodeUtilTest {
         }
 
         // The node should be considered offline
-        assertFalse(NodeUtil.isNodeOnline(nodeName, j.jenkins));
+        assertFalse(NodeUtil.isNodeOnline(nodeName));
     }
 
     @Test
     void testIsNodeOnlineWithNonExistentNode(JenkinsRule j) {
         // A non-existent node should not be considered online
-        assertFalse(NodeUtil.isNodeOnline("non-existent-node-" + System.currentTimeMillis(), j.jenkins));
+        assertFalse(NodeUtil.isNodeOnline("non-existent-node-" + System.currentTimeMillis()));
     }
 
     @Test
@@ -81,6 +81,6 @@ public class NodeUtilTest {
         j.waitOnline(slave);
 
         // The node should be considered online even with just 1 executor
-        assertTrue(NodeUtil.isNodeOnline(nodeName, j.jenkins));
+        assertTrue(NodeUtil.isNodeOnline(nodeName));
     }
 }
