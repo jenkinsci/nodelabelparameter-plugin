@@ -49,8 +49,8 @@ class NodeParameterDefinitionTest {
         String triggerIfResult = Constants.CASE_MULTISELECT_DISALLOWED;
 
         assertThat(allowedAgents.get(0), is(agent.getNodeName()));
-        NodeParameterDefinition parameterDefinition = new NodeParameterDefinition(name, description,
-                "non-existent-agent", allowedAgents, triggerIfResult);
+        NodeParameterDefinition parameterDefinition =
+                new NodeParameterDefinition(name, description, "non-existent-agent", allowedAgents, triggerIfResult);
         assertThat(allowedAgents.get(0), is("non-existent-agent")); // List reordered by constructor
         assertThat(parameterDefinition.getName(), is(name));
         assertThat(parameterDefinition.getDescription(), is(description));
@@ -175,7 +175,7 @@ class NodeParameterDefinitionTest {
 
         // Use reflection to access the method directly
         java.lang.reflect.Method m = NodeParameterDefinition.class.getDeclaredMethod(
-                "createValue", new Class[] { org.kohsuke.stapler.StaplerRequest2.class, net.sf.json.JSONObject.class });
+                "createValue", new Class[] {org.kohsuke.stapler.StaplerRequest2.class, net.sf.json.JSONObject.class});
         ParameterValue value1 = (ParameterValue) m.invoke(parameterDefinition, null, jo1);
 
         assertThat(value1, is(notNullValue()));
@@ -213,8 +213,8 @@ class NodeParameterDefinitionTest {
         allowedAgents.add(agent.getNodeName());
         String triggerIfResult = "triggerIfResult";
 
-        NodeParameterDefinition parameterDefinition = new NodeParameterDefinition(name, description, defaultAgents,
-                allowedAgents, triggerIfResult, true);
+        NodeParameterDefinition parameterDefinition =
+                new NodeParameterDefinition(name, description, defaultAgents, allowedAgents, triggerIfResult, true);
 
         // Verify the node eligibility was properly set
         assertThat(parameterDefinition.getNodeEligibility(), instanceOf(IgnoreOfflineNodeEligibility.class));
@@ -250,8 +250,8 @@ class NodeParameterDefinitionTest {
                 name, description, defaultAgents, allowedAgents, triggerIfResult, new AllNodeEligibility());
 
         NodeParameterValue defaultValue = parameterDefinition.getDefaultParameterValue();
-        NodeParameterDefinition copied = (NodeParameterDefinition) parameterDefinition
-                .copyWithDefaultValue(defaultValue);
+        NodeParameterDefinition copied =
+                (NodeParameterDefinition) parameterDefinition.copyWithDefaultValue(defaultValue);
 
         // Should return this
         assertEquals(parameterDefinition, copied);
