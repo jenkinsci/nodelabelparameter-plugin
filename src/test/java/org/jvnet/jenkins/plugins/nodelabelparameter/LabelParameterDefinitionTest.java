@@ -1,22 +1,24 @@
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import hudson.model.ParameterValue;
 import hudson.model.labels.LabelAtom;
 import hudson.slaves.DumbSlave;
 import hudson.util.FormValidation;
+import net.sf.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.AllNodeEligibility;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.IgnoreOfflineNodeEligibility;
+import org.jvnet.jenkins.plugins.nodelabelparameter.node.NodeEligibility;
+import org.kohsuke.stapler.StaplerRequest2;
 
 @WithJenkins
 class LabelParameterDefinitionTest {
@@ -28,6 +30,12 @@ class LabelParameterDefinitionTest {
     private static final String LABEL_NAME = "my-agent-label";
     private static final LabelAtom label = new LabelAtom(LABEL_NAME);
 
+    private static final String name = "name";
+    private static final String description = "The description";
+    private static final String defaultValue = "built-in || master";
+    private static final String triggerIfResult = "The triggerIfResult value";
+    private static final boolean allNodesMatchingLabel = true;
+
     @BeforeAll
     static void setUp(JenkinsRule rule) throws Exception {
         j = rule;
@@ -37,11 +45,6 @@ class LabelParameterDefinitionTest {
     @Test
     @Deprecated
     void testNodeParameterDefinitionDeprecated() {
-        String name = "name";
-        String description = "The description";
-        String defaultValue = "built-in || master";
-        String triggerIfResult = "The triggerIfResult value";
-
         LabelParameterDefinition nodeParameterDefinition =
                 new LabelParameterDefinition(name, description, defaultValue, true, true, triggerIfResult);
 
@@ -57,10 +60,6 @@ class LabelParameterDefinitionTest {
     @Test
     @Deprecated
     void testNodeParameterDefinitionDeprecated3Arg() {
-        String name = "name";
-        String description = "The description";
-        String defaultValue = "built-in || master";
-
         LabelParameterDefinition nodeParameterDefinition =
                 new LabelParameterDefinition(name, description, defaultValue);
 
@@ -75,11 +74,6 @@ class LabelParameterDefinitionTest {
 
     @Test
     void testNodeParameterDefinition() {
-        String name = "name";
-        String description = "The description";
-        String defaultValue = "built-in || master";
-        String triggerIfResult = "The triggerIfResult value";
-
         LabelParameterDefinition nodeParameterDefinition =
                 new LabelParameterDefinition(name, description, defaultValue, false, null, triggerIfResult);
 
@@ -148,5 +142,56 @@ class LabelParameterDefinitionTest {
                         containsString("The label expression"),
                         containsString(invalidLabel),
                         containsString("is not valid")));
+    }
+
+    @Test
+    void testCreateValue_WhenLabelIsMissingAndValueKeyIsUsed() {
+        NodeEligibility nodeEligibility = mock(NodeEligibility.class);
+
+        JSONObject jo = new JSONObject();
+        jo.put("name", name);
+        jo.put("value", defaultValue);
+        jo.put("allNodesMatchingLabel", allNodesMatchingLabel);
+
+        LabelParameterDefinition labelParameterDefinition = new LabelParameterDefinition(
+                name, description, defaultValue, allNodesMatchingLabel, nodeEligibility, triggerIfResult);
+
+        LabelParameterValue labelParameterValue = new LabelParameterValue(name);
+
+        StaplerRequest2 req = mock(StaplerRequest2.class);
+        when(req.bindJSON(LabelParameterValue.class, jo)).thenReturn(labelParameterValue);
+
+        ParameterValue expectedValue = labelParameterDefinition.createValue(req, jo);
+
+        assertThat(expectedValue, is(labelParameterValue));
+        assertThat(expectedValue.getDescription(), is(labelParameterValue.getDescription()));
+        assertThat(((LabelParameterValue) expectedValue).getLabel(), is(labelParameterValue.getLabel()));
+        assertThat(((LabelParameterValue) expectedValue).getNextLabels(), is(notNullValue()));
+    }
+
+    @Test
+    void testCreateValue_BindsLabelFromLabelKeyCorrectly() {
+        NodeEligibility nodeEligibility = mock(NodeEligibility.class);
+
+        JSONObject jo = new JSONObject();
+        jo.put("name", name);
+        jo.put("label", defaultValue);
+        jo.put("allNodesMatchingLabel", allNodesMatchingLabel);
+
+        LabelParameterDefinition labelParameterDefinition = new LabelParameterDefinition(
+                name, description, defaultValue, allNodesMatchingLabel, nodeEligibility, triggerIfResult);
+
+        LabelParameterValue labelParameterValue =
+                new LabelParameterValue(name, defaultValue, allNodesMatchingLabel, nodeEligibility);
+
+        StaplerRequest2 req = mock(StaplerRequest2.class);
+        when(req.bindJSON(LabelParameterValue.class, jo)).thenReturn(labelParameterValue);
+
+        ParameterValue expectedValue = labelParameterDefinition.createValue(req, jo);
+
+        assertThat(expectedValue, is(labelParameterValue));
+        assertThat(expectedValue.getDescription(), is(labelParameterValue.getDescription()));
+        assertThat(((LabelParameterValue) expectedValue).getLabel(), is(labelParameterValue.getLabel()));
+        assertThat(((LabelParameterValue) expectedValue).getNextLabels(), is(notNullValue()));
     }
 }
