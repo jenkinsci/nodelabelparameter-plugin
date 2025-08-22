@@ -1,5 +1,7 @@
 package org.jvnet.jenkins.plugins.nodelabelparameter;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -7,7 +9,6 @@ import hudson.model.Computer;
 import hudson.model.Label;
 import hudson.slaves.DumbSlave;
 import hudson.slaves.OfflineCause;
-import java.util.concurrent.Future;
 import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
@@ -52,10 +53,7 @@ public class NodeUtilTest {
         computer.disconnect(new OfflineCause.ByCLI("Taking offline for testing"));
 
         // Wait for it to go offline
-        while (computer.isOnline()) {
-            Thread.sleep(100);
-        }
-
+        await().atMost(5, SECONDS).until(() -> !computer.isOnline());
         // The node should be considered offline
         assertFalse(NodeUtil.isNodeOnline(nodeName));
     }
@@ -74,8 +72,6 @@ public class NodeUtilTest {
 
         // Set the number of executors to 1 (minimum valid value)
         slave.setNumExecutors(1);
-        Future<?> future = slave.toComputer().connect(false);
-        future.get(); // Wait for the connection to complete
 
         // Wait for the node to be fully online
         j.waitOnline(slave);
