@@ -29,7 +29,7 @@
 
 	ready(function () {
 		var concurrentBuild = document.querySelector("input[type='checkbox'][name='_.concurrentBuild']");
-		checkConcurrentExecutionValuesNode();
+		checkConcurrentExecutionsNode();
 		checkConcurrentExecutionValuesLabel();
 
 		concurrentBuild.addEventListener('change', function () {
