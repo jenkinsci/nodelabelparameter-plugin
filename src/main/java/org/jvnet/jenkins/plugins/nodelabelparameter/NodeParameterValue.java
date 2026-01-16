@@ -4,7 +4,7 @@ package org.jvnet.jenkins.plugins.nodelabelparameter;
 import java.io.Serial;
 import java.util.List;
 import java.util.Objects;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jvnet.jenkins.plugins.nodelabelparameter.node.NodeEligibility;
 import org.kohsuke.stapler.DataBoundConstructor;
 
