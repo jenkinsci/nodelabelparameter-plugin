@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 import jenkins.model.Jenkins;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
 import org.jenkinsci.plugins.tokenmacro.TokenMacro;
 import org.jvnet.jenkins.plugins.nodelabelparameter.Messages;
