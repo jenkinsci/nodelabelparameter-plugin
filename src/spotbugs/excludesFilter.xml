@@ -13,6 +13,11 @@
       <Class name="org.jvnet.jenkins.plugins.nodelabelparameter.node.IgnoreTempOfflineNodeEligibility" />
     </Or>
   </Match>
+  <Match>
+    <!-- Intentionally not fixing it -->
+    <Bug pattern="MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR" />
+    <Class name="org.jvnet.jenkins.plugins.nodelabelparameter.LabelParameterValue" />
+  </Match>
 
   <!--
     Here lies technical debt. Exclusions in this section have not yet
